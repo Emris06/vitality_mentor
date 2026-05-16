@@ -1,0 +1,544 @@
+{
+  "app": {
+    "name": "AI-Mentor",
+    "tagline": "Zamonaviy banklar uchun xavfsiz onboarding, bilim va malaka platformasi"
+  },
+  "locale": {
+    "label": "Til",
+    "en": "Inglizcha",
+    "ru": "Ruscha",
+    "uz": "O‘zbekcha"
+  },
+  "landing": {
+    "headline": "Xavfsiz onboarding. Tez o‘rganish. Haqiqiy mijoz ma’lumotlarisiz.",
+    "subhead": "AI bilimlar bazasi, sintetik ma’lumotlarda ishlovchi bank operatsiyalari simulyatori va malaka tahlili — bitta platformada.",
+    "cta_chat": "Yordamchini sinab ko‘rish",
+    "cta_simulator": "Simulyatorni ochish",
+    "cta_hr": "HR paneli",
+    "cta_profile": "Mening profilim",
+    "cta_skills": "Malaka tahlili",
+    "health_title": "Tizim holati",
+    "health_loading": "Xizmatlar tekshirilmoqda…",
+    "health_error": "API bilan bog‘lanib bo‘lmadi",
+    "submission": "Enterprise · 2026 nashri",
+    "brand_micro": "AI-Mentor · Banking",
+    "lede": "Onboarding platformasi — yangi xodim o‘rganish uchun hech qachon haqiqiy mijoz fayliga tegmasligi uchun qurilgan.",
+    "body": "Uch yo‘nalish, bitta platforma: hujjatlarga asoslangan bilimlar bazasi, 100% sintetik ma’lumotlardagi bank operatsiyalari simulyatori va xodimning stajirovkadan oliy komplaensgacha o‘sishini kuzatadigan malaka tahlili.",
+    "toc_title": "Nimadan boshlash",
+    "toc_assistant_name": "Yordamchi",
+    "toc_assistant_desc": "Uch tilli savol-javob, ichki hujjatlarga asoslangan — har bir javob o‘z manbasini ko‘rsatadi.",
+    "toc_simulator_name": "Simulyator",
+    "toc_simulator_desc": "Sintetik mijozni KYCdan o‘tkazing. Baho oling. Birorta haqiqiy faylga tegmang.",
+    "toc_hr_name": "HR zali",
+    "toc_hr_desc": "Mentorlarni tayinlang, jarayonni jonli kuzating, iSpringga eksport qiling.",
+    "toc_profile_name": "Profil",
+    "toc_profile_desc": "Sizning XP’ingiz, davomiyligingiz va onboarding muddati — bitta halqada.",
+    "toc_skills_name": "Atlas",
+    "toc_skills_desc": "Malaka xaritasi, bo‘shliqlarni aniqlash, to‘qson kunlik prognoz.",
+    "constraints_title": "Murosasiz qoidalar",
+    "constraints_synthetic": "Faqat sintetik ma’lumotlar. Hech qachon haqiqiy mijoz o‘qilmaydi yoki yozilmaydi.",
+    "constraints_latency": "Ikki soniyadan kam — har bir javob manbasini keltiradi.",
+    "constraints_trilingual": "O‘zbek, rus va ingliz tillari birinchi kundan.",
+    "footer_year": "© 2026",
+    "footer_origin": "AI-Mentor — bank onboardingiga yangicha qarash",
+    "brand": "AI-Mentor",
+    "brand_tagline": "Moliyaviy tashkilotlar uchun AI onboarding",
+    "nav_signin": "Kirish",
+    "nav_signup": "Boshlash",
+    "nav_continue": "Kabinetga o‘tish",
+    "hero_eyebrow": "BANK ONBOARDINGI YANGICHA",
+    "hero_title": "Haqiqiy mijoz fayliga tegmasdan butun bankni o‘rgating.",
+    "hero_subtitle": "AI-Mentor — moliyaviy tashkilotlar HR, xodimlari va stajyorlari uchun yagona platforma: sintetik ma’lumotlarda ishlovchi uch tilli AI yordamchi, bank simulyatori va har bir o‘sish yo‘lini ko‘rsatadigan malaka tahlili.",
+    "hero_cta_primary": "Boshlash",
+    "hero_cta_secondary": "Kirish",
+    "roles_title": "Uchta kabinet, bitta platforma",
+    "roles_subtitle": "AI-Mentor kim kirishidan qat’i nazar moslashadi — HR zalidan stajyor stoligacha.",
+    "role_hr_name": "HR",
+    "role_hr_blurb": "Mentorlarni tayinlang, jarayonni jonli kuzating, natijalarni iSpringga eksport qiling.",
+    "role_employee_name": "Xodim",
+    "role_employee_blurb": "AI yordamchi bilan kunlik vazifalarni mukammallashtiring va malaka profilingizni o‘stiring.",
+    "role_intern_name": "Stajyor",
+    "role_intern_blurb": "Sintetik mijozlar bilan haqiqiy bank ssenariylarini mashq qiling — yo‘l-yo‘lakay XP yig‘ing.",
+    "role_card_cta": "{{role}} sifatida ro‘yxatdan o‘tish",
+    "features_title": "Ichida nima bor",
+    "features_subtitle": "Olti vosita, bitta uzluksiz o‘rganish davri — birinchi savoldan oliy komplaensgacha.",
+    "feature_kb_name": "AI bilimlar bazasi",
+    "feature_kb_desc": "Ichki qoidalar asosida uch tilli savol-javob. Har bir javob o‘z manbasini keltiradi.",
+    "feature_simulator_name": "Bank simulyatori",
+    "feature_simulator_desc": "Sintetik mijozni KYC, AML va hisob ochish jarayonlaridan o‘tkazing. Baho oling — haqiqiy faylga tegmang.",
+    "feature_skills_name": "Malaka tahlili",
+    "feature_skills_desc": "Har bir xodimning malaka xaritasi, bo‘shliqlarni aniqlash va to‘qson kunlik prognoz.",
+    "feature_matching_name": "AI mentor tanlovi",
+    "feature_matching_desc": "Til, malaka va yuklamaga qarab eng mos mentorni avtomatik tanlang.",
+    "feature_gamification_name": "Geymifikatsiya",
+    "feature_gamification_desc": "XP, nishonlar, davomiyliklar va kvestlar onboarding muddatini intiladigan maqsadga aylantiradi.",
+    "feature_lms_name": "iSpring sinxronizatsiyasi",
+    "feature_lms_desc": "Har bir baho, yakunlash va assessment LMSga avtomatik yuboriladi — qo‘lda eksport shart emas.",
+    "constraint_synthetic": "Faqat sintetik ma’lumotlar. Haqiqiy mijozlar hech qachon o‘qilmaydi.",
+    "constraint_latency": "Ikki soniyadan kam javob — har biri manbasini keltiradi.",
+    "constraint_trilingual": "O‘zbek · Rus · Ingliz tillari birinchi kundan.",
+    "footer_made_in": "Zamonaviy bank jamoalari uchun yaratilgan",
+    "footer_signin": "Kirish",
+    "footer_signup": "Boshlash"
+  },
+  "health": {
+    "ok": "Yaxshi",
+    "degraded": "Sustlashgan",
+    "down": "Ishlamayapti"
+  },
+  "chat": {
+    "title": "AI-Mentor",
+    "back": "Bosh sahifaga",
+    "placeholder": "Siyosatlar, mahsulotlar yoki onboarding haqida so‘rang…",
+    "send": "Yuborish",
+    "empty_title": "Sizga qanday yordam bera olaman?",
+    "empty_subtitle": "Bankingiz siyosatlari, jarayonlari va mahsulotlari bo‘yicha istalgan savol bering. Javoblar ichki hujjatlarga asoslanadi.",
+    "sample_questions": [
+      "Yangi jismoniy shaxsni KYC orqali ro‘yxatdan o‘tkazish uchun qaysi hujjatlar talab qilinadi?",
+      "Yuridik shaxs uchun so‘mdagi joriy hisob ochish bosqichlarini batafsil tushuntiring.",
+      "Front-ofis xodimlari uchun dress-kod talablari qanday?"
+    ],
+    "citations": "Manbalar",
+    "citation_page": "{{page}}-bet",
+    "error_generic": "Nimadir noto‘g‘ri ketdi. Qayta urinib ko‘ring.",
+    "error_rate_limited": "Juda ko‘p so‘rov yuborildi. Biroz kuting va qayta urinib ko‘ring.",
+    "thinking": "O‘ylayapman…",
+    "you": "Siz",
+    "assistant": "Yordamchi",
+    "stop": "To‘xtatish",
+    "input_hint": "Enter — yuborish · Shift+Enter — yangi qator",
+    "voice": {
+      "mode_on": "Ovozli javoblar: yoniq",
+      "mode_off": "Ovozli javoblar: o‘chiq",
+      "start_listening": "Ovozli kiritishni boshlash",
+      "stop_listening": "Ovozli kiritishni to‘xtatish",
+      "listening_prefix": "Tinglayapman…",
+      "unsupported": "Ushbu brauzerda ovozli rejim qo‘llab-quvvatlanmaydi",
+      "unsupported_for_locale": "Ushbu brauzerda «{{locale}}» tili uchun ovozli kiritish mavjud emas. Rus yoki ingliz tilini sinab ko‘ring yoki savolingizni klaviatura orqali yozing.",
+      "error_permission": "Mikrofonga ruxsat berilmagan. Ovozdan foydalanish uchun brauzer sozlamalarida ruxsat bering.",
+      "error_generic": "Ovozli kiritish ishlamadi — iltimos, savolni klaviatura orqali yozing.",
+      "truncated": "Javob uzun — men birinchi qismini o‘qidim. To‘liq javobni ekranda ko‘ring."
+    }
+  },
+  "sim": {
+    "title": "Bank operatsiyalari simulyatori",
+    "subtitle": "100% sintetik ma’lumotlarda mashq qiling. Ekran — jangaviy tizimdek, ma’lumotlar esa — yo‘q.",
+    "start": "Boshlash",
+    "continue": "Davom etish",
+    "back": "Orqaga",
+    "dashboard_title": "Stsenariyni tanlang",
+    "dashboard_subtitle": "Har bir stsenariy real jarayonni aks ettiradi. Haqiqiy mijoz ma’lumotlari ishlatilmaydi.",
+    "soon": "Tez orada",
+    "best_on_desktop": "Simulyator desktop kompyuterda eng yaxshi ishlaydi.",
+    "scenarios": {
+      "kyc": {
+        "name": "KYC-onboarding (jismoniy shaxs)",
+        "tagline": "Qabul → hujjatlar → sanksiyalar → risk → qaror",
+        "duration": "~10 daqiqa"
+      },
+      "open_account": {
+        "name": "Joriy hisob ochish",
+        "tagline": "Jismoniy yoki yuridik shaxs uchun to‘liq hisob ochish jarayoni.",
+        "disabled": "Tez orada"
+      },
+      "deposit": {
+        "name": "Muddatli depozit",
+        "tagline": "Depozit ochish, shartlar, mijoz roziligi.",
+        "disabled": "Tez orada"
+      },
+      "transfer": {
+        "name": "Ichki / xalqaro pul o‘tkazma",
+        "tagline": "Oluvchini tekshirish, AML, o‘tkazmani tasdiqlash.",
+        "disabled": "Tez orada"
+      }
+    },
+    "run": {
+      "step_of": "{{total}} dan {{current}}-bosqich",
+      "score": "Ball",
+      "hint": "Maslahat",
+      "hint_loading": "Mentordan so‘ralmoqda…",
+      "hint_citations": "Manbalar",
+      "submit": "Yuborish",
+      "next_step": "Keyingi bosqich",
+      "finished": "Stsenariy yakunlandi",
+      "retry": "Qayta urinib ko‘rish",
+      "mistake_count_one": "{{count}} ta xato",
+      "mistake_count_other": "{{count}} ta xato",
+      "no_mistakes": "Xatolarsiz. Toza yakun.",
+      "open_chat": "AI-mentor bilan muhokama qilish",
+      "loading_run": "Sessiya yuklanmoqda…",
+      "load_error": "Sessiyani yuklab bo‘lmadi.",
+      "submit_error": "Bosqichni yuborib bo‘lmadi. Qayta urinib ko‘ring."
+    },
+    "kyc": {
+      "banner_synthetic": "Bu ekrandagi barcha ma’lumotlar 100% sintetik. Haqiqiy mijoz ma’lumotlari hech qachon ishlatilmaydi.",
+      "header_label": "Vitality Banking — Trening",
+      "customer_file": "Mijoz kartochkasi",
+      "steps": {
+        "intake": {
+          "title": "1. Mijozni qabul qilish",
+          "description": "Navbatdagi sintetik mijoz kartochkasini yuklang va KYC-tekshiruvni boshlang.",
+          "field_person_id": "Mijoz ID",
+          "submit": "Keyingi mijozni yuklash"
+        },
+        "verify_documents": {
+          "title": "2. Hujjatlarni tekshirish",
+          "description": "Mijoz kartochkasini taqdim etilgan hujjatlar bilan solishtiring. Har bir hujjatni amal qiluvchi yoki amal qilmaydigan deb belgilang.",
+          "passport_valid": "Pasport — to‘g‘ri",
+          "passport_invalid": "Pasport — noto‘g‘ri",
+          "income_valid": "Daromad ma’lumotnomasi — to‘g‘ri",
+          "income_invalid": "Daromad ma’lumotnomasi — noto‘g‘ri",
+          "confirm": "Tekshiruvni tasdiqlash",
+          "passport_title": "Pasport",
+          "income_title": "Daromad ma’lumotnomasi",
+          "why_placeholder": "Nima uchun? (eslatma, yuborilmaydi)",
+          "field_full_name": "FIO",
+          "field_dob": "Tug‘ilgan sana",
+          "field_passport_no": "Seriya / raqami",
+          "field_address": "Manzil",
+          "field_phone": "Telefon",
+          "field_inn": "INN",
+          "field_employer": "Ish beruvchi",
+          "field_monthly_income": "Oylik daromad"
+        },
+        "sanctions_check": {
+          "title": "3. Sanksiyalar va PEP tekshiruvi",
+          "description": "OFAC, EU, BMT sanksiyalari va PEP ro‘yxatlari bo‘yicha mosliklarni ko‘rib chiqing. O‘tkazish yoki to‘sib qo‘yish kerakligini hal qiling.",
+          "decision_pass": "O‘tkazish",
+          "decision_block": "To‘sish",
+          "list": "Ro‘yxat",
+          "match": "Moslik",
+          "reason": "Sabab",
+          "pep_label": "Davlat mansabdor shaxsi",
+          "no_hits": "Sanksiya yoki PEP bo‘yicha mosliklar topilmadi.",
+          "hit_sanctions": "Sanksiyaviy moslik",
+          "hit_pep": "PEP moslik"
+        },
+        "risk_score": {
+          "title": "4. Risk darajasi",
+          "description": "Mijoz profili, hujjatlar sifati va tekshiruv natijalariga qarab risk darajasini belgilang.",
+          "score_low": "Past",
+          "score_medium": "O‘rta",
+          "score_high": "Yuqori",
+          "rationale_placeholder": "Asos (masalan, daromad profilga mos, sanksiya yo‘q, hujjatlar toza)…"
+        },
+        "decision": {
+          "title": "5. Yakuniy qaror",
+          "description": "Onboarding bo‘yicha yakuniy qaror chiqaring. U CRM tizimiga uzatiladi.",
+          "approve": "Onbordingni tasdiqlash",
+          "approve_desc": "Hisob ochish, salom paketini yuborish, KYC monitoringga qo‘yish.",
+          "reject": "Rad etish",
+          "reject_desc": "Rasmiy bildirishnoma bilan rad etish. Hisob ochilmaydi.",
+          "manual_review": "Qo‘lda ko‘rib chiqishga",
+          "manual_review_desc": "Yuqori darajadagi komplayens xodimga uzatish."
+        }
+      }
+    }
+  },
+  "hr": {
+    "title": "HR paneli",
+    "subtitle": "Yangi xodimlar, mentorlar va onboarding jarayoni — real vaqt rejimida.",
+    "back": "Bosh sahifaga",
+    "tabs": {
+      "overview": "Umumiy",
+      "newcomers": "Yangi xodimlar",
+      "mentors": "Mentorlar"
+    },
+    "summary": {
+      "newcomers_total": "Jami yangi xodimlar",
+      "assigned": "Mentor tayinlangan",
+      "unassigned": "Mentor yo‘q",
+      "scored_7d": "Baholangan (7 kun)",
+      "avg_score_7d": "O‘rtacha ball (7 kun)",
+      "top_mentors": "Eng faol mentorlar"
+    },
+    "newcomers": {
+      "headers": {
+        "name": "Ism",
+        "start": "Boshlanishi",
+        "deadline": "Muddat",
+        "mentor": "Mentor",
+        "progress": "Jarayon",
+        "actions": "Amallar"
+      },
+      "no_mentor": "Mentor yo‘q",
+      "assign": "Tayinlash",
+      "reassign": "Qayta tayinlash",
+      "unassign": "Olib tashlash",
+      "export_csv": "CSV eksport",
+      "search_placeholder": "Ism bo‘yicha qidirish…",
+      "empty": "Hozircha yangi xodimlar yo‘q."
+    },
+    "mentor_picker": {
+      "title": "Tavsiya etilgan mentorlar",
+      "subtitle": "Til, ko‘nikma va yuklamaga ko‘ra eng yaxshi 5 ta.",
+      "score": "Moslik",
+      "assign": "Tayinlash",
+      "no_candidates": "Mos mentor topilmadi.",
+      "cancel": "Bekor qilish",
+      "loading": "Eng mos mentorlar qidirilmoqda…"
+    },
+    "deadline": {
+      "days_left_one": "{{count}} kun qoldi",
+      "days_left_other": "{{count}} kun qoldi",
+      "overdue_one": "{{count}} kunga kechikkan",
+      "overdue_other": "{{count}} kunga kechikkan",
+      "due_today": "Bugun — muddat oxiri"
+    },
+    "charts": {
+      "progress_distribution": "Jarayon taqsimoti",
+      "completion_velocity": "Yakunlanish tezligi (7 kun)",
+      "placeholder_no_data": "Hozircha ma’lumot yetarli emas.",
+      "bucket_0_25": "0–25%",
+      "bucket_25_50": "25–50%",
+      "bucket_50_75": "50–75%",
+      "bucket_75_100": "75–100%",
+      "newcomers_axis": "Yangi xodimlar",
+      "runs_axis": "Baholangan"
+    },
+    "mentors": {
+      "filter_language": "Til",
+      "filter_skill": "Ko‘nikma",
+      "filter_all": "Barchasi",
+      "load": "Yuklama",
+      "no_mentors": "Filtrlarga mos mentor yo‘q.",
+      "languages": "Tillar",
+      "skills": "Ko‘nikmalar"
+    },
+    "newcomer_detail": {
+      "recent_runs": "So‘nggi sessiyalar",
+      "scenario": "Stsenariy",
+      "score": "Ball",
+      "date": "Sana",
+      "no_runs": "Simulyator sessiyalari hali yo‘q.",
+      "current_mentor": "Joriy mentor",
+      "started": "Boshlandi",
+      "deadline": "Muddat",
+      "open_run": "Ochish",
+      "back": "Panelga qaytish"
+    }
+  },
+  "game": {
+    "profile_title": "Mening profilim",
+    "subtitle": "Sizning ko‘nikmalaringiz, nishonlar, faollik seriyasi va onboarding jarayoni.",
+    "back": "Bosh sahifaga",
+    "total_xp": "Jami XP",
+    "xp_bars": {
+      "title": "Ko‘nikmalar bo‘yicha XP",
+      "empty": "Topshiriqlarni va simulyator sessiyalarini bajarib XP yig‘ing."
+    },
+    "badges": {
+      "title": "Nishonlar",
+      "empty": "Hozircha nishonlar yo‘q. Birinchi topshiriqni bajaring va yig‘ishni boshlang.",
+      "earned_on": "{{date}} sanasida olingan",
+      "locked": "Yopiq",
+      "first_kyc": {
+        "name": "Birinchi KYC",
+        "description": "Simulyatorda birinchi KYC-stsenariyni yakunlang."
+      },
+      "kyc_perfectionist": {
+        "name": "KYC-perfeksionist",
+        "description": "KYC-sessiyani xatosiz yakunlang."
+      },
+      "night_owl": {
+        "name": "Tungi boyo‘g‘li",
+        "description": "Mahalliy vaqt bilan 22:00 dan 06:00 gacha mashq qiling."
+      },
+      "streak_7": {
+        "name": "Bir haftalik seriya",
+        "description": "Yetti kun ketma-ket faol bo‘ling."
+      },
+      "polyglot": {
+        "name": "Poliglot",
+        "description": "Yordamchidan uchchala tilda foydalaning."
+      }
+    },
+    "quests": {
+      "today": "Bugungi topshiriq",
+      "completed": "Bajarildi",
+      "progress": "Jarayon",
+      "reward_xp": "+{{xp}} XP",
+      "empty": "Hozir faol topshiriq yo‘q. Keyinroq qayting.",
+      "daily_chat_3": {
+        "name": "Mentorga uchta savol",
+        "description": "Bugun AI-mentorga uchta savol bering."
+      },
+      "weekly_sim_2": {
+        "name": "Bu hafta ikkita simulyator sessiyasi",
+        "description": "Bu hafta ikkita simulyator stsenariysini yakunlang."
+      },
+      "onboarding_first_kyc": {
+        "name": "Birinchi KYC-onboarding",
+        "description": "KYC-stsenariyni qabuldan qarorgacha to‘liq bajaring."
+      }
+    },
+    "streak": {
+      "title": "Seriya",
+      "current_one": "{{count}} kunlik seriya",
+      "current_other": "{{count}} kunlik seriya",
+      "longest": "Rekord: {{count}}",
+      "deadline_left": "Onbording tugashiga"
+    },
+    "deadline": {
+      "title": "Onbording",
+      "days_left_one": "{{count}} kun",
+      "days_left_other": "{{count}} kun",
+      "due_today": "Bugun",
+      "overdue": "Muddati o‘tgan"
+    },
+    "leaderboard": {
+      "title": "Lider jadvali",
+      "skill_filter": "Ko‘nikma",
+      "skill_all": "Barcha ko‘nikmalar",
+      "empty": "Jadvalda hali hech kim yo‘q.",
+      "headers": {
+        "rank": "#",
+        "name": "Ism",
+        "xp": "XP"
+      }
+    },
+    "errors": {
+      "load_profile": "Profilni yuklab bo‘lmadi.",
+      "load_leaderboard": "Lider jadvalini yuklab bo‘lmadi."
+    }
+  },
+  "skills": {
+    "title": "Malaka tahlili",
+    "subtitle": "Xodimlarning malaka xaritasi, kamchiliklar va o‘sish rejasi.",
+    "back": "Bosh sahifaga",
+    "tabs": {
+      "team": "Jamoa",
+      "matrix": "Matritsa",
+      "analytics": "Tahlil"
+    },
+    "department": {
+      "label": "Bo‘lim",
+      "all": "Barchasi"
+    },
+    "employee": {
+      "title": "Xodim malakalari",
+      "skill_map": "Malaka xaritasi",
+      "gaps": "Malaka bo‘shliqlari",
+      "recommendations": "O‘qish tavsiyalari",
+      "readiness": "Lavozim oshishga tayyorlik",
+      "forecast": "Malaka prognozi",
+      "back": "Tahlilga qaytish"
+    },
+    "target": {
+      "label": "Maqsad lavozim",
+      "senior_compliance": "Katta komplayens",
+      "senior_operations": "Katta operatsionist"
+    },
+    "severity": {
+      "low": "Past",
+      "medium": "O‘rta",
+      "high": "Yuqori"
+    },
+    "readiness": {
+      "ready": "Tayyor",
+      "not_ready": "Tayyor emas",
+      "confidence": "Ishonch",
+      "met": "Bajarilgan",
+      "missing": "Bajarilmagan",
+      "empty": "Tayyorlikni baholash uchun maqsad lavozimni tanlang."
+    },
+    "recommendations": {
+      "impact": "Samara",
+      "minutes": "{{count}} daq",
+      "empty": "Hozircha tavsiyalar yo‘q.",
+      "loading": "Eng mos modullar tanlanmoqda…"
+    },
+    "forecast": {
+      "title": "Malaka prognozi",
+      "horizon": "Muddat",
+      "skill_label": "Malaka",
+      "expected": "Kutilgan",
+      "band": "Oraliq",
+      "empty": "Prognozni ko‘rish uchun yuqoridagi bo‘shliqni bosing.",
+      "close": "Yopish"
+    },
+    "matrix": {
+      "empty": "Ma’lumot yo‘q.",
+      "hint": "Barchasini ko‘rish uchun suring",
+      "legend": {
+        "high_gap": "Katta bo‘shliq",
+        "medium_gap": "O‘rta bo‘shliq",
+        "low_gap": "Kichik bo‘shliq",
+        "met": "Bajarilgan"
+      },
+      "tooltip": {
+        "xp": "XP {{xp}} / {{target}}"
+      }
+    },
+    "analytics": {
+      "skill_distribution": "Jamoa bo‘yicha malaka XP medianasi",
+      "completion_velocity": "So‘nggi 30 kun ichida baholangan sessiyalar",
+      "mentor_effectiveness": "Mentor samaradorligi (yangi xodimlar o‘rtacha bali)"
+    },
+    "team": {
+      "empty": "Xodimlar yo‘q.",
+      "open": "Ochish"
+    },
+    "errors": {
+      "load_team": "Jamoa ma’lumotlarini yuklab bo‘lmadi.",
+      "load_employee": "Xodimni yuklab bo‘lmadi.",
+      "load_forecast": "Prognozni yuklab bo‘lmadi."
+    },
+    "names": {
+      "kyc": "KYC",
+      "aml": "AML",
+      "accounts": "Hisoblar",
+      "deposits": "Depozitlar",
+      "transfers": "O‘tkazmalar",
+      "customer_service": "Mijoz xizmati",
+      "risk": "Risk",
+      "compliance": "Komplayens",
+      "products": "Mahsulotlar",
+      "fx": "Valyuta operatsiyalari"
+    },
+    "modules": {}
+  },
+  "auth": {
+    "app_name": "AI-Mentor",
+    "app_tagline": "Moliya uchun onbording — yangicha qaraladi.",
+    "back_home": "Bosh sahifaga",
+    "signup_title": "Hisob yarating",
+    "signup_subtitle": "Vazifangizga mos rolni tanlang. Keyinchalik HR administratori orqali o‘zgartirish mumkin.",
+    "signup_role_label": "Men —",
+    "role_hr_name": "HR",
+    "role_hr_desc": "Mentorlarni tayinlang, onbording jarayonini real vaqtda kuzating va iSpring’ga eksport qiling.",
+    "role_employee_name": "Xodim",
+    "role_employee_desc": "Kundalik ish jarayonlarini AI-yordamchi bilan o‘tkirlashtiring va ko‘nikma profilingizni o‘stiring.",
+    "role_intern_name": "Stajyor",
+    "role_intern_desc": "Sintetik mijozlarda haqiqiy bank stsenariylarini mashq qiling — o‘rganarkansiz XP yig‘ing.",
+    "field_full_name": "To‘liq ism",
+    "field_email": "Ish elektron pochtasi",
+    "field_password": "Parol",
+    "field_language": "Interfeys tili",
+    "field_password_hint": "Kamida 8 ta belgi va kamida bitta raqam.",
+    "signup_submit": "Hisob yaratish",
+    "signup_submitting": "Hisob yaratilmoqda…",
+    "signup_have_account": "Hisobingiz bormi?",
+    "signup_signin_link": "Tizimga kirish",
+    "signup_terms": "Hisob yaratish orqali siz AI-Mentor o‘quv ma’lumotlari siyosatiga rozilik bildirasiz.",
+    "signin_title": "Xush kelibsiz",
+    "signin_subtitle": "AI-Mentor portalingizga kirish uchun tizimga kiring.",
+    "signin_submit": "Kirish",
+    "signin_submitting": "Kirilmoqda…",
+    "signin_forgot": "Parolni unutdingizmi? (tez orada)",
+    "signin_no_account": "Bu yerda yangimisiz?",
+    "signin_signup_link": "Hisob yaratish",
+    "signin_magic_link_toggle": "Menga kirish havolasini yuboring",
+    "signin_password_toggle": "Parol bilan kirish",
+    "signin_magic_link_submit": "Havola yuborish",
+    "signin_magic_link_sent": "{{email}} pochtangizni tekshiring — biz kirish havolasini yubordik.",
+    "error_required": "Bu maydon to‘ldirilishi shart.",
+    "error_invalid_email": "To‘g‘ri email kiriting.",
+    "error_weak_password": "Kamida 8 ta belgi va kamida bitta raqam ishlating.",
+    "error_generic": "Nimadir xato ketdi. Qaytadan urinib ko‘ring.",
+    "error_supabase_not_configured": "Supabase hali sozlanmagan. VITE_SUPABASE_URL va VITE_SUPABASE_ANON_KEY ni belgilang va sahifani yangilang.",
+    "error_invalid_credentials": "Email yoki parol noto‘g‘ri.",
+    "error_email_taken": "Bu email allaqachon ro‘yxatdan o‘tgan. Tizimga kirib ko‘ring.",
+    "success_signup": "Hisob yaratildi — kiritilmoqda…"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "swarms": {
+    "swarm-1778941259689-a5syfb": {
+      "swarmId": "swarm-1778941259689-a5syfb",
+      "topology": "hierarchical-mesh",
+      "maxAgents": 12,
+      "status": "terminated",
+      "agents": [],
+      "tasks": [],
+      "config": {
+        "topology": "hierarchical-mesh",
+        "maxAgents": 12,
+        "strategy": "specialized",
+        "communicationProtocol": "message-bus",
+        "autoScaling": true,
+        "consensusMechanism": "majority"
+      },
+      "createdAt": "2026-05-16T14:20:59.689Z",
+      "updatedAt": "2026-05-16T16:30:27.610Z",
+      "pid": 20464,
+      "terminationReason": "host process 20464 exited"
+    }
+  },
+  "version": "3.0.0"
+}

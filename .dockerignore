@@ -1,0 +1,15 @@
+**/node_modules
+**/dist
+**/build
+**/.venv
+**/__pycache__
+**/.env
+**/.env.local
+**/coverage
+**/.next
+**/.vite
+.git
+.gitignore
+.idea
+.vscode
+*.log

@@ -1,0 +1,20 @@
+# Railway deploy config for the iSpring mock.
+#
+# WARNING: This deploys the MOCK iSpring service. Production must point at the
+# real iSpring LMS once the bank provisions an API key — at that point delete
+# this service from Railway and set ISPRING_BASE_URL on the API service to the
+# real iSpring URL. Tracked in infra/DEPLOY.md.
+#
+# The Dockerfile installs deps but does NOT run `tsc` (intentional — fast
+# cold-starts for the demo). We therefore start via tsx rather than the
+# package.json's `start` which expects a dist/ folder.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "infra/mocks/ispring/Dockerfile"
+
+[deploy]
+startCommand = "npx tsx src/server.ts"
+healthcheckPath = "/api/v1/_health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"

@@ -1,0 +1,37 @@
+{
+  "name": "ai-mentor-hub",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter=./apps/* --filter=./services/api run dev",
+    "dev:web": "pnpm --filter @vitality/web dev",
+    "dev:api": "pnpm --filter @vitality/api dev",
+    "dev:ai": "pnpm --filter @vitality/ai-bootstrap dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "stack:up": "docker compose -f infra/docker/docker-compose.yml up -d",
+    "stack:down": "docker compose -f infra/docker/docker-compose.yml down",
+    "stack:logs": "docker compose -f infra/docker/docker-compose.yml logs -f",
+    "i18n:audit": "tsx scripts/i18n-audit.ts",
+    "security:audit": "tsx scripts/security-boundary.ts",
+    "bench:chat": "tsx scripts/chat-latency-bench.ts",
+    "smoke:prod": "tsx scripts/smoke-prod.ts",
+    "audit:all": "pnpm i18n:audit && pnpm security:audit",
+    "demo:seed": "pnpm --filter @vitality/api exec tsx src/demo/seed-demo.ts",
+    "demo:bench": "tsx scripts/demo-bench.ts",
+    "demo:setup:win": "powershell -ExecutionPolicy Bypass -File scripts/demo-setup.ps1",
+    "demo:setup:nix": "bash scripts/demo-setup.sh"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "eslint": "^9.10.0",
+    "prettier": "^3.3.3",
+    "tsx": "^4.16.5",
+    "typescript": "^5.5.4"
+  }
+}

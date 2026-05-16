@@ -1,0 +1,14 @@
+# Railway deploy config for the Vitality AI service (Python 3.11 + FastAPI).
+# Railway injects $PORT — uvicorn must bind to it for the platform routing to
+# see the container. Healthcheck timeout is bumped to 60s because first-boot
+# imports torch/transformers (~30s on CPU).
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "services/ai/Dockerfile"
+
+[deploy]
+startCommand = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/health"
+healthcheckTimeout = 60
+restartPolicyType = "ON_FAILURE"

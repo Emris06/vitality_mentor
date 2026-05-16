@@ -1,0 +1,544 @@
+{
+  "app": {
+    "name": "AI-Mentor",
+    "tagline": "Safe onboarding, knowledge, and skills for modern banks"
+  },
+  "locale": {
+    "label": "Language",
+    "en": "English",
+    "ru": "Russian",
+    "uz": "Uzbek"
+  },
+  "landing": {
+    "headline": "Onboard safely. Learn fast. Never touch real client data.",
+    "subhead": "An integrated platform for the AI knowledge base, dummy-data bank simulator, and skills analytics — all in one place.",
+    "cta_chat": "Try the assistant",
+    "cta_simulator": "Open the simulator",
+    "cta_hr": "HR dashboard",
+    "cta_profile": "My profile",
+    "cta_skills": "Skills analytics",
+    "health_title": "System status",
+    "health_loading": "Checking services…",
+    "health_error": "Could not reach the API",
+    "submission": "Enterprise · Edition 2026",
+    "brand_micro": "AI-Mentor · Banking",
+    "lede": "An onboarding platform built so that no newcomer ever needs to touch a real customer to learn the trade.",
+    "body": "Three tracks, one platform: a retrieval-grounded knowledge base, a bank-operations simulator on 100% synthetic data, and skills analytics that map every employee's growth from intake to senior compliance.",
+    "toc_title": "Where to begin",
+    "toc_assistant_name": "The Assistant",
+    "toc_assistant_desc": "Trilingual Q&A grounded in internal policy — every answer cites the SOP it came from.",
+    "toc_simulator_name": "The Simulator",
+    "toc_simulator_desc": "Walk a synthetic customer through KYC. Get scored. Never touch a real file.",
+    "toc_hr_name": "The HR Floor",
+    "toc_hr_desc": "Match mentors to newcomers, watch progress live, export to iSpring.",
+    "toc_profile_name": "The Profile",
+    "toc_profile_desc": "Your XP, your streak, your onboarding deadline — in one ring.",
+    "toc_skills_name": "The Atlas",
+    "toc_skills_desc": "Map every skill, surface every gap, forecast the next ninety days.",
+    "constraints_title": "Non-negotiable",
+    "constraints_synthetic": "Synthetic data only. No real customer is ever read or written.",
+    "constraints_latency": "Sub-two-second answers — every one cites the source.",
+    "constraints_trilingual": "Uzbek, Russian, and English from day one.",
+    "footer_year": "© 2026",
+    "footer_origin": "AI-Mentor — Banking onboarding, reimagined",
+    "brand": "AI-Mentor",
+    "brand_tagline": "AI-powered onboarding for financial institutions",
+    "nav_signin": "Sign in",
+    "nav_signup": "Get started",
+    "nav_continue": "Continue to dashboard",
+    "hero_eyebrow": "BANKING ONBOARDING, REIMAGINED",
+    "hero_title": "Onboard your bank, without ever touching a real client file.",
+    "hero_subtitle": "AI-Mentor is the platform that trains HR, employees, and interns at financial institutions on synthetic data — with a trilingual AI assistant, a banking simulator, and skills analytics that map every growth path.",
+    "hero_cta_primary": "Get started",
+    "hero_cta_secondary": "Sign in",
+    "roles_title": "Three portals, one platform",
+    "roles_subtitle": "AI-Mentor adapts to whoever signs in — from the HR floor to the intern desk.",
+    "role_hr_name": "HR",
+    "role_hr_blurb": "Match mentors, watch onboarding progress live, and export results to iSpring.",
+    "role_employee_name": "Employee",
+    "role_employee_blurb": "Sharpen daily workflows with the AI assistant and grow your skill profile.",
+    "role_intern_name": "Intern",
+    "role_intern_blurb": "Practice real banking scenarios on synthetic clients — earn XP as you learn.",
+    "role_card_cta": "Sign up as {{role}}",
+    "features_title": "What's inside",
+    "features_subtitle": "Six tools, one continuous learning loop — from the first question to senior compliance.",
+    "feature_kb_name": "AI Knowledge Base",
+    "feature_kb_desc": "Trilingual Q&A grounded in internal policy. Every answer cites the SOP it came from.",
+    "feature_simulator_name": "Banking Simulator",
+    "feature_simulator_desc": "Walk a synthetic customer through KYC, AML, and account workflows. Get scored, never touch a real file.",
+    "feature_skills_name": "Skills Analytics",
+    "feature_skills_desc": "See every employee's skill map, surface gaps, and forecast growth ninety days out.",
+    "feature_matching_name": "AI Mentor Matching",
+    "feature_matching_desc": "Pair newcomers with the right mentor based on language, skills, and current load.",
+    "feature_gamification_name": "Gamified Onboarding",
+    "feature_gamification_desc": "XP, badges, streaks, and quests turn the onboarding deadline into a goal worth chasing.",
+    "feature_lms_name": "iSpring Sync",
+    "feature_lms_desc": "Push every score, completion, and assessment into the LMS — no manual exports.",
+    "constraint_synthetic": "Synthetic data only. Real customers never read.",
+    "constraint_latency": "Sub-two-second answers, every one cited.",
+    "constraint_trilingual": "Uzbek · Russian · English from day one.",
+    "footer_made_in": "Built for modern banking teams",
+    "footer_signin": "Sign in",
+    "footer_signup": "Get started"
+  },
+  "health": {
+    "ok": "Healthy",
+    "degraded": "Degraded",
+    "down": "Down"
+  },
+  "chat": {
+    "title": "AI Mentor",
+    "back": "Back to home",
+    "placeholder": "Ask about policies, products, onboarding…",
+    "send": "Send",
+    "empty_title": "How can I help you today?",
+    "empty_subtitle": "Ask any question about your bank's policies, procedures, and products. Answers are grounded in internal documents.",
+    "sample_questions": [
+      "Which documents are required for KYC onboarding of a new individual client?",
+      "Walk me through the steps to open a UZS current account for a legal entity.",
+      "What is the dress code policy for front-office staff?"
+    ],
+    "citations": "Sources",
+    "citation_page": "p. {{page}}",
+    "error_generic": "Something went wrong. Please try again.",
+    "error_rate_limited": "Too many requests. Please slow down and try again in a moment.",
+    "thinking": "Thinking…",
+    "you": "You",
+    "assistant": "Assistant",
+    "stop": "Stop",
+    "input_hint": "Enter to send · Shift+Enter for new line",
+    "voice": {
+      "mode_on": "Voice answers: on",
+      "mode_off": "Voice answers: off",
+      "start_listening": "Start voice input",
+      "stop_listening": "Stop voice input",
+      "listening_prefix": "Listening…",
+      "unsupported": "Voice is not supported in this browser",
+      "unsupported_for_locale": "Voice input is not available for {{locale}} in this browser. Try Russian or English, or type your question.",
+      "error_permission": "Microphone permission denied. Enable it in the browser to use voice.",
+      "error_generic": "Voice failed — please type instead.",
+      "truncated": "Answer is long — I read the first part. See the full response on screen."
+    }
+  },
+  "sim": {
+    "title": "Bank Operations Simulator",
+    "subtitle": "Practice real workflows on 100% synthetic data. The screen looks like production — the data does not.",
+    "start": "Start",
+    "continue": "Continue",
+    "back": "Back",
+    "dashboard_title": "Choose a scenario",
+    "dashboard_subtitle": "Each scenario mirrors a production workflow. No real client data is ever loaded.",
+    "soon": "Coming soon",
+    "best_on_desktop": "This simulator is best experienced on a desktop.",
+    "scenarios": {
+      "kyc": {
+        "name": "KYC onboarding (individual)",
+        "tagline": "Intake → documents → sanctions → risk → decision",
+        "duration": "~10 min"
+      },
+      "open_account": {
+        "name": "Open a current account",
+        "tagline": "Full account opening flow for an individual or legal entity.",
+        "disabled": "Coming soon"
+      },
+      "deposit": {
+        "name": "Term deposit",
+        "tagline": "Open a deposit, set terms, capture client consent.",
+        "disabled": "Coming soon"
+      },
+      "transfer": {
+        "name": "Domestic / international transfer",
+        "tagline": "Validate beneficiary, run AML, confirm transfer.",
+        "disabled": "Coming soon"
+      }
+    },
+    "run": {
+      "step_of": "Step {{current}} of {{total}}",
+      "score": "Score",
+      "hint": "Hint",
+      "hint_loading": "Asking the mentor…",
+      "hint_citations": "Sources",
+      "submit": "Submit",
+      "next_step": "Next step",
+      "finished": "Scenario finished",
+      "retry": "Try again",
+      "mistake_count_one": "{{count}} mistake",
+      "mistake_count_other": "{{count}} mistakes",
+      "no_mistakes": "No mistakes. Clean run.",
+      "open_chat": "Discuss with the AI mentor",
+      "loading_run": "Loading run…",
+      "load_error": "Could not load this run.",
+      "submit_error": "Could not submit this step. Please try again."
+    },
+    "kyc": {
+      "banner_synthetic": "All data on this screen is 100% synthetic. No real client data is ever used.",
+      "header_label": "Vitality Banking — Training",
+      "customer_file": "Customer file",
+      "steps": {
+        "intake": {
+          "title": "1. Customer intake",
+          "description": "Pull the next synthetic customer file from the queue and begin the KYC review.",
+          "field_person_id": "Customer ID",
+          "submit": "Load next customer"
+        },
+        "verify_documents": {
+          "title": "2. Verify documents",
+          "description": "Compare the customer file against the submitted documents. Mark each document as valid or invalid.",
+          "passport_valid": "Passport — valid",
+          "passport_invalid": "Passport — invalid",
+          "income_valid": "Income statement — valid",
+          "income_invalid": "Income statement — invalid",
+          "confirm": "Confirm verification",
+          "passport_title": "Passport",
+          "income_title": "Income statement",
+          "why_placeholder": "Why? (notes, not submitted)",
+          "field_full_name": "Full name",
+          "field_dob": "Date of birth",
+          "field_passport_no": "Passport No.",
+          "field_address": "Address",
+          "field_phone": "Phone",
+          "field_inn": "INN",
+          "field_employer": "Employer",
+          "field_monthly_income": "Monthly income"
+        },
+        "sanctions_check": {
+          "title": "3. Sanctions & PEP screening",
+          "description": "Review hits against OFAC, EU, UN sanctions and PEP lists. Decide whether to pass or block.",
+          "decision_pass": "Pass",
+          "decision_block": "Block",
+          "list": "List",
+          "match": "Match",
+          "reason": "Reason",
+          "pep_label": "Politically exposed person",
+          "no_hits": "No sanctions or PEP hits found.",
+          "hit_sanctions": "Sanctions match",
+          "hit_pep": "PEP match"
+        },
+        "risk_score": {
+          "title": "4. Risk score",
+          "description": "Assign a risk rating based on the customer profile, document quality, and screening results.",
+          "score_low": "Low",
+          "score_medium": "Medium",
+          "score_high": "High",
+          "rationale_placeholder": "Rationale (e.g., income consistent with profile, no sanctions hits, clean documents)…"
+        },
+        "decision": {
+          "title": "5. Final decision",
+          "description": "Issue the final onboarding decision. This will be exported to the CRM.",
+          "approve": "Approve onboarding",
+          "approve_desc": "Open the account, send welcome packet, enroll into KYC monitoring.",
+          "reject": "Reject",
+          "reject_desc": "Decline the application with a formal notice. No account is opened.",
+          "manual_review": "Send to manual review",
+          "manual_review_desc": "Escalate to a senior compliance officer for re-screening."
+        }
+      }
+    }
+  },
+  "hr": {
+    "title": "HR dashboard",
+    "subtitle": "Newcomers, mentors, and onboarding progress — live.",
+    "back": "Back to home",
+    "tabs": {
+      "overview": "Overview",
+      "newcomers": "Newcomers",
+      "mentors": "Mentors"
+    },
+    "summary": {
+      "newcomers_total": "Newcomers total",
+      "assigned": "Assigned",
+      "unassigned": "Unassigned",
+      "scored_7d": "Scored runs (7d)",
+      "avg_score_7d": "Avg score (7d)",
+      "top_mentors": "Top mentors"
+    },
+    "newcomers": {
+      "headers": {
+        "name": "Name",
+        "start": "Start",
+        "deadline": "Deadline",
+        "mentor": "Mentor",
+        "progress": "Progress",
+        "actions": "Actions"
+      },
+      "no_mentor": "No mentor",
+      "assign": "Assign",
+      "reassign": "Reassign",
+      "unassign": "Unassign",
+      "export_csv": "Export CSV",
+      "search_placeholder": "Search by name…",
+      "empty": "No newcomers yet."
+    },
+    "mentor_picker": {
+      "title": "Suggested mentors",
+      "subtitle": "Top 5 matches based on language, skills, and load.",
+      "score": "Match score",
+      "assign": "Assign",
+      "no_candidates": "No suitable mentors found.",
+      "cancel": "Cancel",
+      "loading": "Finding the best matches…"
+    },
+    "deadline": {
+      "days_left_one": "{{count}} day left",
+      "days_left_other": "{{count}} days left",
+      "overdue_one": "Overdue by {{count}} day",
+      "overdue_other": "Overdue by {{count}} days",
+      "due_today": "Due today"
+    },
+    "charts": {
+      "progress_distribution": "Progress distribution",
+      "completion_velocity": "Completion velocity (last 7 days)",
+      "placeholder_no_data": "Not enough data yet.",
+      "bucket_0_25": "0–25%",
+      "bucket_25_50": "25–50%",
+      "bucket_50_75": "50–75%",
+      "bucket_75_100": "75–100%",
+      "newcomers_axis": "Newcomers",
+      "runs_axis": "Scored runs"
+    },
+    "mentors": {
+      "filter_language": "Language",
+      "filter_skill": "Skill",
+      "filter_all": "All",
+      "load": "Load",
+      "no_mentors": "No mentors match these filters.",
+      "languages": "Languages",
+      "skills": "Skills"
+    },
+    "newcomer_detail": {
+      "recent_runs": "Recent runs",
+      "scenario": "Scenario",
+      "score": "Score",
+      "date": "Date",
+      "no_runs": "No simulator runs yet.",
+      "current_mentor": "Current mentor",
+      "started": "Started",
+      "deadline": "Deadline",
+      "open_run": "Open",
+      "back": "Back to dashboard"
+    }
+  },
+  "game": {
+    "profile_title": "My profile",
+    "subtitle": "Your skills, badges, streak, and onboarding progress.",
+    "back": "Back to home",
+    "total_xp": "Total XP",
+    "xp_bars": {
+      "title": "Skills XP",
+      "empty": "Earn XP by completing quests and simulator runs."
+    },
+    "badges": {
+      "title": "Badges",
+      "empty": "No badges yet. Finish your first quest to start collecting.",
+      "earned_on": "Earned on {{date}}",
+      "locked": "Locked",
+      "first_kyc": {
+        "name": "First KYC",
+        "description": "Complete your first KYC scenario in the simulator."
+      },
+      "kyc_perfectionist": {
+        "name": "KYC Perfectionist",
+        "description": "Finish a KYC run with zero mistakes."
+      },
+      "night_owl": {
+        "name": "Night Owl",
+        "description": "Practice between 22:00 and 06:00 local time."
+      },
+      "streak_7": {
+        "name": "Week-long Streak",
+        "description": "Stay active seven days in a row."
+      },
+      "polyglot": {
+        "name": "Polyglot",
+        "description": "Use the assistant in all three languages."
+      }
+    },
+    "quests": {
+      "today": "Today's quest",
+      "completed": "Completed",
+      "progress": "Progress",
+      "reward_xp": "+{{xp}} XP",
+      "empty": "No quest available right now. Check back later.",
+      "daily_chat_3": {
+        "name": "Three questions to the mentor",
+        "description": "Ask the AI mentor three questions today."
+      },
+      "weekly_sim_2": {
+        "name": "Two simulator runs this week",
+        "description": "Finish two simulator scenarios this week."
+      },
+      "onboarding_first_kyc": {
+        "name": "First KYC onboarding",
+        "description": "Complete one full KYC scenario from intake to decision."
+      }
+    },
+    "streak": {
+      "title": "Streak",
+      "current_one": "{{count}}-day streak",
+      "current_other": "{{count}}-day streak",
+      "longest": "Longest: {{count}}",
+      "deadline_left": "Onboarding ends in"
+    },
+    "deadline": {
+      "title": "Onboarding",
+      "days_left_one": "{{count}} day",
+      "days_left_other": "{{count}} days",
+      "due_today": "Today",
+      "overdue": "Overdue"
+    },
+    "leaderboard": {
+      "title": "Leaderboard",
+      "skill_filter": "Skill",
+      "skill_all": "All skills",
+      "empty": "No one on the board yet.",
+      "headers": {
+        "rank": "#",
+        "name": "Name",
+        "xp": "XP"
+      }
+    },
+    "errors": {
+      "load_profile": "Could not load profile.",
+      "load_leaderboard": "Could not load the leaderboard."
+    }
+  },
+  "skills": {
+    "title": "Skills analytics",
+    "subtitle": "Visualize every employee's skill profile, surface gaps, and plan growth.",
+    "back": "Back to home",
+    "tabs": {
+      "team": "Team",
+      "matrix": "Matrix",
+      "analytics": "Analytics"
+    },
+    "department": {
+      "label": "Department",
+      "all": "All"
+    },
+    "employee": {
+      "title": "Employee skills",
+      "skill_map": "Skill map",
+      "gaps": "Skill gaps",
+      "recommendations": "Training recommendations",
+      "readiness": "Promotion readiness",
+      "forecast": "Skill forecast",
+      "back": "Back to skills"
+    },
+    "target": {
+      "label": "Target role",
+      "senior_compliance": "Senior compliance",
+      "senior_operations": "Senior operations"
+    },
+    "severity": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "readiness": {
+      "ready": "Ready",
+      "not_ready": "Not ready",
+      "confidence": "Confidence",
+      "met": "Met requirements",
+      "missing": "Missing requirements",
+      "empty": "Pick a target role to check readiness."
+    },
+    "recommendations": {
+      "impact": "Impact",
+      "minutes": "{{count}} min",
+      "empty": "No training recommendations yet.",
+      "loading": "Finding the best modules…"
+    },
+    "forecast": {
+      "title": "Skill forecast",
+      "horizon": "Horizon",
+      "skill_label": "Skill",
+      "expected": "Expected",
+      "band": "Range",
+      "empty": "Click a skill gap above to forecast its growth.",
+      "close": "Close"
+    },
+    "matrix": {
+      "empty": "Nothing to display.",
+      "hint": "Swipe to view all skills",
+      "legend": {
+        "high_gap": "Big gap",
+        "medium_gap": "Mid gap",
+        "low_gap": "Small gap",
+        "met": "Met"
+      },
+      "tooltip": {
+        "xp": "XP {{xp}} / {{target}}"
+      }
+    },
+    "analytics": {
+      "skill_distribution": "Median skill XP across the team",
+      "completion_velocity": "Scored runs — last 30 days",
+      "mentor_effectiveness": "Mentor effectiveness (avg newcomer score)"
+    },
+    "team": {
+      "empty": "No employees yet.",
+      "open": "Open"
+    },
+    "errors": {
+      "load_team": "Could not load team data.",
+      "load_employee": "Could not load this employee.",
+      "load_forecast": "Could not load the forecast."
+    },
+    "names": {
+      "kyc": "KYC",
+      "aml": "AML",
+      "accounts": "Accounts",
+      "deposits": "Deposits",
+      "transfers": "Transfers",
+      "customer_service": "Customer service",
+      "risk": "Risk",
+      "compliance": "Compliance",
+      "products": "Products",
+      "fx": "Foreign exchange"
+    },
+    "modules": {}
+  },
+  "auth": {
+    "app_name": "AI-Mentor",
+    "app_tagline": "Onboarding for finance, reimagined.",
+    "back_home": "Back to home",
+    "signup_title": "Create your account",
+    "signup_subtitle": "Pick the role that matches your job. You can switch later via your HR admin.",
+    "signup_role_label": "I am a…",
+    "role_hr_name": "HR",
+    "role_hr_desc": "Match mentors, watch onboarding progress live, export to iSpring.",
+    "role_employee_name": "Employee",
+    "role_employee_desc": "Sharpen daily workflows with the AI assistant and grow your skills.",
+    "role_intern_name": "Intern",
+    "role_intern_desc": "Practice real banking scenarios on synthetic clients — earn XP as you learn.",
+    "field_full_name": "Full name",
+    "field_email": "Work email",
+    "field_password": "Password",
+    "field_language": "Interface language",
+    "field_password_hint": "At least 8 characters with one number.",
+    "signup_submit": "Create account",
+    "signup_submitting": "Creating account…",
+    "signup_have_account": "Already have an account?",
+    "signup_signin_link": "Sign in instead",
+    "signup_terms": "By creating an account, you agree to the AI-Mentor training data policy.",
+    "signin_title": "Welcome back",
+    "signin_subtitle": "Sign in to access your AI-Mentor portal.",
+    "signin_submit": "Sign in",
+    "signin_submitting": "Signing in…",
+    "signin_forgot": "Forgot password? (coming soon)",
+    "signin_no_account": "New here?",
+    "signin_signup_link": "Create an account",
+    "signin_magic_link_toggle": "Send me a magic link instead",
+    "signin_password_toggle": "Use password instead",
+    "signin_magic_link_submit": "Send link",
+    "signin_magic_link_sent": "Check {{email}} — we sent you a sign-in link.",
+    "error_required": "This field is required.",
+    "error_invalid_email": "Enter a valid email.",
+    "error_weak_password": "Use at least 8 characters with one number.",
+    "error_generic": "Something went wrong. Please try again.",
+    "error_supabase_not_configured": "Supabase isn't configured yet. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY, then refresh.",
+    "error_invalid_credentials": "Wrong email or password.",
+    "error_email_taken": "That email is already registered. Try signing in.",
+    "success_signup": "Account created — taking you in…"
+  }
+}

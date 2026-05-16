@@ -1,0 +1,90 @@
+[ioredis] Unhandled error event: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1118:18)
+    at afterConnectMultiple (node:net:1685:7)
+[lms-queue] drainOnce failed PostgresError: password authentication failed for user "vitality"
+    at ErrorResponse (file:///C:/Users/NoteService/Desktop/Vitality/node_modules/.pnpm/postgres@3.4.9/node_modules/postgres/src/connection.js:817:22)
+    at handle (file:///C:/Users/NoteService/Desktop/Vitality/node_modules/.pnpm/postgres@3.4.9/node_modules/postgres/src/connection.js:489:6)
+    at Socket.data (file:///C:/Users/NoteService/Desktop/Vitality/node_modules/.pnpm/postgres@3.4.9/node_modules/postgres/src/connection.js:324:9)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'FATAL',
+  severity: 'FATAL',
+  code: '28P01',
+  file: 'auth.c',
+  line: '326',
+  routine: 'auth_failed'
+}
+[ioredis] Unhandled error event: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1118:18)
+    at afterConnectMultiple (node:net:1685:7)
+[ioredis] Unhandled error event: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1118:18)
+    at afterConnectMultiple (node:net:1685:7)
+[ioredis] Unhandled error event: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1118:18)
+    at afterConnectMultiple (node:net:1685:7)
+[ioredis] Unhandled error event: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1118:18)
+    at afterConnectMultiple (node:net:1685:7)
+[ioredis] Unhandled error event: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1118:18)
+    at afterConnectMultiple (node:net:1685:7)
+[ioredis] Unhandled error event: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1118:18)
+    at afterConnectMultiple (node:net:1685:7)
+[ioredis] Unhandled error event: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1118:18)
+    at afterConnectMultiple (node:net:1685:7)
+[ioredis] Unhandled error event: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1118:18)
+    at afterConnectMultiple (node:net:1685:7)
+[lms-queue] drainOnce failed PostgresError: password authentication failed for user "vitality"
+    at ErrorResponse (file:///C:/Users/NoteService/Desktop/Vitality/node_modules/.pnpm/postgres@3.4.9/node_modules/postgres/src/connection.js:817:22)
+    at handle (file:///C:/Users/NoteService/Desktop/Vitality/node_modules/.pnpm/postgres@3.4.9/node_modules/postgres/src/connection.js:489:6)
+    at Socket.data (file:///C:/Users/NoteService/Desktop/Vitality/node_modules/.pnpm/postgres@3.4.9/node_modules/postgres/src/connection.js:324:9)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'FATAL',
+  severity: 'FATAL',
+  code: '28P01',
+  file: 'auth.c',
+  line: '326',
+  routine: 'auth_failed'
+}
+[ioredis] Unhandled error event: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1118:18)
+    at afterConnectMultiple (node:net:1685:7)
+[ioredis] Unhandled error event: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1118:18)
+    at afterConnectMultiple (node:net:1685:7)
+[ioredis] Unhandled error event: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1118:18)
+    at afterConnectMultiple (node:net:1685:7)
+[ioredis] Unhandled error event: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1118:18)
+    at afterConnectMultiple (node:net:1685:7)
+[lms-queue] drainOnce failed PostgresError: password authentication failed for user "vitality"
+    at ErrorResponse (file:///C:/Users/NoteService/Desktop/Vitality/node_modules/.pnpm/postgres@3.4.9/node_modules/postgres/src/connection.js:817:22)
+    at handle (file:///C:/Users/NoteService/Desktop/Vitality/node_modules/.pnpm/postgres@3.4.9/node_modules/postgres/src/connection.js:489:6)
+    at Socket.data (file:///C:/Users/NoteService/Desktop/Vitality/node_modules/.pnpm/postgres@3.4.9/node_modules/postgres/src/connection.js:324:9)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'FATAL',
+  severity: 'FATAL',
+  code: '28P01',
+  file: 'auth.c',
+  line: '326',
+  routine: 'auth_failed'
+}
+[ioredis] Unhandled error event: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1118:18)
+    at afterConnectMultiple (node:net:1685:7)

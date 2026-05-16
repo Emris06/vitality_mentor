@@ -1,0 +1,8 @@
+# Ideathon demo — judges, not crawlers. Keep operational surfaces out of
+# search results; landing page stays indexable.
+User-agent: *
+Disallow: /hr
+Disallow: /me
+Disallow: /skills
+Disallow: /simulator
+Allow: /

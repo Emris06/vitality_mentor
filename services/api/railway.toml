@@ -1,0 +1,14 @@
+# Railway deploy config for the Vitality API (Node 20 + Fastify).
+# The Dockerfile sets WORKDIR to /app/services/api before CMD, so dist/server.js
+# resolves correctly with the absolute path below.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "services/api/Dockerfile"
+
+[deploy]
+startCommand = "node dist/server.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+numReplicas = 1

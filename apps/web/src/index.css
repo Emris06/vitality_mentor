@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand: #2d6bfe;
+    --brand-fade: #d9e5ff;
+    --slate-50: #f8fafc;
+    --slate-900: #0f172a;
+    --success: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  html {
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'ss01';
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--slate-50);
+    color: var(--slate-900);
+    font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Display headings use IBM Plex Serif for fintech gravitas — refined,
+     trustworthy, distinct from the body. */
+  h1,
+  h2,
+  h3 {
+    font-family: 'IBM Plex Serif', 'IBM Plex Sans', Georgia, serif;
+    letter-spacing: -0.015em;
+    font-weight: 600;
+  }
+
+  /* Tabular numerics — for stat cards, prices, IDs, latencies. */
+  .tabular {
+    font-feature-settings: 'tnum', 'lnum';
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  /* Default focus ring — uses brand color at low opacity for visibility
+     without the chunky default outline. */
+  *:focus-visible {
+    outline: none;
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+      0 0 0 3px rgba(45, 107, 254, 0.35);
+    border-radius: 6px;
+  }
+
+  /* Reset list defaults — most lists in this product use Tailwind explicitly. */
+  ul,
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+@layer components {
+  /* Reusable scrollable area with hidden track on idle. */
+  .scrollarea {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+  }
+  .scrollarea::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scrollarea::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollarea::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.35);
+    border-radius: 8px;
+  }
+  .scrollarea::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.5);
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "framework": "vite",
+  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile=false && pnpm --filter @vitality/web build",
+  "outputDirectory": "dist",
+  "installCommand": "echo skipped",
+  "regions": ["fra1"],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "$API_URL/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}

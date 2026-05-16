@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+**/node_modules/
+**/.venv/
+**/__pycache__/
+**/*.pyc
+
+# Build artifacts
+dist/
+build/
+.next/
+.vite/
+**/dist/
+**/build/
+
+# Local env
+.env
+.env.local
+.env.*.local
+**/.env
+!**/.env.example
+
+# Editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Docker / runtime data
+infra/docker/data/
+
+# Test coverage
+coverage/
+.nyc_output/
