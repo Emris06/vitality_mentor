@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { gameApi, GameHttpError } from '../../lib/api';
@@ -10,6 +11,7 @@ import { DeadlineRing } from './DeadlineRing';
 import { Leaderboard } from './Leaderboard';
 import type { GameProfile } from './types';
 import { useAuth } from '../auth/AuthProvider';
+import { homeRouteFor } from '../auth/types';
 import { ErpShell } from '../workspace/ErpShell';
 import { buildWorkspaceSections } from '../workspace/navigation';
 
@@ -66,13 +68,17 @@ export function ProfilePage() {
         ? t('auth.role_intern_name')
         : t('auth.role_employee_name');
 
+  if (authProfile?.role !== 'intern') {
+    return <Navigate to={homeRouteFor(authProfile?.role ?? null)} replace />;
+  }
+
   return (
     <ErpShell
       title={t('game.profile_title')}
       subtitle={t('game.subtitle')}
       userName={authProfile?.fullName ?? 'Team Member'}
       userRole={roleLabel}
-      sections={buildWorkspaceSections()}
+      sections={buildWorkspaceSections(authProfile?.role ?? null)}
       searchPlaceholder="Search badges, quests, and scores"
     >
       <section className="space-y-4">

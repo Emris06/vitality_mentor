@@ -4,13 +4,23 @@
 
 @layer base {
   :root {
-    --brand: #2d6bfe;
-    --brand-fade: #d9e5ff;
-    --slate-50: #f8fafc;
-    --slate-900: #0f172a;
+    --bg: #f0f6ff;
+    --surface: #ffffff;
+    --sidebar: #e8f2ff;
+
+    --primary: #3b82f6;
+    --primary-dark: #2563eb;
+    --secondary: #0ea5e9;
+
+    --gold: #f59e0b;
     --success: #10b981;
-    --warn: #f59e0b;
     --danger: #ef4444;
+
+    --text-1: #1e293b;
+    --text-2: #64748b;
+
+    --border: #cbd5e1;
+    --highlight: #dbeafe;
   }
 
   html,
@@ -20,44 +30,43 @@
   }
 
   html {
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'ss01';
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   body {
-    background-color: var(--slate-50);
-    color: var(--slate-900);
-    font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    color: var(--text-1);
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(circle at 6% 0%, rgba(14, 165, 233, 0.16) 0, rgba(14, 165, 233, 0) 30%),
+      radial-gradient(circle at 96% 8%, rgba(59, 130, 246, 0.12) 0, rgba(59, 130, 246, 0) 36%);
+    background-attachment: fixed;
   }
 
-  /* Display headings use IBM Plex Serif for fintech gravitas — refined,
-     trustworthy, distinct from the body. */
   h1,
   h2,
   h3 {
-    font-family: 'IBM Plex Serif', 'IBM Plex Sans', Georgia, serif;
-    letter-spacing: -0.015em;
-    font-weight: 600;
+    font-family: 'Sora', 'DM Sans', system-ui, sans-serif;
+    letter-spacing: -0.02em;
+    font-weight: 700;
   }
 
-  /* Tabular numerics — for stat cards, prices, IDs, latencies. */
   .tabular {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
     font-feature-settings: 'tnum', 'lnum';
     font-variant-numeric: tabular-nums lining-nums;
   }
 
-  /* Default focus ring — uses brand color at low opacity for visibility
-     without the chunky default outline. */
   *:focus-visible {
     outline: none;
     box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-      0 0 0 3px rgba(45, 107, 254, 0.35);
-    border-radius: 6px;
+      0 0 0 3px rgba(59, 130, 246, 0.24);
+    border-radius: 8px;
   }
 
-  /* Reset list defaults — most lists in this product use Tailwind explicitly. */
   ul,
   ol {
     list-style: none;
@@ -67,23 +76,26 @@
 }
 
 @layer components {
-  /* Reusable scrollable area with hidden track on idle. */
   .scrollarea {
     scrollbar-width: thin;
-    scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+    scrollbar-color: rgba(100, 116, 139, 0.36) transparent;
   }
+
   .scrollarea::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
+
   .scrollarea::-webkit-scrollbar-track {
     background: transparent;
   }
+
   .scrollarea::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.35);
-    border-radius: 8px;
+    background: rgba(100, 116, 139, 0.34);
+    border-radius: 999px;
   }
+
   .scrollarea::-webkit-scrollbar-thumb:hover {
-    background: rgba(100, 116, 139, 0.5);
+    background: rgba(71, 85, 105, 0.46);
   }
 }

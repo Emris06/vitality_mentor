@@ -21,12 +21,12 @@ export function Card({
   ...rest
 }: CardProps) {
   const base =
-    'rounded-2xl border border-slate-200 bg-white shadow-card transition-shadow';
+    'rounded-lg border border-ink-200 bg-white shadow-card transition-all duration-200 ease-out';
   const variantClass =
     variant === 'hoverable'
-      ? 'hover:shadow-card-hover hover:border-slate-300'
+      ? 'hover:-translate-y-0.5 hover:shadow-card-hover hover:border-ink-300'
       : variant === 'subtle'
-        ? 'border-transparent bg-slate-50/60'
+        ? 'border-transparent bg-ink-50/70'
         : '';
   return (
     <div
@@ -55,7 +55,7 @@ export function CardHeader({ title, subtitle, action, className }: CardHeaderPro
         .join(' ')}
     >
       <div>
-        <h3 className="font-display text-base font-semibold text-slate-900">{title}</h3>
+        <h3 className="font-display text-base font-semibold text-ink-900">{title}</h3>
         {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}

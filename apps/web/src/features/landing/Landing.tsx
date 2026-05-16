@@ -24,7 +24,7 @@ const HeroScene3D = lazy(() => import('./HeroScene3D'));
  * three-role tilt-card strip, six-tile feature grid, dark constraints strip,
  * footer. Mirrors the SaaS-CRM aesthetic of the four reference dashboards in
  * `reference/` — white cards on slate-50, generous whitespace, subtle shadows,
- * IBM Plex typography, no glassmorphism or playful illustrations.
+ * Sora + DM Sans typography, no glassmorphism.
  */
 export function Landing() {
   const { t } = useTranslation();
@@ -33,7 +33,7 @@ export function Landing() {
   const homeRoute = homeRouteFor(profile?.role ?? null);
 
   return (
-    <main className="min-h-full bg-slate-50">
+    <main className="min-h-full bg-[var(--bg)]">
       <TopBar signedIn={signedIn} homeRoute={homeRoute} />
 
       <section className="mx-auto max-w-7xl px-6 py-14 md:px-10 md:py-20">
@@ -43,13 +43,13 @@ export function Landing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: 'easeOut' }}
           >
-            <p className="font-mono text-xs uppercase tracking-[0.22em] text-brand-600">
+            <p className="font-mono text-xs uppercase tracking-[0.22em] text-sky-600">
               {t('landing.hero_eyebrow')}
             </p>
-            <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.05] tracking-tight text-slate-900 md:text-5xl lg:text-6xl">
+            <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink-900 md:text-5xl lg:text-6xl">
               {t('landing.hero_title')}
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-600 md:text-lg">
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-ink-600 md:text-lg">
               {t('landing.hero_subtitle')}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -98,16 +98,22 @@ export function Landing() {
 function TopBar({ signedIn, homeRoute }: { signedIn: boolean; homeRoute: string }) {
   const { t } = useTranslation();
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/85 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-ink-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-10">
         <Link to="/" className="flex cursor-pointer items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-600 font-display text-base font-semibold text-white">
+          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-500 font-display text-base font-semibold text-white">
             A
           </span>
-          <span className="font-display text-lg font-semibold tracking-tight text-slate-900">
+          <span className="font-display text-lg font-semibold tracking-tight text-ink-900">
             {t('landing.brand')}
           </span>
         </Link>
+        <nav className="hidden items-center gap-6 text-sm font-medium text-ink-600 md:flex">
+          <a href="#features" className="hover:text-brand-700">Features</a>
+          <a href="#roles" className="hover:text-brand-700">How It Works</a>
+          <a href="#constraints" className="hover:text-brand-700">Pricing</a>
+          <a href="#contact" className="hover:text-brand-700">Contact</a>
+        </nav>
         <div className="flex items-center gap-3">
           <LocalePicker />
           {signedIn ? (
@@ -175,7 +181,7 @@ const ROLES: RoleDef[] = [
 function RolesStrip() {
   const { t } = useTranslation();
   return (
-    <section className="mx-auto max-w-7xl px-6 pb-14 md:px-10 md:pb-20">
+    <section id="roles" className="mx-auto max-w-7xl px-6 pb-14 md:px-10 md:pb-20">
       <SectionHeader title={t('landing.roles_title')} subtitle={t('landing.roles_subtitle')} />
       <motion.div
         initial="hidden"
@@ -326,7 +332,7 @@ const FEATURES: FeatureDef[] = [
 function FeatureGrid() {
   const { t } = useTranslation();
   return (
-    <section className="mx-auto max-w-7xl px-6 pb-14 md:px-10 md:pb-20">
+    <section id="features" className="mx-auto max-w-7xl px-6 pb-14 md:px-10 md:pb-20">
       <SectionHeader title={t('landing.features_title')} subtitle={t('landing.features_subtitle')} />
       <div className="mt-8 grid gap-4 md:grid-cols-3">
         {FEATURES.map((feature, idx) => (
@@ -368,7 +374,7 @@ function ConstraintsStrip() {
     t('landing.constraint_trilingual'),
   ];
   return (
-    <section className="mx-auto max-w-7xl px-6 pb-14 md:px-10 md:pb-20">
+    <section id="constraints" className="mx-auto max-w-7xl px-6 pb-14 md:px-10 md:pb-20">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -401,7 +407,7 @@ function ConstraintsStrip() {
 function Footer() {
   const { t } = useTranslation();
   return (
-    <footer className="border-t border-slate-200 bg-white">
+    <footer id="contact" className="border-t border-ink-200 bg-white">
       <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-6 text-sm text-slate-500 md:flex-row md:items-center md:justify-between md:px-10">
         <div className="flex items-center gap-2.5">
           <span className="grid h-7 w-7 place-items-center rounded-md bg-brand-600 font-display text-xs font-semibold text-white">

@@ -122,7 +122,10 @@ export function ChatPage() {
   );
 
   const empty = messages.length === 0;
-  const sections = useMemo(() => buildWorkspaceSections(), []);
+  const sections = useMemo(
+    () => buildWorkspaceSections(profile?.role ?? null),
+    [profile?.role],
+  );
   const roleLabel =
     profile?.role === 'hr'
       ? t('auth.role_hr_name')

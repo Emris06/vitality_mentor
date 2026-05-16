@@ -156,7 +156,7 @@ export function SkillsHub() {
       subtitle={t('skills.subtitle')}
       userName={profile?.fullName ?? 'Team Member'}
       userRole={roleLabel}
-      sections={buildWorkspaceSections()}
+      sections={buildWorkspaceSections(profile?.role ?? null)}
       searchPlaceholder="Search skills, departments, and employees"
     >
       <section className="space-y-4">

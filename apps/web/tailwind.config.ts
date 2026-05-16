@@ -1,10 +1,8 @@
 import type { Config } from 'tailwindcss';
 
 /**
- * AI-Mentor design system — clean SaaS CRM tokens.
- * Aligned to the reference dashboards in `reference/`:
- * white cards on soft slate-50, blue primary, status colors,
- * DM Sans display + Geist body + JetBrains Mono numerics.
+ * AI-Mentor "Clear Sky SaaS" design system.
+ * Reference: reference/DESIGN.md + dashboard mocks in reference/.
  */
 const config: Config = {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
@@ -12,16 +10,22 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          50: '#EFF4FF',
-          100: '#D9E5FF',
-          200: '#B4CAFE',
-          300: '#85A8FD',
-          400: '#5A85FB',
-          500: '#3D6BFE',
-          600: '#2D6BFE',
-          700: '#1E4FCC',
-          800: '#163F9E',
-          900: '#102D70',
+          50: '#EBF3FF',
+          100: '#DBEAFE',
+          200: '#BFDBFE',
+          300: '#93C5FD',
+          400: '#60A5FA',
+          500: '#3B82F6',
+          600: '#2563EB',
+          700: '#1D4ED8',
+          800: '#1E40AF',
+          900: '#1E3A8A',
+        },
+        sky: {
+          50: '#F0F9FF',
+          100: '#E0F2FE',
+          500: '#0EA5E9',
+          600: '#0284C7',
         },
         success: {
           50: '#ECFDF5',
@@ -44,43 +48,36 @@ const config: Config = {
           600: '#DC2626',
           700: '#B91C1C',
         },
-        accent: {
-          purple: '#7C3AED',
-          orange: '#F97316',
-          pink: '#EC4899',
-          teal: '#14B8A6',
-        },
-        // Back-compat aliases — existing components use `ink-*`; keep them
-        // pointed at the new slate scale so they inherit the refresh.
+        // Back-compat alias used throughout dashboards.
         ink: {
-          50: '#F8FAFC',
-          100: '#F1F5F9',
-          200: '#E2E8F0',
-          300: '#CBD5E1',
-          400: '#94A3B8',
+          50: '#F8FAFF',
+          100: '#EEF2FA',
+          200: '#CBD5E1',
+          300: '#A8B5C7',
+          400: '#7B8AA0',
           500: '#64748B',
-          600: '#475569',
+          600: '#4A5B73',
           700: '#334155',
-          800: '#1E293B',
-          900: '#0F172A',
+          800: '#263449',
+          900: '#1E293B',
         },
       },
       fontFamily: {
-        sans: ['"IBM Plex Sans"', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['"IBM Plex Serif"', '"IBM Plex Sans"', 'Georgia', 'serif'],
+        sans: ['"DM Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['"Sora"', '"DM Sans"', 'system-ui', 'sans-serif'],
         mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       borderRadius: {
-        md: '10px',
-        lg: '14px',
-        xl: '20px',
-        '2xl': '24px',
+        md: '8px',
+        lg: '12px',
+        xl: '16px',
+        '2xl': '20px',
       },
       boxShadow: {
-        card: '0 1px 2px 0 rgba(15, 23, 42, 0.04), 0 1px 1px 0 rgba(15, 23, 42, 0.02)',
-        'card-hover': '0 4px 12px 0 rgba(15, 23, 42, 0.08)',
-        pop: '0 8px 24px 0 rgba(15, 23, 42, 0.10), 0 2px 4px 0 rgba(15, 23, 42, 0.04)',
-        focus: '0 0 0 3px rgba(45, 107, 254, 0.18)',
+        card: '0 1px 4px rgba(0,0,0,0.07)',
+        'card-hover': '0 8px 24px rgba(15,23,42,0.08)',
+        pop: '0 24px 64px rgba(15,23,42,0.18)',
+        focus: '0 0 0 3px rgba(59, 130, 246, 0.24)',
       },
       letterSpacing: {
         tightest: '-0.045em',

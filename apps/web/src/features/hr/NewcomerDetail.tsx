@@ -49,7 +49,7 @@ export function NewcomerDetail() {
       subtitle={t('hr.subtitle')}
       userName={profile?.fullName ?? 'HR Manager'}
       userRole={t('auth.role_hr_name')}
-      sections={buildWorkspaceSections()}
+      sections={buildWorkspaceSections(profile?.role ?? null)}
       searchPlaceholder="Search by newcomer, mentor, or run id"
       topActions={
         <button

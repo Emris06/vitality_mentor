@@ -28,7 +28,7 @@ import { MentorPicker } from './MentorPicker';
 import { ErpShell } from '../workspace/ErpShell';
 import { buildWorkspaceSections } from '../workspace/navigation';
 
-type TabId = 'overview' | 'newcomers' | 'mentors';
+type TabId = 'overview' | 'newcomers' | 'performance' | 'mentors';
 
 interface VelocityPoint {
   /** Local day key, e.g. "Mon" or short ISO. */
@@ -98,6 +98,16 @@ function langLabel(l: Locale): string {
   return l.toUpperCase();
 }
 
+interface InternPerformanceRow {
+  id: string;
+  name: string;
+  department: string;
+  progressPct: number;
+  efficiency: number;
+  risk: 'low' | 'medium' | 'high';
+  mentorName: string | null;
+}
+
 export function HrDashboard() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -106,6 +116,7 @@ export function HrDashboard() {
   const [tab, setTab] = useState<TabId>('overview');
   const [summary, setSummary] = useState<HrDashboardSummary | null>(null);
   const [newcomers, setNewcomers] = useState<NewcomerListItem[]>([]);
+  const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
   const [mentors, setMentors] = useState<Employee[]>([]);
   const [loadingErr, setLoadingErr] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -167,8 +178,9 @@ export function HrDashboard() {
 
   const fetchMentors = useCallback(async () => {
     try {
-      const list = await hrApi.getEmployees({ role: 'mentor' });
-      setMentors(list);
+      const list = await hrApi.getEmployees();
+      setAllEmployees(list);
+      setMentors(list.filter((p) => p.role === 'mentor'));
     } catch (err) {
       if (err instanceof HrHttpError) setLoadingErr(err.message);
     }
@@ -281,6 +293,68 @@ export function HrDashboard() {
     });
   }, [mentors, filterLang, filterSkill]);
 
+  const internPerformance = useMemo<InternPerformanceRow[]>(() => {
+    return newcomers.map((n) => {
+      const mentorAssigned = Boolean(n.mentor);
+      const efficiency = Math.min(
+        100,
+        Math.max(0, Math.round(n.progressPct * 0.75 + (mentorAssigned ? 25 : 10))),
+      );
+      const risk: 'low' | 'medium' | 'high' =
+        efficiency < 45 ? 'high' : efficiency < 70 ? 'medium' : 'low';
+      return {
+        id: n.id,
+        name: n.fullName,
+        department: n.department ?? '—',
+        progressPct: n.progressPct,
+        efficiency,
+        risk,
+        mentorName: n.mentor?.fullName ?? null,
+      };
+    });
+  }, [newcomers]);
+
+  const employeePerformance = useMemo(() => {
+    return allEmployees
+      .filter((e) => e.role === 'employee' || e.role === 'mentor')
+      .map((e) => {
+        const loadPenalty = e.role === 'mentor' ? Math.max(0, (e.currentLoad - 2) * 18) : 6;
+        const skillsBonus = Math.min(14, e.skills.length * 2);
+        const languageBonus = Math.min(8, e.languages.length * 2);
+        const efficiency = Math.max(25, Math.min(99, Math.round(82 + skillsBonus + languageBonus - loadPenalty)));
+        return {
+          id: e.id,
+          name: e.fullName,
+          role: e.role,
+          department: e.department ?? '—',
+          currentLoad: e.currentLoad,
+          skillsCount: e.skills.length,
+          efficiency,
+        };
+      })
+      .sort((a, b) => b.efficiency - a.efficiency);
+  }, [allEmployees]);
+
+  const performanceSummary = useMemo(() => {
+    const internAvg = internPerformance.length
+      ? Math.round(
+          internPerformance.reduce((acc, r) => acc + r.efficiency, 0) /
+            internPerformance.length,
+        )
+      : 0;
+    const employeeAvg = employeePerformance.length
+      ? Math.round(
+          employeePerformance.reduce((acc, r) => acc + r.efficiency, 0) /
+            employeePerformance.length,
+        )
+      : 0;
+    const atRiskInterns = internPerformance.filter((r) => r.risk === 'high').length;
+    const mentorCoverage = newcomers.length
+      ? Math.round((newcomers.filter((n) => Boolean(n.mentor)).length / newcomers.length) * 100)
+      : 0;
+    return { internAvg, employeeAvg, atRiskInterns, mentorCoverage };
+  }, [employeePerformance, internPerformance, newcomers]);
+
   const velocityHasData = velocity.some((p) => p.count > 0);
   return (
     <ErpShell
@@ -288,23 +362,52 @@ export function HrDashboard() {
       subtitle={t('hr.subtitle')}
       userName={profile?.fullName ?? 'HR Manager'}
       userRole={t('auth.role_hr_name')}
-      sections={buildWorkspaceSections()}
+      sections={buildWorkspaceSections(profile?.role ?? null)}
       searchPlaceholder="Search newcomers, mentors, departments"
       topActions={
-        <button
-          type="button"
-          onClick={handleExportCsv}
-          className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-        >
-          {t('hr.newcomers.export_csv')}
-        </button>
+        <div className="hidden items-center gap-2 lg:flex">
+          <button
+            type="button"
+            className="rounded-md border border-ink-200 bg-white px-3 py-2 text-sm text-ink-700"
+          >
+            Sep 11 - Oct 10
+          </button>
+          <button
+            type="button"
+            className="rounded-md border border-ink-200 bg-white px-3 py-2 text-sm text-ink-700"
+          >
+            Monthly
+          </button>
+          <button
+            type="button"
+            className="rounded-md border border-ink-200 bg-white px-3 py-2 text-sm text-ink-700"
+          >
+            Filter
+          </button>
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            className="rounded-md border border-ink-200 bg-white px-3 py-2 text-sm text-ink-700 hover:bg-ink-50"
+          >
+            {t('hr.newcomers.export_csv')}
+          </button>
+        </div>
       }
       rightPanel={<HrRightRail summary={summary} newcomers={newcomers} />}
     >
       <section className="space-y-4">
+        <article className="rounded-lg border border-ink-200 bg-white p-5 shadow-card">
+          <h1 className="font-display text-3xl text-ink-900">
+            Welcome {profile?.fullName ?? 'HR Manager'}
+          </h1>
+          <p className="mt-1 text-sm text-ink-600">
+            Centralized onboarding visibility, mentor assignment, and live performance analytics.
+          </p>
+        </article>
+
         <div className="rounded-2xl border border-slate-200 bg-white p-2">
           <div className="flex flex-wrap gap-1">
-            {(['overview', 'newcomers', 'mentors'] as const).map((id) => (
+            {(['overview', 'newcomers', 'performance', 'mentors'] as const).map((id) => (
               <button
                 key={id}
                 type="button"
@@ -732,6 +835,151 @@ export function HrDashboard() {
               </div>
             </motion.div>
           )}
+
+          {tab === 'performance' && (
+            <motion.div
+              key="performance"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="space-y-4"
+            >
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <StatTile label="Intern Efficiency (avg)" value={performanceSummary.internAvg} hint="Derived from onboarding progress + mentor coverage" />
+                <StatTile label="Employee Efficiency (avg)" value={performanceSummary.employeeAvg} hint="Derived from load, skills and language coverage" />
+                <StatTile label="At-Risk Interns" value={performanceSummary.atRiskInterns} hint="Efficiency < 45" />
+                <StatTile label="Mentor Coverage" value={performanceSummary.mentorCoverage} hint="% interns with assigned mentor" />
+              </div>
+
+              <div className="grid gap-4 xl:grid-cols-2">
+                <div className="overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-sm">
+                  <div className="border-b border-ink-200 px-4 py-3">
+                    <h3 className="text-sm font-semibold text-ink-900">Intern Performance & Mentor Assignment</h3>
+                  </div>
+                  <div className="max-h-[56vh] overflow-y-auto">
+                    <table className="min-w-full text-sm">
+                      <thead className="sticky top-0 z-10 bg-ink-50 text-left text-xs uppercase tracking-wide text-ink-500">
+                        <tr>
+                          <th className="px-4 py-3">Intern</th>
+                          <th className="px-4 py-3">Progress</th>
+                          <th className="px-4 py-3">Efficiency</th>
+                          <th className="px-4 py-3">Mentor</th>
+                          <th className="px-4 py-3 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {internPerformance.map((row) => (
+                          <tr key={row.id} className="border-t border-ink-100 hover:bg-ink-50/60">
+                            <td className="px-4 py-3">
+                              <div className="font-medium text-ink-900">{row.name}</div>
+                              <div className="text-xs text-ink-500">{row.department}</div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <ProgressBar value={row.progressPct} />
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${efficiencyBadgeClass(row.risk)}`}>
+                                {row.efficiency}%
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-ink-700">
+                              {row.mentorName ?? <span className="text-rose-600">{t('hr.newcomers.no_mentor')}</span>}
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <div className="inline-flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleAssignClick(row.id)}
+                                  className="rounded-full bg-brand-600 px-3 py-1 text-xs font-semibold text-white hover:bg-brand-700"
+                                >
+                                  {row.mentorName ? t('hr.newcomers.reassign') : t('hr.newcomers.assign')}
+                                </button>
+                                {row.mentorName && (
+                                  <button
+                                    type="button"
+                                    onClick={() => void handleUnassign(row.id)}
+                                    className="rounded-full border border-ink-200 bg-white px-3 py-1 text-xs font-medium text-ink-700 hover:bg-ink-50"
+                                  >
+                                    {t('hr.newcomers.unassign')}
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                        {internPerformance.length === 0 && (
+                          <tr>
+                            <td colSpan={5} className="px-4 py-8 text-center text-sm text-ink-500">
+                              No intern data available.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-sm">
+                  <div className="border-b border-ink-200 px-4 py-3">
+                    <h3 className="text-sm font-semibold text-ink-900">Employee Performance & Efficiency</h3>
+                  </div>
+                  <div className="max-h-[56vh] overflow-y-auto">
+                    <table className="min-w-full text-sm">
+                      <thead className="sticky top-0 z-10 bg-ink-50 text-left text-xs uppercase tracking-wide text-ink-500">
+                        <tr>
+                          <th className="px-4 py-3">Employee</th>
+                          <th className="px-4 py-3">Role</th>
+                          <th className="px-4 py-3">Skills</th>
+                          <th className="px-4 py-3">Load</th>
+                          <th className="px-4 py-3">Efficiency</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {employeePerformance.map((row) => (
+                          (() => {
+                            const risk: 'low' | 'medium' | 'high' =
+                              row.efficiency < 50
+                                ? 'high'
+                                : row.efficiency < 72
+                                  ? 'medium'
+                                  : 'low';
+                            return (
+                              <tr key={row.id} className="border-t border-ink-100 hover:bg-ink-50/60">
+                                <td className="px-4 py-3">
+                                  <div className="font-medium text-ink-900">{row.name}</div>
+                                  <div className="text-xs text-ink-500">{row.department}</div>
+                                </td>
+                                <td className="px-4 py-3">
+                                  <span className="rounded-full bg-ink-100 px-2 py-0.5 text-xs font-medium text-ink-700">
+                                    {row.role}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-ink-700 tabular-nums">{row.skillsCount}</td>
+                                <td className="px-4 py-3 text-ink-700 tabular-nums">{row.currentLoad}</td>
+                                <td className="px-4 py-3">
+                                  <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${efficiencyBadgeClass(risk)}`}>
+                                    {row.efficiency}%
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })()
+                        ))}
+                        {employeePerformance.length === 0 && (
+                          <tr>
+                            <td colSpan={5} className="px-4 py-8 text-center text-sm text-ink-500">
+                              No employee data available.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </AnimatePresence>
       </section>
 
@@ -827,6 +1075,12 @@ function formatDate(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '—';
   return d.toISOString().slice(0, 10);
+}
+
+function efficiencyBadgeClass(risk: 'low' | 'medium' | 'high'): string {
+  if (risk === 'high') return 'bg-rose-100 text-rose-700';
+  if (risk === 'medium') return 'bg-amber-100 text-amber-700';
+  return 'bg-emerald-100 text-emerald-700';
 }
 
 /** Initialize the velocity series with the last 7 day labels. */

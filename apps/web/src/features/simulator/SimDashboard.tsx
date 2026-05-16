@@ -108,7 +108,7 @@ export function SimDashboard() {
       subtitle={t('app.name')}
       userName={profile?.fullName ?? 'Team Member'}
       userRole={roleLabel}
-      sections={buildWorkspaceSections()}
+      sections={buildWorkspaceSections(profile?.role ?? null)}
       searchPlaceholder="Search scenarios, steps, and simulation runs"
     >
       <section className="space-y-4">

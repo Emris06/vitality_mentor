@@ -184,16 +184,16 @@ export function ErpShell({
   }
 
   return (
-    <div className="min-h-full bg-[#dbe7f0] p-2 md:p-5">
-      <div className="mx-auto flex min-h-[calc(100vh-1rem)] w-full max-w-[1500px] overflow-hidden rounded-[26px] border border-slate-300 bg-white shadow-[0_16px_48px_rgba(15,23,42,0.18)] md:min-h-[calc(100vh-2.5rem)]">
-        <aside className="hidden w-[252px] shrink-0 border-r border-slate-200 bg-white md:flex md:flex-col">
+    <div className="min-h-full p-2 md:p-5">
+      <div className="mx-auto flex min-h-[calc(100vh-1rem)] w-full max-w-[1440px] overflow-hidden rounded-[20px] border border-ink-200 bg-white shadow-pop md:min-h-[calc(100vh-2.5rem)]">
+        <aside className="hidden w-[244px] shrink-0 border-r border-ink-200 bg-[var(--sidebar)] md:flex md:flex-col">
           <div className="flex items-center gap-3 px-5 pb-4 pt-5">
-            <Link to={homeHref} className="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-sm font-bold text-white">
+            <Link to={homeHref} className="grid h-10 w-10 place-items-center rounded-lg bg-brand-500 text-sm font-bold text-white shadow-card">
               AI
             </Link>
             <div className="min-w-0">
-              <p className="truncate text-base font-semibold text-slate-900">{title}</p>
-              <p className="truncate text-xs text-slate-500">{subtitle}</p>
+              <p className="truncate font-display text-base font-semibold text-ink-900">{title}</p>
+              <p className="truncate text-xs text-ink-500">{subtitle}</p>
             </div>
           </div>
 
@@ -201,7 +201,7 @@ export function ErpShell({
             {sections.map((section, idx) => (
               <div key={`${section.label ?? 'sec'}-${idx}`} className="mb-4">
                 {section.label && (
-                  <p className="px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400">
+                  <p className="px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-500">
                     {section.label}
                   </p>
                 )}
@@ -212,25 +212,25 @@ export function ErpShell({
                         to={item.to}
                         end={item.end}
                         className={({ isActive }) =>
-                          `group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                          `group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                             isActive
-                              ? 'bg-brand-50 text-brand-700'
-                              : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                              ? 'bg-brand-100 text-brand-700'
+                              : 'text-ink-700 hover:bg-white/90 hover:text-ink-900'
                           }`
                         }
                       >
                         {({ isActive }) => (
                           <>
-                            <span className={isActive ? 'text-brand-600' : 'text-slate-400 group-hover:text-slate-600'}>
+                            <span className={isActive ? 'text-brand-600' : 'text-ink-500 group-hover:text-ink-700'}>
                               {item.icon}
                             </span>
                             <span className="flex-1 truncate">{item.label}</span>
                             {item.badge && (
-                              <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+                              <span className="rounded-full border border-ink-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-ink-700">
                                 {item.badge}
                               </span>
                             )}
-                            {isActive && <span className="absolute -left-3 top-2 h-6 w-1 rounded-r-full bg-brand-600" />}
+                            {isActive && <span className="absolute -left-3 top-2 h-6 w-[3px] rounded-r-full bg-brand-600" />}
                           </>
                         )}
                       </NavLink>
@@ -240,14 +240,14 @@ export function ErpShell({
               </div>
             ))}
           </nav>
-          <div className="border-t border-slate-200 px-3 py-3">
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">
+          <div className="border-t border-ink-200 px-3 py-3">
+            <div className="rounded-lg border border-ink-200 bg-white/80 p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-500">
                 Workspace
               </p>
-              <div className="mt-2 flex items-center justify-between text-xs text-slate-600">
+              <div className="mt-2 flex items-center justify-between text-xs text-ink-700">
                 <span>Open items</span>
-                <span className="rounded-full bg-white px-2 py-0.5 font-semibold text-slate-700">
+                <span className="rounded-full bg-ink-50 px-2 py-0.5 font-semibold text-ink-700">
                   {openItems}
                 </span>
               </div>
@@ -257,14 +257,14 @@ export function ErpShell({
                     key={item.id}
                     type="button"
                     onClick={() => toggleDone(item.id)}
-                    className="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-left text-xs text-slate-700 hover:border-brand-200"
+                    className="flex w-full items-center gap-2 rounded-md border border-ink-200 bg-white px-2 py-1.5 text-left text-xs text-ink-700 hover:border-brand-200"
                   >
                     <span className={`h-2.5 w-2.5 rounded-full ${item.done ? 'bg-emerald-500' : 'bg-amber-400'}`} />
                     <span className={item.done ? 'line-through opacity-60' : ''}>{item.title}</span>
                   </button>
                 ))}
                 {items.length === 0 && (
-                  <p className="rounded-lg border border-dashed border-slate-300 px-2 py-2 text-xs text-slate-500">
+                  <p className="rounded-md border border-dashed border-ink-300 px-2 py-2 text-xs text-ink-500">
                     No items yet. Use <span className="font-semibold">+ New</span>.
                   </p>
                 )}
@@ -274,17 +274,17 @@ export function ErpShell({
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-3 md:px-6">
+          <header className="flex h-16 items-center gap-3 border-b border-ink-200 bg-white px-4 py-3 md:px-6">
             <div className="relative hidden max-w-xl flex-1 md:block">
               <button
                 type="button"
                 onClick={() => setPaletteOpen(true)}
-                className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-10 pr-20 text-left text-sm text-slate-900 transition-colors hover:border-slate-300"
+                className="h-10 w-full rounded-lg border border-ink-200 bg-ink-50 px-10 pr-20 text-left text-sm text-ink-900 transition-colors hover:border-ink-300"
               >
                 {searchPlaceholder}
               </button>
               <svg
-                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
@@ -294,7 +294,7 @@ export function ErpShell({
                 <circle cx="11" cy="11" r="7" />
                 <path d="m20 20-3-3" strokeLinecap="round" />
               </svg>
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-slate-300 bg-white px-1.5 py-0.5 text-[11px] font-semibold text-slate-500">
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-ink-300 bg-white px-1.5 py-0.5 text-[11px] font-semibold text-ink-500">
                 Ctrl K
               </span>
             </div>
@@ -302,14 +302,14 @@ export function ErpShell({
               <button
                 type="button"
                 onClick={() => setCreateOpen(true)}
-                className="rounded-xl bg-brand-600 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-700"
+                className="rounded-md bg-brand-500 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-600"
               >
                 + New
               </button>
               <button
                 type="button"
                 onClick={() => setInboxOpen((prev) => !prev)}
-                className="relative rounded-xl border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-50"
+                className="relative rounded-md border border-ink-200 bg-white p-2 text-ink-600 hover:bg-ink-50"
                 aria-label="Notifications"
               >
                 <IconBell />
@@ -321,18 +321,18 @@ export function ErpShell({
               </button>
               {topActions}
               <LocalePicker />
-              <div className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-1 md:flex">
-                <span className="grid h-8 w-8 place-items-center rounded-lg bg-slate-900 text-xs font-semibold text-white">
+              <div className="hidden items-center gap-2 rounded-lg border border-ink-200 bg-white px-2 py-1 md:flex">
+                <span className="grid h-8 w-8 place-items-center rounded-md bg-ink-900 text-xs font-semibold text-white">
                   {initials(userName)}
                 </span>
                 <div className="pr-1">
-                  <p className="text-sm font-medium leading-tight text-slate-900">{userName}</p>
-                  <p className="text-xs leading-tight text-slate-500">{userRole}</p>
+                  <p className="text-sm font-medium leading-tight text-ink-900">{userName}</p>
+                  <p className="text-xs leading-tight text-ink-500">{userRole}</p>
                 </div>
               </div>
             </div>
           </header>
-          <div className="border-b border-slate-200 bg-gradient-to-r from-brand-50 via-white to-emerald-50 px-4 py-2.5 text-xs text-slate-700 md:px-6">
+          <div className="border-b border-ink-200 bg-gradient-to-r from-brand-50 via-white to-sky-50 px-4 py-2.5 text-xs text-ink-700 md:px-6">
             <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
               <PulseItem label="Product velocity" value="12 launches / month" tone="brand" />
               <PulseItem label="AI uptime" value="99.98%" tone="emerald" />
@@ -341,10 +341,10 @@ export function ErpShell({
             </div>
           </div>
 
-          <div className="flex min-h-0 flex-1 bg-slate-100/80">
+          <div className="flex min-h-0 flex-1 bg-[var(--bg)]/70">
             <main className="min-w-0 flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
             {rightPanel && (
-              <aside className="hidden w-[320px] shrink-0 border-l border-slate-200 bg-white p-4 xl:block">
+              <aside className="hidden w-[320px] shrink-0 border-l border-ink-200 bg-white p-4 xl:block">
                 {rightPanel}
               </aside>
             )}
@@ -353,15 +353,15 @@ export function ErpShell({
       </div>
 
       {paletteOpen && (
-        <div className="fixed inset-0 z-50 grid place-items-start bg-slate-900/40 px-4 pt-[12vh]">
-          <div className="w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-            <div className="border-b border-slate-200 p-3">
+        <div className="fixed inset-0 z-50 grid place-items-start bg-ink-900/45 px-4 pt-[12vh]">
+          <div className="w-full max-w-2xl overflow-hidden rounded-xl border border-ink-200 bg-white shadow-pop">
+            <div className="border-b border-ink-200 p-3">
               <input
                 autoFocus
                 value={paletteQuery}
                 onChange={(e) => setPaletteQuery(e.target.value)}
                 placeholder="Type a command or route..."
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus:border-brand-300 focus:bg-white focus:outline-none"
+                className="w-full rounded-md border border-ink-200 bg-ink-50 px-3 py-2 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-300 focus:bg-white focus:outline-none"
               />
             </div>
             <div className="max-h-[360px] overflow-y-auto p-2">
@@ -373,14 +373,14 @@ export function ErpShell({
                     command.run();
                     setPaletteOpen(false);
                   }}
-                  className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left hover:bg-slate-50"
+                  className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left hover:bg-ink-50"
                 >
-                  <span className="text-sm font-medium text-slate-800">{command.label}</span>
-                  <span className="text-xs text-slate-500">{command.hint}</span>
+                  <span className="text-sm font-medium text-ink-800">{command.label}</span>
+                  <span className="text-xs text-ink-500">{command.hint}</span>
                 </button>
               ))}
               {filteredCommands.length === 0 && (
-                <p className="px-3 py-4 text-sm text-slate-500">No matching command.</p>
+                <p className="px-3 py-4 text-sm text-ink-500">No matching command.</p>
               )}
             </div>
           </div>
@@ -388,10 +388,10 @@ export function ErpShell({
       )}
 
       {createOpen && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/40 px-4">
-          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl">
-            <h3 className="text-lg font-semibold text-slate-900">Create workspace item</h3>
-            <p className="mt-1 text-sm text-slate-500">Track personal startup work directly in your panel.</p>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-ink-900/45 px-4">
+          <div className="w-full max-w-md rounded-xl border border-ink-200 bg-white p-4 shadow-pop">
+            <h3 className="font-display text-lg font-semibold text-ink-900">Create workspace item</h3>
+            <p className="mt-1 text-sm text-ink-500">Track personal startup work directly in your panel.</p>
             <div className="mt-4 space-y-3">
               <div className="flex gap-2">
                 {(['task', 'note', 'reminder'] as const).map((kind) => (
@@ -402,7 +402,7 @@ export function ErpShell({
                     className={`rounded-lg px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${
                       createType === kind
                         ? 'bg-brand-600 text-white'
-                        : 'border border-slate-200 bg-white text-slate-600'
+                        : 'border border-ink-200 bg-white text-ink-600'
                     }`}
                   >
                     {kind}
@@ -414,21 +414,21 @@ export function ErpShell({
                 value={createTitle}
                 onChange={(e) => setCreateTitle(e.target.value)}
                 placeholder="Write a short title..."
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-brand-300 focus:bg-white focus:outline-none"
+                className="w-full rounded-md border border-ink-200 bg-ink-50 px-3 py-2 text-sm text-ink-900 focus:border-brand-300 focus:bg-white focus:outline-none"
               />
             </div>
             <div className="mt-4 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setCreateOpen(false)}
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700"
+                className="rounded-md border border-ink-200 bg-white px-3 py-2 text-sm font-medium text-ink-700"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={createItem}
-                className="rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-700"
+                className="rounded-md bg-brand-500 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-600"
               >
                 Save
               </button>
@@ -438,9 +438,9 @@ export function ErpShell({
       )}
 
       {inboxOpen && (
-        <div className="fixed right-4 top-20 z-50 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-          <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-            <h3 className="text-sm font-semibold text-slate-900">Notifications</h3>
+        <div className="fixed right-4 top-20 z-50 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-ink-200 bg-white shadow-pop">
+          <div className="flex items-center justify-between border-b border-ink-200 px-4 py-3">
+            <h3 className="text-sm font-semibold text-ink-900">Notifications</h3>
             <button
               type="button"
               onClick={markAllRead}
@@ -451,12 +451,12 @@ export function ErpShell({
           </div>
           <div className="max-h-[360px] overflow-y-auto p-2">
             {events.map((event) => (
-              <article key={event.id} className="rounded-xl px-3 py-2 hover:bg-slate-50">
+              <article key={event.id} className="rounded-md px-3 py-2 hover:bg-ink-50">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-medium text-slate-800">{event.title}</p>
-                  <span className="text-[11px] text-slate-500">{event.time}</span>
+                  <p className="text-sm font-medium text-ink-800">{event.title}</p>
+                  <span className="text-[11px] text-ink-500">{event.time}</span>
                 </div>
-                <p className="mt-0.5 text-xs text-slate-600">{event.detail}</p>
+                <p className="mt-0.5 text-xs text-ink-600">{event.detail}</p>
                 {event.unread && <span className="mt-1 inline-block h-2 w-2 rounded-full bg-brand-600" />}
               </article>
             ))}
@@ -481,17 +481,17 @@ function PulseItem({
       ? 'bg-brand-500'
       : tone === 'emerald'
         ? 'bg-emerald-500'
-        : tone === 'amber'
-          ? 'bg-amber-500'
-          : 'bg-slate-500';
+      : tone === 'amber'
+        ? 'bg-amber-500'
+          : 'bg-ink-500';
   return (
     <div className="inline-flex items-center gap-2">
       <span className={`relative flex h-2.5 w-2.5`}>
         <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-50 ${color}`} />
         <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${color}`} />
       </span>
-      <span className="text-slate-500">{label}:</span>
-      <span className="font-semibold text-slate-700">{value}</span>
+      <span className="text-ink-500">{label}:</span>
+      <span className="font-semibold text-ink-700">{value}</span>
     </div>
   );
 }
