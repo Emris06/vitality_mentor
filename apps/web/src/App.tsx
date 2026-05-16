@@ -12,6 +12,8 @@ import { EmployeeSkillsPage } from './features/skills/EmployeeSkillsPage';
 import { SignUpPage } from './features/auth/SignUpPage';
 import { SignInPage } from './features/auth/SignInPage';
 import { CallbackPage } from './features/auth/CallbackPage';
+import { EmployeeDashboard } from './features/workspace/EmployeeDashboard';
+import { InternDashboard } from './features/workspace/InternDashboard';
 
 export function App() {
   return (
@@ -24,8 +26,8 @@ export function App() {
       <Route path="/simulator" element={<SimDashboard />} />
       <Route path="/simulator/kyc" element={<KycRunBootstrap />} />
       <Route path="/simulator/kyc/:runId" element={<KycRunPage />} />
-      <Route path="/intern" element={<Navigate to="/simulator" replace />} />
-      <Route path="/employee" element={<Navigate to="/chat" replace />} />
+      <Route path="/intern" element={<InternDashboard />} />
+      <Route path="/employee" element={<EmployeeDashboard />} />
       <Route path="/hr" element={<HrDashboard />} />
       <Route path="/hr/newcomers/:id" element={<NewcomerDetail />} />
       <Route path="/me" element={<ProfilePage />} />

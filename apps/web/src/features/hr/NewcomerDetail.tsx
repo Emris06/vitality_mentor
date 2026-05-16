@@ -3,15 +3,18 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import type { ScenarioRun } from '@vitality/shared';
-import { LocalePicker } from '../../components/LocalePicker';
+import { useAuth } from '../auth/AuthProvider';
 import { hrApi, HrHttpError, type NewcomerDetailDto } from '../../lib/api';
 import { DeadlineBadge } from './DeadlineBadge';
 import { MentorPicker } from './MentorPicker';
+import { ErpShell } from '../workspace/ErpShell';
+import { buildWorkspaceSections } from '../workspace/navigation';
 
 export function NewcomerDetail() {
   const { id = '' } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { profile } = useAuth();
 
   const [data, setData] = useState<NewcomerDetailDto | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -40,49 +43,25 @@ export function NewcomerDetail() {
     }
   }, [id, refetch]);
 
-  const goBack = () => navigate('/hr');
-
   return (
-    <main className="min-h-full bg-gradient-to-b from-ink-50 to-white">
-      <header className="border-b border-ink-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-4 md:px-6">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={goBack}
-              className="grid h-9 w-9 place-items-center rounded-xl border border-ink-200 bg-white text-ink-700 shadow-sm transition-colors hover:bg-ink-50"
-              aria-label={t('hr.newcomer_detail.back')}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-4 w-4"
-                aria-hidden="true"
-              >
-                <path d="M19 12H5" />
-                <path d="m12 19-7-7 7-7" />
-              </svg>
-            </button>
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-white font-bold">
-              AI
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="text-base font-semibold text-ink-900">{t('hr.title')}</span>
-              <Link to="/hr" className="text-xs text-brand-700 hover:underline">
-                {t('hr.newcomer_detail.back')}
-              </Link>
-            </div>
-          </div>
-          <LocalePicker />
-        </div>
-      </header>
-
-      <section className="mx-auto max-w-5xl px-4 py-8 md:px-6">
+    <ErpShell
+      title={t('hr.title')}
+      subtitle={t('hr.subtitle')}
+      userName={profile?.fullName ?? 'HR Manager'}
+      userRole={t('auth.role_hr_name')}
+      sections={buildWorkspaceSections()}
+      searchPlaceholder="Search by newcomer, mentor, or run id"
+      topActions={
+        <button
+          type="button"
+          onClick={() => navigate('/hr')}
+          className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          {t('hr.newcomer_detail.back')}
+        </button>
+      }
+    >
+      <section className="space-y-4">
         {err && (
           <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">
             {err}
@@ -97,7 +76,7 @@ export function NewcomerDetail() {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="rounded-2xl border border-ink-200 bg-white p-6 shadow-sm"
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
@@ -130,7 +109,7 @@ export function NewcomerDetail() {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.05 }}
-              className="mt-4 rounded-2xl border border-ink-200 bg-white p-6 shadow-sm"
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-500">
@@ -189,7 +168,7 @@ export function NewcomerDetail() {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.1 }}
-              className="mt-4 rounded-2xl border border-ink-200 bg-white p-6 shadow-sm"
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
             >
               <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-500">
                 {t('hr.newcomer_detail.recent_runs')}
@@ -228,7 +207,7 @@ export function NewcomerDetail() {
           onAssigned={() => void refetch()}
         />
       )}
-    </main>
+    </ErpShell>
   );
 }
 

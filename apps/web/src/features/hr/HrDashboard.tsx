@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -14,7 +14,7 @@ import {
   YAxis,
 } from 'recharts';
 import type { Employee, Locale } from '@vitality/shared';
-import { LocalePicker } from '../../components/LocalePicker';
+import { useAuth } from '../auth/AuthProvider';
 import {
   hrApi,
   HrHttpError,
@@ -25,6 +25,8 @@ import {
 import { ProgressBar } from './ProgressBar';
 import { DeadlineBadge } from './DeadlineBadge';
 import { MentorPicker } from './MentorPicker';
+import { ErpShell } from '../workspace/ErpShell';
+import { buildWorkspaceSections } from '../workspace/navigation';
 
 type TabId = 'overview' | 'newcomers' | 'mentors';
 
@@ -99,6 +101,7 @@ function langLabel(l: Locale): string {
 export function HrDashboard() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { profile } = useAuth();
 
   const [tab, setTab] = useState<TabId>('overview');
   const [summary, setSummary] = useState<HrDashboardSummary | null>(null);
@@ -279,73 +282,47 @@ export function HrDashboard() {
   }, [mentors, filterLang, filterSkill]);
 
   const velocityHasData = velocity.some((p) => p.count > 0);
-
   return (
-    <main className="min-h-full bg-gradient-to-b from-ink-50 to-white">
-      <header className="border-b border-ink-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 md:px-6">
-          <div className="flex items-center gap-3">
-            <Link
-              to="/"
-              className="grid h-9 w-9 place-items-center rounded-xl border border-ink-200 bg-white text-ink-700 shadow-sm transition-colors hover:bg-ink-50"
-              aria-label={t('hr.back')}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-4 w-4"
-                aria-hidden="true"
+    <ErpShell
+      title={t('hr.title')}
+      subtitle={t('hr.subtitle')}
+      userName={profile?.fullName ?? 'HR Manager'}
+      userRole={t('auth.role_hr_name')}
+      sections={buildWorkspaceSections()}
+      searchPlaceholder="Search newcomers, mentors, departments"
+      topActions={
+        <button
+          type="button"
+          onClick={handleExportCsv}
+          className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          {t('hr.newcomers.export_csv')}
+        </button>
+      }
+      rightPanel={<HrRightRail summary={summary} newcomers={newcomers} />}
+    >
+      <section className="space-y-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-2">
+          <div className="flex flex-wrap gap-1">
+            {(['overview', 'newcomers', 'mentors'] as const).map((id) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setTab(id)}
+                className={
+                  'rounded-xl px-3 py-2 text-sm font-medium transition-colors ' +
+                  (tab === id
+                    ? 'bg-brand-600 text-white'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900')
+                }
+                aria-pressed={tab === id}
               >
-                <path d="M19 12H5" />
-                <path d="m12 19-7-7 7-7" />
-              </svg>
-            </Link>
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-white font-bold">
-              AI
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="text-base font-semibold text-ink-900">{t('hr.title')}</span>
-              <span className="text-xs text-ink-500">{t('hr.subtitle')}</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleExportCsv}
-              className="rounded-full border border-ink-200 bg-white px-3 py-1.5 text-xs font-medium text-ink-700 shadow-sm hover:bg-ink-50"
-            >
-              {t('hr.newcomers.export_csv')}
-            </button>
-            <LocalePicker />
+                {t(`hr.tabs.${id}`)}
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="mx-auto flex max-w-7xl gap-1 px-4 md:px-6">
-          {(['overview', 'newcomers', 'mentors'] as const).map((id) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setTab(id)}
-              className={
-                'border-b-2 px-3 py-2 text-sm font-medium transition-colors ' +
-                (tab === id
-                  ? 'border-brand-600 text-brand-700'
-                  : 'border-transparent text-ink-600 hover:text-ink-900')
-              }
-              aria-pressed={tab === id}
-            >
-              {t(`hr.tabs.${id}`)}
-            </button>
-          ))}
-        </div>
-      </header>
-
-      <section className="mx-auto max-w-7xl px-4 py-8 md:px-6">
         {loadingErr && (
           <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">
             {loadingErr}
@@ -769,7 +746,56 @@ export function HrDashboard() {
           }}
         />
       )}
-    </main>
+    </ErpShell>
+  );
+}
+
+function HrRightRail({
+  summary,
+  newcomers,
+}: {
+  summary: HrDashboardSummary | null;
+  newcomers: NewcomerListItem[];
+}) {
+  const topDue = [...newcomers]
+    .sort((a, b) => a.onboardingDeadline.localeCompare(b.onboardingDeadline))
+    .slice(0, 4);
+
+  return (
+    <div className="space-y-4">
+      <section className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+        <h3 className="text-sm font-semibold text-slate-900">Schedule</h3>
+        <div className="mt-2 space-y-2 text-xs text-slate-600">
+          <p>Daily mentor assignment sync</p>
+          <p>15:00 performance review board</p>
+          <p>Export cycle: weekly every Friday</p>
+        </div>
+      </section>
+      <section className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+        <h3 className="text-sm font-semibold text-slate-900">Top Mentors</h3>
+        <div className="mt-2 space-y-2 text-xs text-slate-700">
+          {(summary?.topMentors ?? []).slice(0, 4).map((mentor) => (
+            <p key={mentor.employeeId} className="flex items-center justify-between gap-2">
+              <span className="truncate">{mentor.name}</span>
+              <span className="font-semibold">{mentor.completedCount}</span>
+            </p>
+          ))}
+          {(!summary || summary.topMentors.length === 0) && <p>No mentor data yet.</p>}
+        </div>
+      </section>
+      <section className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+        <h3 className="text-sm font-semibold text-slate-900">Upcoming Deadlines</h3>
+        <div className="mt-2 space-y-2 text-xs text-slate-700">
+          {topDue.map((person) => (
+            <p key={person.id} className="flex items-center justify-between gap-2">
+              <span className="truncate">{person.fullName}</span>
+              <span>{formatDate(person.onboardingDeadline)}</span>
+            </p>
+          ))}
+          {topDue.length === 0 && <p>No active newcomers.</p>}
+        </div>
+      </section>
+    </div>
   );
 }
 

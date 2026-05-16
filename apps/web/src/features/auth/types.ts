@@ -34,9 +34,9 @@ export function homeRouteFor(role: UserRole | null): string {
     case 'admin':
       return '/hr';
     case 'intern':
-      return '/simulator';
+      return '/intern';
     case 'employee':
-      return '/chat';
+      return '/employee';
     default:
       return '/';
   }

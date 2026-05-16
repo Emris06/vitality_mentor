@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@vitality/shared';
-import { LocalePicker } from '../../components/LocalePicker';
 import { ChatInput, type ChatInputHandle } from './ChatInput';
 import { EmptyState } from './EmptyState';
 import { MessageList } from './MessageList';
@@ -11,6 +9,9 @@ import { useChatStream } from './useChatStream';
 import { VoiceModeToggle } from './voice/VoiceModeToggle';
 import { useAutoSpeakAssistant } from './voice/useAutoSpeakAssistant';
 import { isTtsSupported } from './voice/speechCapabilities';
+import { useAuth } from '../auth/AuthProvider';
+import { ErpShell } from '../workspace/ErpShell';
+import { buildWorkspaceSections } from '../workspace/navigation';
 
 const SESSION_KEY = 'vitality.chatSessionId';
 const VOICE_MODE_KEY = 'vitality.voice.autoSpeak';
@@ -42,6 +43,7 @@ function readOrCreateSessionId(): string {
 
 export function ChatPage() {
   const { t, i18n } = useTranslation();
+  const { profile } = useAuth();
   const locale: Locale = useMemo(() => {
     const resolved = i18n.resolvedLanguage ?? DEFAULT_LOCALE;
     return isLocale(resolved) ? resolved : DEFAULT_LOCALE;
@@ -120,82 +122,61 @@ export function ChatPage() {
   );
 
   const empty = messages.length === 0;
+  const sections = useMemo(() => buildWorkspaceSections(), []);
+  const roleLabel =
+    profile?.role === 'hr'
+      ? t('auth.role_hr_name')
+      : profile?.role === 'intern'
+        ? t('auth.role_intern_name')
+        : t('auth.role_employee_name');
 
   return (
-    <main className="flex h-full min-h-0 flex-col bg-gradient-to-b from-ink-50 to-white">
-      <header className="border-b border-ink-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 md:px-6">
-          <div className="flex items-center gap-3">
-            <Link
-              to="/"
-              className="grid h-9 w-9 place-items-center rounded-xl border border-ink-200 bg-white text-ink-700 shadow-sm transition-colors hover:bg-ink-50"
-              aria-label={t('chat.back')}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-4 w-4"
-                aria-hidden="true"
-              >
-                <path d="M19 12H5" />
-                <path d="m12 19-7-7 7-7" />
-              </svg>
-            </Link>
-            <div className="flex items-center gap-2">
-              <div className="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-xs font-bold text-white">
-                AI
-              </div>
-              <div className="flex flex-col leading-tight">
-                <span className="text-sm font-semibold text-ink-900">{t('chat.title')}</span>
-                <span className="text-[11px] text-ink-500">{t('app.name')}</span>
-              </div>
+    <ErpShell
+      title={t('chat.title')}
+      subtitle={t('app.name')}
+      userName={profile?.fullName ?? 'Team Member'}
+      userRole={roleLabel}
+      sections={sections}
+      searchPlaceholder="Search messages, procedures, and prompts"
+      topActions={
+        <VoiceModeToggle
+          enabled={voiceMode}
+          supported={ttsSupported}
+          onToggle={() => setVoiceMode((v) => !v)}
+        />
+      }
+    >
+      <div className="flex min-h-[720px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        {empty ? (
+          <EmptyState onPick={handleSample} />
+        ) : (
+          <MessageList messages={messages} streaming={streaming} />
+        )}
+
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mx-auto w-full max-w-3xl px-4 md:px-6"
+            role="alert"
+          >
+            <div className="mb-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+              {error === 'rate_limited' ? t('chat.error_rate_limited') : t('chat.error_generic')}
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <VoiceModeToggle
-              enabled={voiceMode}
-              supported={ttsSupported}
-              onToggle={() => setVoiceMode((v) => !v)}
-            />
-            <LocalePicker />
-          </div>
-        </div>
-      </header>
+          </motion.div>
+        )}
 
-      {empty ? (
-        <EmptyState onPick={handleSample} />
-      ) : (
-        <MessageList messages={messages} streaming={streaming} />
-      )}
-
-      {error && (
-        <motion.div
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mx-auto w-full max-w-3xl px-4 md:px-6"
-          role="alert"
-        >
-          <div className="mb-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
-            {error === 'rate_limited' ? t('chat.error_rate_limited') : t('chat.error_generic')}
-          </div>
-        </motion.div>
-      )}
-
-      <ChatInput
-        ref={inputRef}
-        value={draft}
-        onChange={setDraft}
-        onSubmit={handleSubmit}
-        onStop={stop}
-        streaming={streaming}
-        onSendVoiceText={handleVoiceSend}
-        onSttPermissionDenied={handleSttPermissionDenied}
-      />
-    </main>
+        <ChatInput
+          ref={inputRef}
+          value={draft}
+          onChange={setDraft}
+          onSubmit={handleSubmit}
+          onStop={stop}
+          streaming={streaming}
+          onSendVoiceText={handleVoiceSend}
+          onSttPermissionDenied={handleSttPermissionDenied}
+        />
+      </div>
+    </ErpShell>
   );
 }

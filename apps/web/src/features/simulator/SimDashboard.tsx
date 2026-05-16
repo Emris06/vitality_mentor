@@ -1,10 +1,12 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { DEFAULT_LOCALE, isLocale, type Locale, type ScenarioId } from '@vitality/shared';
-import { LocalePicker } from '../../components/LocalePicker';
 import { simApi, SimHttpError } from '../../lib/api';
+import { useAuth } from '../auth/AuthProvider';
+import { ErpShell } from '../workspace/ErpShell';
+import { buildWorkspaceSections } from '../workspace/navigation';
 
 const LAST_RUN_KEY = 'vitality.lastKycRunId';
 
@@ -60,6 +62,7 @@ const SCENARIOS: ScenarioCard[] = [
 
 export function SimDashboard() {
   const { t, i18n } = useTranslation();
+  const { profile } = useAuth();
   const navigate = useNavigate();
   const [starting, setStarting] = useState<ScenarioId | null>(null);
   const [startError, setStartError] = useState<string | null>(null);
@@ -92,41 +95,23 @@ export function SimDashboard() {
     [locale, navigate, t],
   );
 
-  return (
-    <main className="min-h-full bg-gradient-to-b from-ink-50 to-white">
-      <header className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-5 md:px-6 md:py-6">
-        <div className="flex items-center gap-3">
-          <Link
-            to="/"
-            className="grid h-9 w-9 place-items-center rounded-xl border border-ink-200 bg-white text-ink-700 shadow-sm transition-colors hover:bg-ink-50"
-            aria-label={t('sim.back')}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-4 w-4"
-              aria-hidden="true"
-            >
-              <path d="M19 12H5" />
-              <path d="m12 19-7-7 7-7" />
-            </svg>
-          </Link>
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-white font-bold">
-            AI
-          </div>
-          <span className="text-lg font-semibold tracking-tight text-ink-900">
-            {t('app.name')}
-          </span>
-        </div>
-        <LocalePicker />
-      </header>
+  const roleLabel =
+    profile?.role === 'hr'
+      ? t('auth.role_hr_name')
+      : profile?.role === 'intern'
+        ? t('auth.role_intern_name')
+        : t('auth.role_employee_name');
 
-      <section className="mx-auto max-w-6xl px-4 pb-16 md:px-6">
+  return (
+    <ErpShell
+      title={t('sim.dashboard_title')}
+      subtitle={t('app.name')}
+      userName={profile?.fullName ?? 'Team Member'}
+      userRole={roleLabel}
+      sections={buildWorkspaceSections()}
+      searchPlaceholder="Search scenarios, steps, and simulation runs"
+    >
+      <section className="space-y-4">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -224,6 +209,6 @@ export function SimDashboard() {
           {t('sim.kyc.banner_synthetic')}
         </p>
       </section>
-    </main>
+    </ErpShell>
   );
 }

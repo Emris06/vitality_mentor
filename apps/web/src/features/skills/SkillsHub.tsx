@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -14,7 +14,6 @@ import {
   YAxis,
 } from 'recharts';
 import type { Employee, SkillLevel } from '@vitality/shared';
-import { LocalePicker } from '../../components/LocalePicker';
 import {
   hrApi,
   HrHttpError,
@@ -27,6 +26,9 @@ import {
 import { Heatmap } from './Heatmap';
 import { SkillsRadarMini } from './SkillsRadarMini';
 import { avatarHue, initialsOf, resolveSkillName } from './skillsTheme';
+import { useAuth } from '../auth/AuthProvider';
+import { ErpShell } from '../workspace/ErpShell';
+import { buildWorkspaceSections } from '../workspace/navigation';
 
 type TabId = 'team' | 'matrix' | 'analytics';
 
@@ -41,6 +43,7 @@ type TabId = 'team' | 'matrix' | 'analytics';
 export function SkillsHub() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { profile } = useAuth();
 
   const [tab, setTab] = useState<TabId>('team');
   const [department, setDepartment] = useState<string | 'all'>('all');
@@ -140,30 +143,24 @@ export function SkillsHub() {
     return employees.filter((e) => e.department === department);
   }, [employees, department]);
 
-  return (
-    <main className="min-h-full bg-gradient-to-b from-ink-50 to-white">
-      <header className="border-b border-ink-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 md:px-6">
-          <div className="flex items-center gap-3">
-            <Link
-              to="/"
-              aria-label={t('skills.back')}
-              className="grid h-9 w-9 place-items-center rounded-xl border border-ink-200 bg-white text-ink-700 shadow-sm transition-colors hover:bg-ink-50"
-            >
-              <BackIcon />
-            </Link>
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-white font-bold">
-              AI
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="text-base font-semibold text-ink-900">{t('skills.title')}</span>
-              <span className="text-xs text-ink-500">{t('skills.subtitle')}</span>
-            </div>
-          </div>
-          <LocalePicker />
-        </div>
+  const roleLabel =
+    profile?.role === 'hr'
+      ? t('auth.role_hr_name')
+      : profile?.role === 'intern'
+        ? t('auth.role_intern_name')
+        : t('auth.role_employee_name');
 
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 pb-3 md:px-6">
+  return (
+    <ErpShell
+      title={t('skills.title')}
+      subtitle={t('skills.subtitle')}
+      userName={profile?.fullName ?? 'Team Member'}
+      userRole={roleLabel}
+      sections={buildWorkspaceSections()}
+      searchPlaceholder="Search skills, departments, and employees"
+    >
+      <section className="space-y-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <div className="flex flex-wrap items-center gap-1">
             <span className="mr-1 text-xs uppercase tracking-wide text-ink-500">
               {t('skills.department.label')}
@@ -186,27 +183,27 @@ export function SkillsHub() {
           </div>
         </div>
 
-        <div className="mx-auto flex max-w-7xl gap-1 px-4 md:px-6">
+        <div className="rounded-2xl border border-slate-200 bg-white p-2">
+          <div className="flex flex-wrap gap-1">
           {(['team', 'matrix', 'analytics'] as const).map((id) => (
             <button
               key={id}
               type="button"
               onClick={() => setTab(id)}
               className={
-                'border-b-2 px-3 py-2 text-sm font-medium transition-colors ' +
+                'rounded-xl px-3 py-2 text-sm font-medium transition-colors ' +
                 (tab === id
-                  ? 'border-brand-600 text-brand-700'
-                  : 'border-transparent text-ink-600 hover:text-ink-900')
+                  ? 'bg-brand-600 text-white'
+                  : 'text-ink-600 hover:bg-ink-100 hover:text-ink-900')
               }
               aria-pressed={tab === id}
             >
               {t(`skills.tabs.${id}`)}
             </button>
           ))}
+          </div>
         </div>
-      </header>
 
-      <section className="mx-auto max-w-7xl px-4 py-8 md:px-6">
         {err && (
           <div
             className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
@@ -281,7 +278,7 @@ export function SkillsHub() {
           )}
         </AnimatePresence>
       </section>
-    </main>
+    </ErpShell>
   );
 }
 
@@ -587,25 +584,6 @@ function DeptPill({
     >
       {children}
     </button>
-  );
-}
-
-function BackIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4"
-      aria-hidden="true"
-    >
-      <path d="M19 12H5" />
-      <path d="m12 19-7-7 7-7" />
-    </svg>
   );
 }
 

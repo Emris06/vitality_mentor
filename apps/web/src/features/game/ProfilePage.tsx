@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { LocalePicker } from '../../components/LocalePicker';
 import { gameApi, GameHttpError } from '../../lib/api';
 import { XPBars } from './XPBars';
 import { BadgeWall } from './BadgeWall';
@@ -11,6 +9,9 @@ import { StreakRing } from './StreakRing';
 import { DeadlineRing } from './DeadlineRing';
 import { Leaderboard } from './Leaderboard';
 import type { GameProfile } from './types';
+import { useAuth } from '../auth/AuthProvider';
+import { ErpShell } from '../workspace/ErpShell';
+import { buildWorkspaceSections } from '../workspace/navigation';
 
 const FALLBACK_PROFILE: GameProfile = {
   xpBySkill: {},
@@ -26,6 +27,7 @@ const FALLBACK_PROFILE: GameProfile = {
  */
 export function ProfilePage() {
   const { t } = useTranslation();
+  const { profile: authProfile } = useAuth();
   const [profile, setProfile] = useState<GameProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -57,53 +59,23 @@ export function ProfilePage() {
     [view.xpBySkill],
   );
 
-  // Synthetic initials for the avatar circle. Until the backend exposes the
-  // current user's name we fall back to the locale-appropriate "Me" glyph.
-  const initials = 'AI';
+  const roleLabel =
+    authProfile?.role === 'hr'
+      ? t('auth.role_hr_name')
+      : authProfile?.role === 'intern'
+        ? t('auth.role_intern_name')
+        : t('auth.role_employee_name');
 
   return (
-    <main className="min-h-full bg-gradient-to-b from-ink-50 to-white">
-      <header className="border-b border-ink-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 md:px-6">
-          <div className="flex items-center gap-3">
-            <Link
-              to="/"
-              className="grid h-9 w-9 place-items-center rounded-xl border border-ink-200 bg-white text-ink-700 shadow-sm transition-colors hover:bg-ink-50"
-              aria-label={t('game.back')}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-4 w-4"
-                aria-hidden="true"
-              >
-                <path d="M19 12H5" />
-                <path d="m12 19-7-7 7-7" />
-              </svg>
-            </Link>
-            <div
-              className="grid h-10 w-10 place-items-center rounded-full bg-brand-600 text-white font-bold"
-              aria-hidden="true"
-            >
-              {initials}
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="text-base font-semibold text-ink-900">
-                {t('game.profile_title')}
-              </span>
-              <span className="text-xs text-ink-500">{t('game.subtitle')}</span>
-            </div>
-          </div>
-          <LocalePicker />
-        </div>
-      </header>
-
-      <section className="mx-auto max-w-6xl px-4 py-8 md:px-6">
+    <ErpShell
+      title={t('game.profile_title')}
+      subtitle={t('game.subtitle')}
+      userName={authProfile?.fullName ?? 'Team Member'}
+      userRole={roleLabel}
+      sections={buildWorkspaceSections()}
+      searchPlaceholder="Search badges, quests, and scores"
+    >
+      <section className="space-y-4">
         {error && (
           <div
             className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
@@ -149,9 +121,9 @@ export function ProfilePage() {
         </div>
 
         <div className="mt-6">
-          <Leaderboard />
+          <Leaderboard currentUserId={authProfile?.id} />
         </div>
       </section>
-    </main>
+    </ErpShell>
   );
 }
