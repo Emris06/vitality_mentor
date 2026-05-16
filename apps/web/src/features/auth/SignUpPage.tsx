@@ -18,19 +18,6 @@ const INPUT_CLASS =
 type FieldKey = 'fullName' | 'email' | 'password' | 'role';
 type FieldErrors = Partial<Record<FieldKey, string>>;
 
-function mapSupabaseError(message: string | undefined): string {
-  if (!message) return 'auth.error_generic';
-  const lower = message.toLowerCase();
-  if (lower.includes('already registered') || lower.includes('user already')) {
-    return 'auth.error_email_taken';
-  }
-  if (lower.includes('invalid login') || lower.includes('invalid credentials')) {
-    return 'auth.error_invalid_credentials';
-  }
-  if (message === 'supabase_not_configured') return 'auth.error_supabase_not_configured';
-  return 'auth.error_generic';
-}
-
 export function SignUpPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -89,7 +76,7 @@ export function SignUpPage() {
       language,
     });
     if (result.error) {
-      setFormError(mapSupabaseError(result.error));
+      setFormError(result.error);
       setSubmitting(false);
       return;
     }

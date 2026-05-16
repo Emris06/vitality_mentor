@@ -2,7 +2,7 @@
   "name": "ai-mentor-hub",
   "private": true,
   "version": "0.0.0",
-  "packageManager": "pnpm@9.12.0",
+  "packageManager": "pnpm@11.1.2+sha512.415a1cc25974731e75455c1468371be74c5aa5fb7621b50d4056d222451609f11412f23fd602e6169f1e060466641f798597e1be961a10688836a67b16569499",
   "engines": {
     "node": ">=20.11.0"
   },
@@ -15,6 +15,7 @@
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "stack:up": "docker compose -f infra/docker/docker-compose.yml up -d",
+    "stack:infra": "docker compose -f infra/docker/docker-compose.yml up -d postgres redis minio",
     "stack:down": "docker compose -f infra/docker/docker-compose.yml down",
     "stack:logs": "docker compose -f infra/docker/docker-compose.yml logs -f",
     "i18n:audit": "tsx scripts/i18n-audit.ts",
@@ -32,6 +33,6 @@
     "eslint": "^9.10.0",
     "prettier": "^3.3.3",
     "tsx": "^4.16.5",
-    "typescript": "^5.5.4"
+    "typescript": "^5.9.3"
   }
 }

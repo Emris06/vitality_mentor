@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float } from '@react-three/drei';
-import type { Group, Mesh } from 'three';
 import { BankIllustration } from '../../components/ui/IllustrationGreeting';
 
 /**
@@ -76,7 +75,7 @@ export default function HeroScene3D() {
 /* -------------------------------------------------------------------------- */
 
 function CredentialCard() {
-  const groupRef = useRef<Group | null>(null);
+  const groupRef = useRef<any>(null);
 
   // Slow auto-orbit on Y axis — ~5 RPM = ~0.105 rad/s. Add a tiny floating Y
   // bob so the card feels suspended in air rather than mechanically rotating.
@@ -171,7 +170,7 @@ interface SatelliteProps {
 }
 
 function Satellite({ position, color, shape, delay }: SatelliteProps) {
-  const meshRef = useRef<Mesh | null>(null);
+  const meshRef = useRef<any>(null);
 
   useFrame((state, dt) => {
     const m = meshRef.current;

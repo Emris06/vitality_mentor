@@ -22,7 +22,7 @@
  * failure modes without buying anything.
  */
 
-import { sql } from '../../plugins/db';
+import { asJson, sql } from '../../plugins/db';
 import { IspringClient, IspringError } from './client';
 import type { SubmitResultInput } from './types';
 
@@ -69,7 +69,7 @@ export class IspringExportQueue {
           ${item.kind},
           ${item.sourceId},
           ${item.userId},
-          ${sql.json(item.input as unknown as Record<string, unknown>)},
+          ${sql.json(asJson(item.input))},
           ${item.input.idempotencyKey}
         )
         ON CONFLICT (idempotency_key) DO NOTHING

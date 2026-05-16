@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import type { Employee, Newcomer, EmployeeRole, Locale } from '@vitality/shared';
-import { sql } from '../plugins/db';
+import { asJson, sql } from '../plugins/db';
 import { bestMatches } from '../hr/matching';
 import { publishHrEvent } from '../hr/events';
 
@@ -355,7 +355,7 @@ export async function hrRoutes(app: FastifyInstance): Promise<void> {
           INSERT INTO mentor_assignments
             (mentor_id, newcomer_id, status, match_score, match_reasons)
           VALUES
-            (${mentorId}, ${newcomerId}, 'active', ${score}, ${tx.json(reasons as unknown as object)})
+            (${mentorId}, ${newcomerId}, 'active', ${score}, ${tx.json(asJson(reasons))})
           RETURNING id
         `;
         const assignmentRow = inserted[0];
@@ -525,7 +525,7 @@ export async function hrRoutes(app: FastifyInstance): Promise<void> {
         n.modules_total,
         (
           SELECT AVG(score)::text FROM scenario_runs r
-          WHERE r.user_id = e.id AND r.status = 'scored'
+          WHERE r.user_id = e.id::text AND r.status = 'scored'
         ) AS avg_score
       FROM newcomers n
       JOIN employees e ON e.id = n.employee_id

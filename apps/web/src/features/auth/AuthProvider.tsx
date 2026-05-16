@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { getSupabase, isSupabaseConfigured } from '../../lib/supabase';
+import { mapSupabaseError } from './errors';
 import { type AuthProfile, type UserRole, isUserRole } from './types';
 
 interface AuthContextValue {
@@ -78,12 +79,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       profile,
       async signIn(email, password) {
-        if (!supabase) return { error: 'supabase_not_configured' };
+        if (!supabase) return { error: mapSupabaseError('supabase_not_configured') };
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        return error ? { error: error.message } : {};
+        if (error) {
+          if (import.meta.env.DEV) console.error('[auth] signIn', error.message, error.status);
+          return { error: mapSupabaseError(error.message, error.status) };
+        }
+        return {};
       },
       async signInMagicLink(email) {
-        if (!supabase) return { error: 'supabase_not_configured' };
+        if (!supabase) return { error: mapSupabaseError('supabase_not_configured') };
         const { error } = await supabase.auth.signInWithOtp({
           email,
           options: {
@@ -91,10 +96,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
           },
         });
-        return error ? { error: error.message } : {};
+        if (error) {
+          if (import.meta.env.DEV) console.error('[auth] magic link', error.message, error.status);
+          return { error: mapSupabaseError(error.message, error.status) };
+        }
+        return {};
       },
       async signUp({ email, password, fullName, role, language }) {
-        if (!supabase) return { error: 'supabase_not_configured' };
+        if (!supabase) return { error: mapSupabaseError('supabase_not_configured') };
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -102,7 +111,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             data: { full_name: fullName, role, languages: language ? [language] : [] },
           },
         });
-        return error ? { error: error.message } : {};
+        if (error) {
+          if (import.meta.env.DEV) console.error('[auth] signUp', error.message, error.status);
+          return { error: mapSupabaseError(error.message, error.status) };
+        }
+        return {};
       },
       async signOut() {
         if (!supabase) return;

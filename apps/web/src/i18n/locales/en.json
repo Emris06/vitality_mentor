@@ -536,9 +536,15 @@
     "error_invalid_email": "Enter a valid email.",
     "error_weak_password": "Use at least 8 characters with one number.",
     "error_generic": "Something went wrong. Please try again.",
+    "error_rate_limited": "Too many sign-in attempts. Wait a few minutes and try again.",
+    "error_email_rate_limited": "Supabase email limit reached (about 2 emails/hour on the free plan). Wait up to an hour, or in Supabase turn off Auth → Email → “Confirm email” for local dev, then sign in with password only.",
     "error_supabase_not_configured": "Supabase isn't configured yet. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY, then refresh.",
+    "error_supabase_key_invalid": "Supabase API key is invalid. Copy the publishable (anon) key from Project Settings → API into apps/web/.env.",
     "error_invalid_credentials": "Wrong email or password.",
     "error_email_taken": "That email is already registered. Try signing in.",
+    "error_email_not_confirmed": "Confirm your email first (check your inbox), then sign in.",
+    "error_confirmation_email": "Could not send the confirmation email. In Supabase, check Auth → Email or disable “Confirm email” for local dev.",
+    "error_signup_disabled": "Sign-up is disabled in Supabase. Enable it under Auth → Providers → Email.",
     "success_signup": "Account created — taking you in…"
   }
 }

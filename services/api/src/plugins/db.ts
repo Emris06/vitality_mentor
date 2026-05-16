@@ -1,5 +1,11 @@
 import postgres from 'postgres';
+import type { JSONValue } from 'postgres';
 import { config } from '../config';
+
+/** Cast a runtime value for `sql.json()` / `tx.json()` (postgres.js JSONValue). */
+export function asJson(value: unknown): JSONValue {
+  return value as JSONValue;
+}
 
 export const sql = postgres(config.DATABASE_URL, {
   max: 10,

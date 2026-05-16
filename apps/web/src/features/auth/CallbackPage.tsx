@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getSupabase } from '../../lib/supabase';
 import { useAuth } from './AuthProvider';
 import { homeRouteFor } from './types';
 
@@ -15,24 +14,13 @@ import { homeRouteFor } from './types';
 export function CallbackPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { ready, profile, session } = useAuth();
 
   useEffect(() => {
-    let cancelled = false;
-    const supabase = getSupabase();
-    const go = async () => {
-      if (supabase) {
-        await supabase.auth.getSession();
-      }
-      if (cancelled) return;
-      const target = profile?.role ? homeRouteFor(profile.role) : '/';
-      navigate(target, { replace: true });
-    };
-    void go();
-    return () => {
-      cancelled = true;
-    };
-  }, [navigate, profile]);
+    if (!ready) return;
+    const role = profile?.role ?? null;
+    navigate(homeRouteFor(role), { replace: true });
+  }, [ready, profile, session, navigate]);
 
   return (
     <main className="grid min-h-screen place-items-center bg-slate-50">

@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     ai_port: int = 8000
     ai_log_level: str = "info"
 
-    database_url: str = "postgres://vitality:vitality@localhost:5432/vitality"
+    database_url: str = "postgres://vitality:vitality@localhost:5433/vitality"
     redis_url: str = "redis://localhost:6379"
 
     embedding_model: str = "intfloat/multilingual-e5-small"

@@ -25,7 +25,7 @@ import type {
   SkillLevel,
   SkillNode,
 } from '@vitality/shared';
-import { sql } from '../plugins/db';
+import { asJson, sql } from '../plugins/db';
 
 // ----- public types ---------------------------------------------------------
 
@@ -393,7 +393,7 @@ export async function cacheForecast(
 ): Promise<void> {
   await sql`
     INSERT INTO skill_forecasts_cache (employee_id, skill_id, horizon_days, payload, computed_at)
-    VALUES (${employeeId}, ${skillId}, ${horizonDays}, ${sql.json(payload as unknown as object)}, now())
+    VALUES (${employeeId}, ${skillId}, ${horizonDays}, ${sql.json(asJson(payload))}, now())
     ON CONFLICT (employee_id, skill_id, horizon_days) DO UPDATE
       SET payload = EXCLUDED.payload,
           computed_at = now()

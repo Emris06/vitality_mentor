@@ -63,18 +63,17 @@ async function main() {
     process.exit(1);
   }
 
-  // Run migrations in dev once DB is reachable. Fire-and-forget so a slow DB
-  // doesn't block the server from accepting traffic (health endpoint will
-  // still surface the failure).
+  // Apply pending migrations before workers touch tables (lms_exports, etc.).
   if (config.NODE_ENV === 'development') {
-    pingDb()
-      .then(() =>
-        migrate({
-          info: (msg) => app.log.info(msg),
-          error: (err, msg) => app.log.error({ err }, msg ?? 'migration error'),
-        }),
-      )
-      .catch((err) => app.log.error({ err }, 'startup migration skipped'));
+    try {
+      await pingDb();
+      await migrate({
+        info: (msg) => app.log.info(msg),
+        error: (err, msg) => app.log.error({ err }, msg ?? 'migration error'),
+      });
+    } catch (err) {
+      app.log.error({ err }, 'startup migration failed — workers may error until db:migrate:once');
+    }
   }
 
   // Embedded game-event worker. Keeps the Ideathon demo to a single process

@@ -6,7 +6,6 @@ import type {
   EmployeeRole,
   HealthResponse,
   Locale,
-  MentorAssignment,
   Newcomer,
   PromotionReadiness,
   ScenarioId,
@@ -223,13 +222,13 @@ async function hrJsonOrThrow<T>(res: Response): Promise<T> {
 }
 
 export interface NewcomerListItem extends Newcomer {
-  mentor?: Employee;
+  mentor: Employee | null;
   progressPct: number;
 }
 
 export interface NewcomerDetailDto {
   newcomer: Newcomer;
-  mentor?: Employee;
+  mentor: Employee | null;
   recentRuns: ScenarioRun[];
 }
 
@@ -266,6 +265,49 @@ export interface EmployeesQuery {
   q?: string;
 }
 
+interface EmployeesPayload {
+  employees: Employee[];
+}
+
+interface NewcomersPayload {
+  newcomers: NewcomerListItem[];
+}
+
+interface MatchesPayload {
+  newcomerId: string;
+  matches: MatchCandidate[];
+}
+
+export interface HrAssignResult {
+  assignmentId: string;
+  mentorId: string;
+  newcomerId: string;
+  matchScore: number;
+  matchReasons: string[];
+}
+
+export interface HrUnassignResult {
+  newcomerId: string;
+  previousMentorId: string | null;
+}
+
+interface HrSummaryPayload {
+  newcomers: {
+    total: number;
+    assigned: number;
+    unassigned: number;
+  };
+  simulator: {
+    scoredRunsLast7d: number;
+    avgScoreLast7d: number | null;
+  };
+  topMentors: Array<{
+    mentorId: string;
+    fullName: string;
+    completedNewcomers: number;
+  }>;
+}
+
 export const hrApi = {
   async getEmployees(query: EmployeesQuery = {}): Promise<Employee[]> {
     const params = new URLSearchParams();
@@ -273,12 +315,14 @@ export const hrApi = {
     if (query.q) params.set('q', query.q);
     const qs = params.toString();
     const res = await fetch(`${BASE}/hr/employees${qs ? `?${qs}` : ''}`);
-    return hrJsonOrThrow<Employee[]>(res);
+    const payload = await hrJsonOrThrow<Employee[] | EmployeesPayload>(res);
+    return Array.isArray(payload) ? payload : payload.employees;
   },
 
   async getNewcomers(): Promise<NewcomerListItem[]> {
     const res = await fetch(`${BASE}/hr/newcomers`);
-    return hrJsonOrThrow<NewcomerListItem[]>(res);
+    const payload = await hrJsonOrThrow<NewcomerListItem[] | NewcomersPayload>(res);
+    return Array.isArray(payload) ? payload : payload.newcomers;
   },
 
   async getNewcomer(id: string): Promise<NewcomerDetailDto> {
@@ -292,30 +336,44 @@ export const hrApi = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
     });
-    return hrJsonOrThrow<MatchCandidate[]>(res);
+    const payload = await hrJsonOrThrow<MatchCandidate[] | MatchesPayload>(res);
+    return Array.isArray(payload) ? payload : payload.matches;
   },
 
-  async assign(id: string, mentorId: string): Promise<{ assignment: MentorAssignment }> {
+  async assign(id: string, mentorId: string): Promise<HrAssignResult> {
     const res = await fetch(`${BASE}/hr/newcomers/${encodeURIComponent(id)}/assign`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mentorId }),
     });
-    return hrJsonOrThrow<{ assignment: MentorAssignment }>(res);
+    return hrJsonOrThrow<HrAssignResult>(res);
   },
 
-  async unassign(id: string): Promise<{ ok: true }> {
+  async unassign(id: string): Promise<HrUnassignResult> {
     const res = await fetch(`${BASE}/hr/newcomers/${encodeURIComponent(id)}/unassign`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
     });
-    return hrJsonOrThrow<{ ok: true }>(res);
+    return hrJsonOrThrow<HrUnassignResult>(res);
   },
 
   async getSummary(): Promise<HrDashboardSummary> {
     const res = await fetch(`${BASE}/hr/dashboard/summary`);
-    return hrJsonOrThrow<HrDashboardSummary>(res);
+    const payload = await hrJsonOrThrow<HrDashboardSummary | HrSummaryPayload>(res);
+    if ('newcomersTotal' in payload) return payload;
+    return {
+      newcomersTotal: payload.newcomers.total,
+      assigned: payload.newcomers.assigned,
+      unassigned: payload.newcomers.unassigned,
+      scoredRuns7d: payload.simulator.scoredRunsLast7d,
+      avgScore7d: payload.simulator.avgScoreLast7d ?? 0,
+      topMentors: payload.topMentors.map((m) => ({
+        employeeId: m.mentorId,
+        name: m.fullName,
+        completedCount: m.completedNewcomers,
+      })),
+    };
   },
 
   exportCsvUrl(): string {

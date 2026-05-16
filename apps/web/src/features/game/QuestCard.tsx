@@ -107,8 +107,9 @@ function summarizeProgress(quest: Quest): { done: number; goal: number } {
   const goalEntries = Object.entries(quest.goal).filter(
     ([, v]) => typeof v === 'number' && Number.isFinite(v),
   );
-  if (goalEntries.length === 0) return { done: 0, goal: 0 };
-  const [key, goalValue] = goalEntries[0];
+  const first = goalEntries[0];
+  if (!first) return { done: 0, goal: 0 };
+  const [key, goalValue] = first;
   const rawProgress = quest.progress[key];
   const doneValue =
     typeof rawProgress === 'number' && Number.isFinite(rawProgress) ? rawProgress : 0;

@@ -83,11 +83,11 @@ function StatTile({ label, value, hint, format = 'int' }: StatTileProps) {
 }
 
 function bucketize(items: NewcomerListItem[]) {
-  const buckets = [0, 0, 0, 0];
+  const buckets: [number, number, number, number] = [0, 0, 0, 0];
   for (const n of items) {
     const p = Math.max(0, Math.min(100, n.progressPct));
     const idx = p >= 75 ? 3 : p >= 50 ? 2 : p >= 25 ? 1 : 0;
-    buckets[idx]++;
+    buckets[idx] = (buckets[idx] ?? 0) + 1;
   }
   return buckets;
 }
@@ -820,6 +820,7 @@ function bumpToday(series: VelocityPoint[]): VelocityPoint[] {
   if (series.length === 0) return series;
   const next = series.slice();
   const last = next[next.length - 1];
+  if (!last) return series;
   next[next.length - 1] = { ...last, count: last.count + 1 };
   return next;
 }

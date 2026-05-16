@@ -120,6 +120,7 @@ export function useSpeechRecognition(
       let finalText = '';
       for (let i = ev.resultIndex; i < ev.results.length; i++) {
         const r = ev.results[i];
+        if (!r) continue;
         const alt = r[0]?.transcript ?? '';
         if (r.isFinal) {
           finalText += alt;

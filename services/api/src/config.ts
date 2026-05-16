@@ -7,7 +7,7 @@ const schema = z.object({
   API_PORT: z.coerce.number().int().default(4000),
   API_LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
   WEB_ORIGIN: z.string().default('http://localhost:5173'),
-  DATABASE_URL: z.string().default('postgres://vitality:vitality@localhost:5432/vitality'),
+  DATABASE_URL: z.string().default('postgres://vitality:vitality@localhost:5433/vitality'),
   REDIS_URL: z.string().default('redis://localhost:6379'),
   AI_SERVICE_URL: z.string().default('http://localhost:8000'),
   ISPRING_BASE_URL: z.string().default('http://localhost:4010'),

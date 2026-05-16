@@ -546,9 +546,15 @@
     "error_invalid_email": "Введите корректный email.",
     "error_weak_password": "Минимум 8 символов и хотя бы одна цифра.",
     "error_generic": "Что-то пошло не так. Попробуйте ещё раз.",
+    "error_rate_limited": "Слишком много попыток входа. Подождите несколько минут и попробуйте снова.",
+    "error_email_rate_limited": "Достигнут лимит писем Supabase (~2 в час на бесплатном плане). Подождите до часа или в Supabase отключите Auth → Email → «Confirm email» для локальной разработки и входите только по паролю.",
     "error_supabase_not_configured": "Supabase ещё не настроен. Укажите VITE_SUPABASE_URL и VITE_SUPABASE_ANON_KEY и обновите страницу.",
+    "error_supabase_key_invalid": "Неверный ключ Supabase. Скопируйте publishable (anon) ключ из Project Settings → API в apps/web/.env.",
     "error_invalid_credentials": "Неверный email или пароль.",
     "error_email_taken": "Этот email уже зарегистрирован. Попробуйте войти.",
+    "error_email_not_confirmed": "Сначала подтвердите email (проверьте почту), затем войдите.",
+    "error_confirmation_email": "Не удалось отправить письмо подтверждения. В Supabase проверьте Auth → Email или отключите «Confirm email» для локальной разработки.",
+    "error_signup_disabled": "Регистрация отключена в Supabase. Включите её в Auth → Providers → Email.",
     "success_signup": "Аккаунт создан — переходим…"
   }
 }

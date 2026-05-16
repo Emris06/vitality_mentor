@@ -33,7 +33,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { sql } from '../plugins/db';
+import { asJson, sql } from '../plugins/db';
 import {
   DEMO_HR,
   DEMO_MENTOR,
@@ -196,7 +196,7 @@ async function primeChatHistory(): Promise<number> {
     await sql`
       INSERT INTO chat_messages (session_id, role, content, citations)
       VALUES (${sessionId}, 'assistant', ${turn.assistant},
-              ${sql.json(turn.citations as unknown as object)})
+              ${sql.json(asJson(turn.citations))})
     `;
     inserted += 2;
   }
@@ -230,10 +230,10 @@ async function primeScenarioRun(): Promise<string> {
        mistakes, score, started_at, finished_at)
     VALUES
       (${runId}, ${DEMO_NEWCOMER.id}, 'kyc', 'uz', 'scored', null,
-       ${sql.json({ synthetic: true, demo: true } as object)},
-       ${sql.json([
-         { stepId: 'sanctions_check', code: 'missed_pep_flag', penalty: 6 },
-       ] as object)},
+       ${sql.json(asJson({ synthetic: true, demo: true }))},
+       ${sql.json(
+         asJson([{ stepId: 'sanctions_check', code: 'missed_pep_flag', penalty: 6 }]),
+       )},
        88, now() - interval '90 minutes', now() - interval '30 minutes')
   `;
   return runId;

@@ -5,7 +5,7 @@ import type {
   ScenarioRun,
   ScenarioStatus,
 } from '@vitality/shared';
-import { sql } from '../plugins/db';
+import { asJson, sql } from '../plugins/db';
 
 /**
  * Generic scenario engine.
@@ -143,8 +143,8 @@ export class ScenarioRunner<TState extends Record<string, unknown>> {
         ${locale},
         'in_progress',
         ${firstStep.id},
-        ${sql.json(initial as unknown as object)},
-        ${sql.json([] as unknown as object)}
+        ${sql.json(asJson(initial))},
+        ${sql.json(asJson([]))}
       )
       RETURNING id, user_id, scenario_id, locale, status, current_step_id, state, mistakes, score, started_at, finished_at
     `;
@@ -246,8 +246,8 @@ export class ScenarioRunner<TState extends Record<string, unknown>> {
 
       const updated = await tx<ScenarioRunRow[]>`
         UPDATE scenario_runs
-        SET state = ${tx.json(nextState as unknown as object)},
-            mistakes = ${tx.json(mistakes as unknown as object)},
+        SET state = ${tx.json(asJson(nextState))},
+            mistakes = ${tx.json(asJson(mistakes))},
             current_step_id = ${nextStepId},
             status = ${nextStatus},
             score = ${finalScore},

@@ -1,9 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "composite": true,
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "rootDir": ".",
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "noEmit": true,
@@ -11,5 +8,5 @@
     "useDefineForClassFields": true,
     "types": ["vite/client"]
   },
-  "include": ["src", "index.html"]
+  "include": ["src", "index.html", "../../packages/shared/src/**/*"]
 }

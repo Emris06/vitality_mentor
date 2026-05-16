@@ -203,7 +203,7 @@ OPENAI_API_KEY=sk-...
 
 ```ini
 NODE_ENV=production
-DATABASE_URL=postgres://vitality:vitality@localhost:5432/vitality
+DATABASE_URL=postgres://vitality:vitality@localhost:5433/vitality
 REDIS_URL=redis://localhost:6379
 AI_SERVICE_URL=http://localhost:8000
 ISPRING_BASE_URL=http://localhost:4010

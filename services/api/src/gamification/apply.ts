@@ -1,4 +1,4 @@
-import { sql } from '../plugins/db';
+import { asJson, sql } from '../plugins/db';
 import {
   XP_DAILY_CAP_PER_SKILL,
   badgeCriteria,
@@ -272,7 +272,7 @@ async function bumpQuests(userId: string, event: GameEvent): Promise<void> {
     if (openRow) {
       await sql`
         UPDATE user_quests
-        SET progress = ${sql.json(progress as unknown as object)},
+        SET progress = ${sql.json(asJson(progress))},
             completed_at = ${completedAt}
         WHERE user_id = ${userId}
           AND quest_id = ${q.id}
@@ -283,7 +283,7 @@ async function bumpQuests(userId: string, event: GameEvent): Promise<void> {
         INSERT INTO user_quests (user_id, quest_id, progress, completed_at)
         VALUES (
           ${userId}, ${q.id},
-          ${sql.json(progress as unknown as object)},
+          ${sql.json(asJson(progress))},
           ${completedAt}
         )
       `;

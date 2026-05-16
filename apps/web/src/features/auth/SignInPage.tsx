@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { StatusPill } from '../../components/ui/StatusPill';
-import { isSupabaseConfigured } from '../../lib/supabase';
+import { getSupabase, isSupabaseConfigured } from '../../lib/supabase';
 import { useAuth } from './AuthProvider';
 import { AuthLayout } from './AuthLayout';
+import { homeRouteFor, roleFromUser } from './types';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const INPUT_CLASS =
@@ -18,17 +19,6 @@ type FieldErrors = Partial<Record<FieldKey, string>>;
 
 interface LocationState {
   from?: string;
-}
-
-function mapSupabaseError(message: string | undefined): string {
-  if (!message) return 'auth.error_generic';
-  const lower = message.toLowerCase();
-  if (lower.includes('invalid login') || lower.includes('invalid credentials')) {
-    return 'auth.error_invalid_credentials';
-  }
-  if (lower.includes('already registered')) return 'auth.error_email_taken';
-  if (message === 'supabase_not_configured') return 'auth.error_supabase_not_configured';
-  return 'auth.error_generic';
 }
 
 export function SignInPage() {
@@ -46,11 +36,11 @@ export function SignInPage() {
   const [submitting, setSubmitting] = useState(false);
   const [magicSent, setMagicSent] = useState<string | null>(null);
 
-  function resolveLandingPath(): string {
+  function resolveLandingPath(role: ReturnType<typeof roleFromUser>): string {
     const state = (location.state ?? null) as LocationState | null;
     const from = state?.from;
-    if (!from || from === '/signin' || from === '/signup') return '/';
-    return from;
+    if (from && from !== '/signin' && from !== '/signup') return from;
+    return homeRouteFor(role);
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -69,18 +59,20 @@ export function SignInPage() {
     if (mode === 'password') {
       const result = await signIn(email.trim(), password);
       if (result.error) {
-        setFormError(mapSupabaseError(result.error));
+        setFormError(result.error);
         setSubmitting(false);
         return;
       }
-      // Profile may not be hydrated yet — defer to RequireAuth/role routing.
-      navigate(resolveLandingPath(), { replace: true });
+      const supabase = getSupabase();
+      const { data } = await (supabase?.auth.getSession() ?? Promise.resolve({ data: { session: null } }));
+      const role = roleFromUser(data.session?.user);
+      navigate(resolveLandingPath(role), { replace: true });
       return;
     }
 
     const result = await signInMagicLink(email.trim());
     if (result.error) {
-      setFormError(mapSupabaseError(result.error));
+      setFormError(result.error);
       setSubmitting(false);
       return;
     }

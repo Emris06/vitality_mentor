@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { Landing } from './features/landing/Landing';
 import { ChatPage } from './features/chat/ChatPage';
 import { SimDashboard } from './features/simulator/SimDashboard';
@@ -24,6 +24,8 @@ export function App() {
       <Route path="/simulator" element={<SimDashboard />} />
       <Route path="/simulator/kyc" element={<KycRunBootstrap />} />
       <Route path="/simulator/kyc/:runId" element={<KycRunPage />} />
+      <Route path="/intern" element={<Navigate to="/simulator" replace />} />
+      <Route path="/employee" element={<Navigate to="/chat" replace />} />
       <Route path="/hr" element={<HrDashboard />} />
       <Route path="/hr/newcomers/:id" element={<NewcomerDetail />} />
       <Route path="/me" element={<ProfilePage />} />

@@ -84,8 +84,10 @@ function findVoiceByLang(prefixes: string[]): SpeechSynthesisVoice | null {
       (v) => v.lang.toLowerCase() === prefix.toLowerCase(),
     );
     if (exact) return exact;
+    const base = prefix.toLowerCase().split('-')[0];
+    if (!base) continue;
     const partial = cachedVoices.find((v) =>
-      v.lang.toLowerCase().startsWith(prefix.toLowerCase().split('-')[0]),
+      v.lang.toLowerCase().startsWith(base),
     );
     if (partial) return partial;
   }

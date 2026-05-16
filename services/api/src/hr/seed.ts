@@ -12,7 +12,7 @@
 
 import { seedRng, generatePerson } from '@vitality/synth-data';
 import type { Locale } from '@vitality/shared';
-import { sql } from '../plugins/db';
+import { asJson, sql } from '../plugins/db';
 import { BADGES_SEED, QUESTS_SEED } from '../gamification/rules';
 
 const BANKING_SKILLS = [
@@ -171,7 +171,7 @@ async function main(): Promise<void> {
       await tx`
         INSERT INTO badges (id, name_key, description_key, icon, criteria)
         VALUES (${b.id}, ${b.nameKey}, ${b.descriptionKey}, ${b.icon},
-                ${tx.json(b.criteria as unknown as object)})
+                ${tx.json(asJson(b.criteria))})
         ON CONFLICT (id) DO UPDATE
           SET name_key = EXCLUDED.name_key,
               description_key = EXCLUDED.description_key,
@@ -183,7 +183,7 @@ async function main(): Promise<void> {
       await tx`
         INSERT INTO quests (id, name_key, description_key, kind, goal, reward_xp)
         VALUES (${q.id}, ${q.nameKey}, ${q.descriptionKey}, ${q.kind},
-                ${tx.json(q.goal as unknown as object)}, ${q.rewardXp})
+                ${tx.json(asJson(q.goal))}, ${q.rewardXp})
         ON CONFLICT (id) DO UPDATE
           SET name_key = EXCLUDED.name_key,
               description_key = EXCLUDED.description_key,

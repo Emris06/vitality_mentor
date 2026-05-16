@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { SUPPORTED_LOCALES } from '@vitality/shared';
 import type { ChatMessage, ChatRequest, Citation, Locale } from '@vitality/shared';
 import { config } from '../config';
-import { sql } from '../plugins/db';
+import { asJson, sql } from '../plugins/db';
 import { getOrCreateUserId } from '../lib/session';
 import { checkChatRateLimit } from '../lib/rate-limit';
 
@@ -73,7 +73,7 @@ async function insertMessage(
 ): Promise<void> {
   await sql`
     INSERT INTO chat_messages (session_id, role, content, citations)
-    VALUES (${sessionId}, ${role}, ${content}, ${sql.json(citations as unknown as object)})
+    VALUES (${sessionId}, ${role}, ${content}, ${sql.json(asJson(citations))})
   `;
 }
 

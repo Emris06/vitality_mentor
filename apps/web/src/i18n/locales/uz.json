@@ -536,9 +536,15 @@
     "error_invalid_email": "To‘g‘ri email kiriting.",
     "error_weak_password": "Kamida 8 ta belgi va kamida bitta raqam ishlating.",
     "error_generic": "Nimadir xato ketdi. Qaytadan urinib ko‘ring.",
+    "error_rate_limited": "Juda ko‘p kirish urinishi. Bir necha daqiqa kuting va qayta urinib ko‘ring.",
+    "error_email_rate_limited": "Supabase email limiti tugadi (bepul rejada taxminan soatiga 2 ta xat). Bir soatgacha kuting yoki mahalliy dev uchun Supabase’da Auth → Email → “Confirm email” ni o‘chiring va faqat parol bilan kiring.",
     "error_supabase_not_configured": "Supabase hali sozlanmagan. VITE_SUPABASE_URL va VITE_SUPABASE_ANON_KEY ni belgilang va sahifani yangilang.",
+    "error_supabase_key_invalid": "Supabase API kaliti noto‘g‘ri. Project Settings → API dan publishable (anon) kalitni apps/web/.env ga nusxalang.",
     "error_invalid_credentials": "Email yoki parol noto‘g‘ri.",
     "error_email_taken": "Bu email allaqachon ro‘yxatdan o‘tgan. Tizimga kirib ko‘ring.",
+    "error_email_not_confirmed": "Avval emailingizni tasdiqlang (pochtangizni tekshiring), keyin kiring.",
+    "error_confirmation_email": "Tasdiqlash xati yuborilmadi. Supabase’da Auth → Email ni tekshiring yoki mahalliy dev uchun “Confirm email” ni o‘chiring.",
+    "error_signup_disabled": "Ro‘yxatdan o‘tish Supabase’da o‘chirilgan. Auth → Providers → Email orqali yoqing.",
     "success_signup": "Hisob yaratildi — kiritilmoqda…"
   }
 }

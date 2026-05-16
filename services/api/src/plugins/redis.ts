@@ -7,11 +7,20 @@ export const redis = new Redis(config.REDIS_URL, {
 });
 
 let connected = false;
+let connecting: Promise<void> | null = null;
 
 export async function ensureRedis(): Promise<void> {
   if (connected) return;
-  await redis.connect();
-  connected = true;
+  if (connecting) return connecting;
+  connecting = redis
+    .connect()
+    .then(() => {
+      connected = true;
+    })
+    .finally(() => {
+      connecting = null;
+    });
+  return connecting;
 }
 
 export async function pingRedis(): Promise<number> {
