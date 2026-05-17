@@ -1,48 +1,62 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthProvider';
-import { DEFAULT_LOCALE, isLocale, type Locale } from '@vitality/shared';
+import { DEFAULT_LOCALE, isLocale, type Locale, type ScenarioId } from '@vitality/shared';
 import { simApi, SimHttpError } from '../../lib/api';
-import { useSpeechRecognition } from '../chat/voice/useSpeechRecognition';
-import {
-  ErpShell,
-  IconBook,
-  IconChart,
-  IconPeople,
-  IconRocket,
-  IconShield,
-} from './ErpShell';
+import { ErpShell, IconBook, IconChat, IconRocket } from './ErpShell';
 import { buildWorkspaceSections } from './navigation';
 
-const QUICK_LINKS = [
-  { label: 'Cohort Roster', icon: '👥' },
-  { label: 'Training Calendar', icon: '📅' },
-  { label: 'SOP Playbooks', icon: '📋' },
-  { label: 'Score Ledger', icon: '🧾' },
-  { label: 'Policy Library', icon: '📚' },
-];
+// ──────────────────────────────────────────────────────────────────────────
+// Intern workspace ("Newcomer" in the brief). Single responsibility: get the
+// intern into a simulator scenario fast. Three things, in order:
+//   1. What's next on your learning path?
+//   2. The Scenario Lab (simulator) — your only "do" surface
+//   3. Ask AI when stuck
+// No payroll, no cohort stats, no mentor-side actions. The mentor's job is
+// not the intern's job.
+// ──────────────────────────────────────────────────────────────────────────
 
-const TODAY_PLAN = [
-  { topic: 'KYC Intake Workflow', trackName: 'Compliance Track A', meta: '21 checkpoints · 40 mins' },
-  { topic: 'Sanctions Screening Drill', trackName: 'Compliance Track D', meta: '13 checkpoints · 40 mins' },
-  { topic: 'Risk Scoring Basics', trackName: 'Compliance Track D', meta: '13 checkpoints · 35 mins' },
-];
+interface PathStep {
+  id: string;
+  title: string;
+  scenarioId: ScenarioId | null;
+  estMins: number;
+  state: 'done' | 'current' | 'locked';
+}
 
-const DOCS = [
-  { title: 'KYC onboarding score report', at: '05 July, 09:20AM' },
-  { title: 'Sanctions audit checklist', at: '05 July, 09:20AM' },
-  { title: 'Risk memo assignment pack', at: '05 July, 09:20AM' },
+// Static demo path that matches the demo seed (KYC is the only live scenario
+// in v0; the others render as locked previews so the path feels real).
+const LEARNING_PATH: PathStep[] = [
+  {
+    id: 'intro',
+    title: 'Bank floor orientation',
+    scenarioId: null,
+    estMins: 10,
+    state: 'done',
+  },
+  {
+    id: 'kyc',
+    title: 'KYC intake — full flow',
+    scenarioId: 'kyc',
+    estMins: 25,
+    state: 'current',
+  },
+  {
+    id: 'open-account',
+    title: 'Open account — individual',
+    scenarioId: 'open-account',
+    estMins: 20,
+    state: 'locked',
+  },
+  {
+    id: 'transfer',
+    title: 'Transfer & sanctions screening',
+    scenarioId: 'transfer',
+    estMins: 30,
+    state: 'locked',
+  },
 ];
-
-const CLASS_PROGRESS = [
-  { label: 'KYC Fundamentals', trainees: 37, progress: 72 },
-  { label: 'AML Monitoring', trainees: 44, progress: 61 },
-  { label: 'Customer Onboarding', trainees: 40, progress: 48 },
-  { label: 'Transaction Safety', trainees: 37, progress: 67 },
-];
-
-type AgentRunState = 'idle' | 'running' | 'done';
 
 export function InternDashboard() {
   const { t, i18n } = useTranslation();
@@ -50,362 +64,304 @@ export function InternDashboard() {
   const navigate = useNavigate();
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [agentState, setAgentState] = useState<AgentRunState>('idle');
-  const [agentMessage, setAgentMessage] = useState('No background agent running.');
-  const [clickyGuide, setClickyGuide] = useState(
-    "Ask out loud and I will walk you through this screen. Say 'clicky agent' to start a background agent.",
-  );
-  const [cursor, setCursor] = useState({ x: 28, y: 120 });
-  const timerRef = useRef<number | null>(null);
 
   const locale: Locale = useMemo(() => {
     const resolved = i18n.resolvedLanguage ?? DEFAULT_LOCALE;
     return isLocale(resolved) ? resolved : DEFAULT_LOCALE;
   }, [i18n.resolvedLanguage]);
 
-  async function startKyc() {
+  const internName = profile?.fullName ?? 'Intern';
+  const current = LEARNING_PATH.find((s) => s.state === 'current');
+  const done = LEARNING_PATH.filter((s) => s.state === 'done').length;
+  const total = LEARNING_PATH.length;
+  const pct = Math.round((done / total) * 100);
+
+  async function startScenario(scenarioId: PathStep['scenarioId']) {
+    if (!scenarioId) return;
     setStarting(true);
     setError(null);
     try {
-      const run = await simApi.startRun('kyc', locale);
-      navigate(`/simulator/kyc/${run.id}`);
+      const run = await simApi.startRun(scenarioId, locale);
+      // KYC has its own runner page; other scenarios fall back to the catalog.
+      navigate(scenarioId === 'kyc' ? `/simulator/kyc/${run.id}` : '/simulator');
     } catch (err) {
       setError(err instanceof SimHttpError ? err.message : t('sim.run.load_error'));
       setStarting(false);
     }
   }
 
-  function startAgentRun(source: 'voice' | 'button') {
-    setAgentState('running');
-    setAgentMessage(
-      source === 'voice'
-        ? 'Clicky agent running from voice command: researching best next onboarding steps.'
-        : 'Clicky agent running: building a custom onboarding action plan in the background.',
-    );
-    if (timerRef.current) window.clearTimeout(timerRef.current);
-    timerRef.current = window.setTimeout(() => {
-      setAgentState('done');
-      setAgentMessage('Clicky agent finished. Open Chat to review recommendations and generated tasks.');
-    }, 2600);
-  }
-
-  const stt = useSpeechRecognition({
-    locale,
-    onFinal: (spoken) => {
-      const text = spoken.trim();
-      if (!text) return;
-      const lowered = text.toLowerCase();
-      if (lowered.includes('clicky agent')) {
-        startAgentRun('voice');
-        return;
-      }
-      setClickyGuide(
-        `Heard: "${text}". Next step: open AI Mentor and ask for a step-by-step walkthrough for your current module.`,
-      );
-    },
-    onError: () => {
-      setClickyGuide(
-        "Voice capture failed. Try again or use the 'Ask AI Mentor' action.",
-      );
-    },
-  });
-
-  useEffect(() => {
-    function onMove(ev: PointerEvent) {
-      // Place Clicky slightly above-right of the real cursor.
-      setCursor({ x: ev.clientX + 12, y: ev.clientY - 16 });
-    }
-    window.addEventListener('pointermove', onMove);
-    return () => window.removeEventListener('pointermove', onMove);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) window.clearTimeout(timerRef.current);
-    };
-  }, []);
-
   return (
     <ErpShell
-      title="Intern Workspace"
-      subtitle="Guided Onboarding"
-      userName={profile?.fullName ?? 'Intern'}
+      title="Intern desk"
+      subtitle="Your learning path"
+      userName={internName}
       userRole={t('auth.role_intern_name')}
       sections={buildWorkspaceSections(profile?.role ?? null)}
-      searchPlaceholder="Search schedule, docs, and training modules"
+      searchPlaceholder="Search scenarios and docs"
       topActions={
-        <button
-          type="button"
-          onClick={() => void startKyc()}
-          disabled={starting}
-          className="rounded-md bg-brand-500 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {starting ? 'Starting...' : 'Start KYC'}
-        </button>
+        current?.scenarioId ? (
+          <button
+            type="button"
+            onClick={() => void startScenario(current.scenarioId)}
+            disabled={starting}
+            className="rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-card hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {starting ? 'Starting…' : `Continue: ${current.title}`}
+          </button>
+        ) : null
       }
-      rightPanel={<InternRightRail onStartKyc={() => void startKyc()} starting={starting} />}
+      rightPanel={<InternRightRail done={done} total={total} pct={pct} />}
     >
-      <section className="space-y-4">
-        <ClickyCursor
-          x={cursor.x}
-          y={cursor.y}
-          listening={stt.listening}
+      <section className="space-y-6">
+        <HeroBanner
+          internName={internName}
+          done={done}
+          total={total}
+          pct={pct}
+          current={current ?? null}
         />
 
-        <article className="rounded-lg border border-ink-200 bg-gradient-to-r from-brand-50 via-white to-sky-50 p-5 shadow-card">
-          <h1 className="font-display text-4xl text-ink-900">Good morning, {profile?.fullName ?? 'Intern'}!</h1>
-          <p className="mt-2 text-base text-ink-700">Have a great day at work.</p>
-          <p className="mt-3 text-sm text-ink-600">Important notice: There is a mentor sync at <span className="font-semibold text-brand-700">3 PM</span> today.</p>
-        </article>
-
         {error && (
-          <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">
+          <div
+            className="rounded-lg border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-700"
+            role="alert"
+          >
             {error}
           </div>
         )}
 
-        <article className="rounded-lg border border-ink-200 bg-white p-4 shadow-card">
-          <h2 className="mb-3 font-display text-2xl text-ink-900">Quick Links</h2>
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-            {QUICK_LINKS.map((item) => (
-              <button
-                key={item.label}
-                type="button"
-                className="rounded-md border border-ink-200 bg-ink-50 px-3 py-4 text-left hover:border-brand-200 hover:bg-brand-50"
-              >
-                <p className="text-2xl">{item.icon}</p>
-                <p className="mt-2 text-sm font-semibold text-ink-800">{item.label}</p>
-              </button>
+        <article className="rounded-lg border border-ink-200 bg-white shadow-card">
+          <header className="border-b border-ink-100 px-5 py-4">
+            <h2 className="font-display text-xl text-ink-900">Your learning path</h2>
+            <p className="mt-1 text-xs text-ink-500">
+              Complete in order. Each step is a synthetic-data simulator run — no real
+              clients, no production systems.
+            </p>
+          </header>
+          <ol className="divide-y divide-ink-100">
+            {LEARNING_PATH.map((step, idx) => (
+              <PathRow
+                key={step.id}
+                index={idx + 1}
+                step={step}
+                onStart={() => void startScenario(step.scenarioId)}
+                starting={starting}
+              />
             ))}
-          </div>
-        </article>
-
-        <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr_0.9fr]">
-          <article className="rounded-lg border border-ink-200 bg-white p-5 shadow-card">
-            <h2 className="mb-4 font-display text-2xl text-ink-900">Today's Plan</h2>
-            <div className="space-y-3">
-              {TODAY_PLAN.map((item) => (
-                <div key={item.topic} className="rounded-md border border-ink-200 bg-ink-50 p-3">
-                  <p className="text-sm font-semibold text-ink-900">{item.topic}</p>
-                  <p className="mt-1 text-xs text-brand-700">{item.trackName}</p>
-                  <p className="mt-1 text-xs text-ink-600">{item.meta}</p>
-                </div>
-              ))}
-            </div>
-          </article>
-
-          <article className="rounded-lg border border-ink-200 bg-white p-5 shadow-card">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-display text-2xl text-ink-900">Documents</h2>
-              <button type="button" className="text-xs font-semibold text-brand-700">See all</button>
-            </div>
-            <div className="space-y-3">
-              {DOCS.map((doc) => (
-                <div key={doc.title} className="rounded-md border border-ink-200 bg-ink-50 p-3">
-                  <p className="text-sm font-semibold text-ink-900">{doc.title}</p>
-                  <p className="mt-1 text-xs text-ink-600">{doc.at}</p>
-                </div>
-              ))}
-            </div>
-          </article>
-
-          <article className="rounded-lg border border-ink-200 bg-white p-5 shadow-card">
-            <h2 className="mb-4 font-display text-2xl text-ink-900">Track Progress</h2>
-            <div className="space-y-3">
-              {CLASS_PROGRESS.map((row) => (
-                <div key={row.label} className="rounded-md border border-ink-200 bg-ink-50 p-3">
-                  <p className="text-sm font-semibold text-ink-900">{row.label}</p>
-                  <p className="mt-1 text-xs text-ink-600">{row.trainees} trainees</p>
-                  <div className="mt-2 h-2 rounded-full bg-ink-200">
-                    <div className="h-2 rounded-full bg-gradient-to-r from-sky-500 to-brand-500" style={{ width: `${row.progress}%` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </article>
-        </div>
-
-        <article className="rounded-lg border border-ink-200 bg-white p-4 shadow-card">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h2 className="font-display text-2xl text-ink-900">Clicky Agent</h2>
-              <p className="text-sm text-ink-600">
-                Voice command + background execution for onboarding help.
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => (stt.listening ? stt.stop() : stt.start())}
-                disabled={!stt.supported}
-                className="rounded-md border border-brand-200 bg-brand-50 px-3 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {stt.listening ? 'Stop listening' : 'Ask out loud'}
-              </button>
-              <button
-                type="button"
-                onClick={() => startAgentRun('button')}
-                className="rounded-md bg-brand-500 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-600"
-              >
-                Run Clicky Agent
-              </button>
-            </div>
-          </div>
-          <div className="mt-3 grid gap-3 md:grid-cols-2">
-            <div className="rounded-md border border-ink-200 bg-ink-50 p-3">
-              <p className="text-xs uppercase tracking-wide text-ink-500">Voice transcript</p>
-              <p className="mt-1 text-sm text-ink-800">
-                {stt.transcript || 'Say: "Clicky, explain this step" or "Clicky agent".'}
-              </p>
-            </div>
-            <div className="rounded-md border border-ink-200 bg-ink-50 p-3">
-              <p className="text-xs uppercase tracking-wide text-ink-500">Background status</p>
-              <p className="mt-1 text-sm text-ink-800">{agentMessage}</p>
-              <span
-                className={`mt-2 inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
-                  agentState === 'running'
-                    ? 'bg-amber-100 text-amber-700'
-                    : agentState === 'done'
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'bg-ink-100 text-ink-600'
-                }`}
-              >
-                {agentState}
-              </span>
-            </div>
-          </div>
+          </ol>
         </article>
       </section>
     </ErpShell>
   );
 }
 
-function InternRightRail({
-  onStartKyc,
+function HeroBanner({
+  internName,
+  done,
+  total,
+  pct,
+  current,
+}: {
+  internName: string;
+  done: number;
+  total: number;
+  pct: number;
+  current: PathStep | null;
+}) {
+  return (
+    <article className="relative overflow-hidden rounded-lg border border-sky-100 bg-gradient-to-br from-sky-50 via-white to-white p-6 shadow-card">
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <div className="max-w-md">
+          <p className="text-xs uppercase tracking-[0.18em] text-sky-600">Learn</p>
+          <h1 className="mt-2 font-display text-3xl text-ink-900">
+            {greeting()}, {internName.split(' ')[0]}.
+          </h1>
+          <p className="mt-2 text-sm text-ink-600">
+            {current
+              ? `Up next: ${current.title}. About ${current.estMins} minutes.`
+              : 'Path complete. Wait for your mentor to assign the next module.'}
+          </p>
+        </div>
+        <div className="min-w-[200px]">
+          <div className="flex items-baseline justify-between text-xs uppercase tracking-wide text-ink-500">
+            <span>Path progress</span>
+            <span className="tabular text-ink-900">
+              {done}/{total}
+            </span>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-ink-100">
+            <div
+              className="h-2 rounded-full bg-gradient-to-r from-sky-400 to-sky-600 transition-all duration-500"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <p className="mt-1 text-right text-[11px] tabular text-ink-500">{pct}% complete</p>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function PathRow({
+  index,
+  step,
+  onStart,
   starting,
 }: {
-  onStartKyc: () => void;
+  index: number;
+  step: PathStep;
+  onStart: () => void;
   starting: boolean;
+}) {
+  const stateUi =
+    step.state === 'done'
+      ? { dot: 'bg-success-500', label: 'Done', labelClass: 'text-success-700 bg-success-50' }
+      : step.state === 'current'
+        ? { dot: 'bg-sky-500', label: 'Current', labelClass: 'text-sky-700 bg-sky-50' }
+        : { dot: 'bg-ink-200', label: 'Locked', labelClass: 'text-ink-500 bg-ink-50' };
+
+  return (
+    <li className="flex items-center gap-4 px-5 py-4">
+      <span
+        className={`grid h-8 w-8 flex-none place-items-center rounded-full text-xs font-display ${
+          step.state === 'locked' ? 'bg-ink-50 text-ink-400' : 'bg-ink-100 text-ink-700'
+        }`}
+      >
+        {index}
+      </span>
+      <span className={`h-2 w-2 flex-none rounded-full ${stateUi.dot}`} aria-hidden="true" />
+      <div className="min-w-0 flex-1">
+        <p
+          className={`truncate text-sm font-semibold ${
+            step.state === 'locked' ? 'text-ink-500' : 'text-ink-900'
+          }`}
+        >
+          {step.title}
+        </p>
+        <p className="mt-0.5 text-xs text-ink-500">~{step.estMins} min</p>
+      </div>
+      <span
+        className={`rounded-md px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${stateUi.labelClass}`}
+      >
+        {stateUi.label}
+      </span>
+      {step.state === 'current' && step.scenarioId ? (
+        <button
+          type="button"
+          onClick={onStart}
+          disabled={starting}
+          className="rounded-md bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          Start
+        </button>
+      ) : step.state === 'done' ? (
+        <span className="text-xs text-ink-400">—</span>
+      ) : (
+        <span
+          className="rounded-md border border-ink-100 px-3 py-1.5 text-xs text-ink-400"
+          title="Unlocks after the current step"
+        >
+          Locked
+        </span>
+      )}
+    </li>
+  );
+}
+
+function InternRightRail({
+  done,
+  total,
+  pct,
+}: {
+  done: number;
+  total: number;
+  pct: number;
 }) {
   return (
     <div className="space-y-4">
-      <section className="rounded-lg border border-ink-200 bg-white p-3 shadow-card">
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="font-display text-lg text-ink-900">Schedule</h3>
-          <span className="rounded-md border border-ink-200 bg-ink-50 px-2 py-1 text-xs text-ink-600">July 2023</span>
-        </div>
-        <div className="space-y-2 text-sm text-ink-700">
-          <p>Mon 3: Compliance standup</p>
-          <p>Tue 4: Core banking walkthrough</p>
-          <p>Wed 5: Risk review board</p>
-        </div>
+      <section className="rounded-lg border border-ink-200 bg-white p-4 shadow-card">
+        <h3 className="font-display text-base text-ink-900">Where you are</h3>
+        <dl className="mt-3 space-y-2 text-sm">
+          <Row label="Modules done" value={`${done} / ${total}`} />
+          <Row label="Path progress" value={`${pct}%`} />
+        </dl>
       </section>
 
-      <section className="rounded-lg border border-ink-200 bg-white p-3 shadow-card">
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="font-display text-lg text-ink-900">Upcoming activities</h3>
-          <button type="button" className="text-xs font-semibold text-brand-700">See all</button>
-        </div>
-        <div className="space-y-2">
-          <ActivityItem title="Compliance Standup" subtitle="03:00 PM · Join meet" />
-          <ActivityItem title="KYC Practice Run" subtitle="All day" />
-        </div>
-      </section>
-
-      <section className="rounded-lg border border-ink-200 bg-white p-3 shadow-card">
-        <h3 className="font-display text-lg text-ink-900">Notifications</h3>
-        <div className="mt-3 space-y-2 text-sm text-ink-700">
-          <p>Birthday reminders: 2</p>
-          <p>Policy approvals pending: 1</p>
-          <p>Case review required: 1</p>
-        </div>
-      </section>
-
-      <section className="rounded-lg border border-ink-200 bg-white p-3 shadow-card">
-        <h3 className="font-display text-lg text-ink-900">Training Actions</h3>
+      <section className="rounded-lg border border-ink-200 bg-white p-4 shadow-card">
+        <h3 className="font-display text-base text-ink-900">Need help?</h3>
         <div className="mt-3 space-y-2">
-          <ActionLink to="/chat" icon={<IconBook />} label="Ask AI Mentor" />
-          <ActionLink to="/simulator" icon={<IconShield />} label="Scenario Catalog" />
-          <ActionLink to="/skills" icon={<IconChart />} label="Skill Snapshot" />
-          <ActionLink to="/me" icon={<IconPeople />} label="XP & Badges" />
-          <button
-            type="button"
-            onClick={onStartKyc}
-            disabled={starting}
-            className="flex w-full items-center justify-between rounded-md border border-brand-200 bg-brand-50 px-3 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            <span>{starting ? 'Launching...' : 'Launch KYC Session'}</span>
-            <IconRocket />
-          </button>
+          <Helper
+            to="/chat"
+            label="Ask AI mentor"
+            hint="UZ / RU / EN — answers from internal SOPs"
+            icon={<IconChat />}
+          />
+          <Helper
+            to="/simulator"
+            label="Browse scenarios"
+            hint="Outside your path"
+            icon={<IconRocket />}
+          />
+          <Helper
+            to="/me"
+            label="My badges"
+            hint="What you've earned"
+            icon={<IconBook />}
+          />
         </div>
       </section>
 
-      <section className="rounded-lg border border-ink-200 bg-white p-3 shadow-card">
-        <h3 className="font-display text-lg text-ink-900">Clicky Companion</h3>
-        <p className="mt-2 text-sm text-ink-700">
-          Clicky sits by your cursor and follows your current page context.
-        </p>
-        <p className="mt-2 text-xs text-ink-600">
-          Voice example: "Clicky, how do I complete sanctions check?" or "clicky agent".
+      <section className="rounded-lg border border-sky-100 bg-sky-50/40 p-4 shadow-card">
+        <h3 className="font-display text-sm text-sky-700">Safe by design</h3>
+        <p className="mt-2 text-xs leading-relaxed text-ink-700">
+          Every scenario uses synthetic data. You can't touch a real customer
+          account from here — that's the whole point.
         </p>
       </section>
     </div>
   );
 }
 
-function ClickyCursor({
-  x,
-  y,
-  listening,
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline justify-between">
+      <dt className="text-xs text-ink-500">{label}</dt>
+      <dd className="font-display text-sm tabular text-ink-900">{value}</dd>
+    </div>
+  );
+}
+
+function Helper({
+  to,
+  label,
+  hint,
+  icon,
 }: {
-  x: number;
-  y: number;
-  listening: boolean;
+  to: string;
+  label: string;
+  hint: string;
+  icon: ReactNode;
 }) {
-  return (
-    <div
-      className="pointer-events-none fixed z-40 hidden md:block"
-      style={{ left: `${x}px`, top: `${y}px` }}
-      aria-hidden="true"
-    >
-      <span
-        className={`absolute -inset-2 rounded-full ${
-          listening ? 'animate-pulse bg-sky-400/35' : 'bg-brand-500/28'
-        } blur-md`}
-      />
-      <svg
-        viewBox="0 0 24 24"
-        className={`relative h-5 w-5 ${
-          listening ? 'text-sky-300' : 'text-brand-400'
-        } drop-shadow-[0_0_8px_rgba(59,130,246,0.9)]`}
-        fill="currentColor"
-      >
-        <path d="M4 3.5 17.3 12l-6.2 1.7 2.3 6.8-2.5 1.1-2.5-6.8L4 20z" />
-      </svg>
-    </div>
-  );
-}
-
-function ActivityItem({ title, subtitle }: { title: string; subtitle: string }) {
-  return (
-    <div className="rounded-md border border-ink-200 bg-ink-50 p-2">
-      <p className="text-sm font-semibold text-ink-900">{title}</p>
-      <p className="text-xs text-ink-600">{subtitle}</p>
-    </div>
-  );
-}
-
-function ActionLink({ to, icon, label }: { to: string; icon: ReactNode; label: string }) {
   return (
     <Link
       to={to}
-      className="flex items-center justify-between rounded-md border border-ink-200 bg-ink-50 px-3 py-2 text-sm text-ink-700 hover:border-brand-200 hover:bg-brand-50 hover:text-brand-700"
+      className="group flex items-center gap-3 rounded-md border border-ink-100 bg-white px-3 py-2 transition-colors hover:border-sky-200 hover:bg-sky-50"
     >
-      <span className="inline-flex items-center gap-2">
+      <span className="grid h-8 w-8 place-items-center rounded-md bg-ink-50 text-ink-600 group-hover:bg-sky-100 group-hover:text-sky-700">
         {icon}
-        {label}
       </span>
-      <span>›</span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-semibold text-ink-800">{label}</span>
+        <span className="block truncate text-[11px] text-ink-500">{hint}</span>
+      </span>
+      <span className="text-ink-400 transition-transform group-hover:translate-x-0.5">›</span>
     </Link>
   );
+}
+
+function greeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 18) return 'Good afternoon';
+  return 'Good evening';
 }

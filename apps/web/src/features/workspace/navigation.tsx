@@ -1,5 +1,6 @@
 import type { ErpNavSection } from './ErpShell';
 import {
+  IconBook,
   IconChart,
   IconChat,
   IconGrid,
@@ -13,68 +14,92 @@ interface WorkspaceNavOptions {
   includeRoleSwitcher?: boolean;
 }
 
-function roleHome(role: UserRole | null) {
-  switch (role) {
-    case 'hr':
-    case 'admin':
-      return { to: '/hr', label: 'HR Dashboard', icon: <IconGrid /> };
-    case 'intern':
-      return { to: '/intern', label: 'Intern Desk', icon: <IconShield /> };
-    case 'employee':
-      return { to: '/employee', label: 'Employee Desk', icon: <IconPeople /> };
-    default:
-      return { to: '/employee', label: 'Workspace', icon: <IconPeople /> };
-  }
-}
+// Role-pure navigation. Each role sees only the surfaces it owns; shared
+// feature pages (chat, simulator, skills) are exposed per role only where
+// they're genuinely part of that role's job.
+//
+//   Intern  → LEARN: learning path, simulator, AI mentor, my progress
+//   Mentor  → MENTOR: my interns, ask-queue, availability
+//   HR      → RUN: cohort, skills analytics, LMS sync
+//   Admin   → all three, plus role switcher
 
-function roleSwitcherItems(role: UserRole | null) {
-  if (role !== 'admin') return [];
+function internSections(): ErpNavSection[] {
   return [
-    { to: '/hr', label: 'HR Dashboard', icon: <IconGrid /> },
-    { to: '/employee', label: 'Employee Desk', icon: <IconPeople /> },
-    { to: '/intern', label: 'Intern Desk', icon: <IconShield /> },
+    {
+      label: 'Learn',
+      items: [
+        { to: '/intern', label: 'Today', icon: <IconShield /> },
+        { to: '/simulator', label: 'Scenario Lab', icon: <IconRocket /> },
+        { to: '/chat', label: 'Ask AI Mentor', icon: <IconChat /> },
+      ],
+    },
+    {
+      label: 'Me',
+      items: [{ to: '/me', label: 'Progress & Badges', icon: <IconPeople /> }],
+    },
   ];
 }
 
-function operationsForRole(role: UserRole | null) {
-  if (role === 'intern') {
-    return [
-      { to: '/simulator', label: 'Scenario Lab', icon: <IconRocket /> },
-      { to: '/chat', label: 'AI Mentor', icon: <IconChat /> },
-      { to: '/me', label: 'My Progress', icon: <IconPeople /> },
-    ];
-  }
-  if (role === 'employee') {
-    return [
-      { to: '/chat', label: 'AI Assistant', icon: <IconChat /> },
-      { to: '/skills', label: 'Skills Hub', icon: <IconChart /> },
-      { to: '/simulator', label: 'Scenario Lab', icon: <IconRocket /> },
-    ];
-  }
+function mentorSections(): ErpNavSection[] {
   return [
-    { to: '/chat', label: 'AI Assistant', icon: <IconChat /> },
-    { to: '/simulator', label: 'Scenario Lab', icon: <IconRocket /> },
-    { to: '/skills', label: 'Skills ERP', icon: <IconChart /> },
+    {
+      label: 'Mentor',
+      items: [
+        { to: '/employee', label: 'My Interns', icon: <IconPeople /> },
+        { to: '/chat', label: 'Knowledge Lookup', icon: <IconChat /> },
+      ],
+    },
+    {
+      label: 'Me',
+      items: [{ to: '/me', label: 'My Profile', icon: <IconBook /> }],
+    },
   ];
+}
+
+function hrSections(): ErpNavSection[] {
+  return [
+    {
+      label: 'Run',
+      items: [
+        { to: '/hr', label: 'Cohort', icon: <IconGrid /> },
+        { to: '/skills', label: 'Skills Analytics', icon: <IconChart /> },
+      ],
+    },
+  ];
+}
+
+function adminExtras(): ErpNavSection {
+  return {
+    label: 'Switch role',
+    items: [
+      { to: '/hr', label: 'HR view', icon: <IconGrid /> },
+      { to: '/employee', label: 'Mentor view', icon: <IconPeople /> },
+      { to: '/intern', label: 'Intern view', icon: <IconShield /> },
+    ],
+  };
 }
 
 export function buildWorkspaceSections(
   currentRole: UserRole | null,
   opts: WorkspaceNavOptions = {},
 ): ErpNavSection[] {
-  const sectionA: ErpNavSection = {
-    label: 'Workspace',
-    items: [roleHome(currentRole)],
-  };
-  const switcher = opts.includeRoleSwitcher ? roleSwitcherItems(currentRole) : [];
-  if (switcher.length > 0) {
-    sectionA.items.push(...switcher);
+  const base = (() => {
+    switch (currentRole) {
+      case 'intern':
+        return internSections();
+      case 'employee':
+        return mentorSections();
+      case 'hr':
+        return hrSections();
+      case 'admin':
+        return hrSections();
+      default:
+        return internSections();
+    }
+  })();
+
+  if (opts.includeRoleSwitcher && currentRole === 'admin') {
+    return [...base, adminExtras()];
   }
-  return [
-    sectionA,
-    {
-      label: 'Operations',
-      items: operationsForRole(currentRole),
-    },
-  ];
+  return base;
 }
