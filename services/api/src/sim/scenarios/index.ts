@@ -2,6 +2,9 @@ import type { ScenarioId } from '@vitality/shared';
 import type { ScenarioDef } from '../engine';
 import { ScenarioRunner } from '../engine';
 import { KycScenario, type KycState } from './kyc';
+import { OpenAccountScenario, type OpenAccountState } from './open-account';
+import { DepositScenario, type DepositState } from './deposit';
+import { TransferScenario, type TransferState } from './transfer';
 
 export class NotImplementedScenarioError extends Error {
   constructor(public readonly scenarioId: ScenarioId) {
@@ -10,12 +13,13 @@ export class NotImplementedScenarioError extends Error {
   }
 }
 
-// Registry. Only `kyc` is implemented right now; the others are placeholders
-// so the frontend can list them but `getRunner` will throw.
-//
-// TODO(simulator): implement open-account, deposit, transfer scenarios.
+// All four scenarios are implemented. Order here mirrors the simulator
+// dashboard's display order.
 const REGISTRY: Partial<Record<ScenarioId, ScenarioDef<any>>> = {
   kyc: KycScenario,
+  'open-account': OpenAccountScenario,
+  deposit: DepositScenario,
+  transfer: TransferScenario,
 };
 
 const RUNNER_CACHE = new Map<ScenarioId, ScenarioRunner<any>>();
@@ -34,4 +38,13 @@ export function isImplemented(scenarioId: ScenarioId): boolean {
   return REGISTRY[scenarioId] !== undefined;
 }
 
-export { KycScenario, type KycState };
+export {
+  KycScenario,
+  type KycState,
+  OpenAccountScenario,
+  type OpenAccountState,
+  DepositScenario,
+  type DepositState,
+  TransferScenario,
+  type TransferState,
+};

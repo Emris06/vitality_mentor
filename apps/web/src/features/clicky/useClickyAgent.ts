@@ -8,41 +8,85 @@ import {
   runLocalAgent,
   scanPageTargets,
   type AgentAction,
+  type PageTarget,
 } from './agent';
+import { speak, stopSpeaking } from './tts';
+
+// Hard cap on the round trip — the project's chat budget is ≤ 2 s end to end.
+// At 1800 ms the backend (1500 ms LLM ceiling + a margin) has already given
+// up, so we don't waste UX time waiting on it.
+const INTENT_TIMEOUT_MS = 1800;
+
+interface ServerAction {
+  action: 'point' | 'explain';
+  uid: string | null;
+  spoken: string;
+  source: 'llm' | 'fallback';
+}
+
+/**
+ * Ask the API's Clicky brain. Falls back to the local keyword matcher on
+ * any error or timeout so the UI always gets a usable action.
+ */
+async function askAgent(
+  transcript: string,
+  locale: Locale,
+  targets: PageTarget[],
+): Promise<AgentAction> {
+  try {
+    const res = await fetch('/api/clicky/intent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        transcript,
+        locale,
+        page: window.location.pathname,
+        targets: targets.map((t) => ({
+          uid: t.uid,
+          label: t.label,
+          keywords: t.keywords,
+          hint: t.hint,
+        })),
+      }),
+      signal: AbortSignal.timeout(INTENT_TIMEOUT_MS),
+    });
+    if (!res.ok) throw new Error(`intent ${res.status}`);
+    const data = (await res.json()) as ServerAction;
+    if (data.action === 'point' && data.uid) {
+      return { type: 'point', uid: data.uid, hint: data.spoken, spoken: data.spoken };
+    }
+    return { type: 'noop', spoken: data.spoken };
+  } catch {
+    // Local fallback — same shape, deterministic. The user gets *some*
+    // answer; the bubble doesn't hang.
+    return runLocalAgent({ transcript, targets });
+  }
+}
 
 // ──────────────────────────────────────────────────────────────────────────
 // Voice driver for Clicky.
 //
 //   1. Hold the hotkey (default: backtick `) to talk.
 //   2. Release → STT finalizes → agent runs.
-//   3. Agent picks a DOM element to point at; Clicky animates there.
+//   3. Agent picks a DOM element to point at; Clicky animates there AND
+//      speaks the answer aloud (browser TTS).
 //
-// Backend swap: replace `runLocalAgent(input)` with a fetch to the AI
-// service. The shape (`AgentInput` → `AgentAction`) is the only contract
-// the rest of the app depends on.
+// No text bubble. The cursor is the visual, the voice is the explanation.
 // ──────────────────────────────────────────────────────────────────────────
 
 export interface UseClickyAgent {
-  /** True while the user is holding the hotkey and the mic is open. */
   recording: boolean;
-  /** Interim STT transcript (updates live while listening). */
   transcript: string;
-  /** Agent's last response (whether it pointed somewhere or not). */
   lastAction: AgentAction | null;
-  /** True between transcript submit and the cursor finishing its move. */
   thinking: boolean;
-  /** True when the browser supports STT for the current locale. */
   supported: boolean;
-  /** Programmatic equivalent of holding the key (for click-to-talk). */
   toggle: () => void;
-  /** Submit a text question (skip the mic). Useful for click-to-type fallback. */
   askText: (question: string) => void;
 }
 
 interface UseClickyAgentOpts {
   /** Hotkey character. Default '`' (backtick). */
   hotkey?: string;
-  /** Set false to disable the hook entirely (e.g., not on this page). */
   enabled?: boolean;
 }
 
@@ -62,10 +106,9 @@ export function useClickyAgent(opts: UseClickyAgentOpts = {}): UseClickyAgent {
     return isLocale(r) ? r : DEFAULT_LOCALE;
   })();
 
-  const { goToElement, pushHint, setAgentBusy } = useClicky();
+  const { goToElement, setAgentBusy, setSpeaking } = useClicky();
   const [lastAction, setLastAction] = useState<AgentAction | null>(null);
   const [thinking, setThinking] = useState(false);
-  // Guard: a held key fires repeatedly; we only want one start.
   const keyDownRef = useRef(false);
 
   const runAgentOn = useCallback(
@@ -79,31 +122,26 @@ export function useClickyAgent(opts: UseClickyAgentOpts = {}): UseClickyAgent {
       setThinking(true);
       setAgentBusy(true);
 
-      // Frontend-only stub. Swap for `await fetch('/api/clicky/intent', …)`
-      // when the backend exists.
       const targets = scanPageTargets();
-      const action = runLocalAgent({ transcript, targets });
-      setLastAction(action);
-
-      // Tiny artificial delay so the "thinking" state is perceptible —
-      // makes the agent feel intentional instead of a reflex.
-      window.setTimeout(() => {
+      void askAgent(transcript, locale, targets).then((action) => {
+        setLastAction(action);
         if (action.type === 'point') {
           const el = findTargetElement(action.uid);
           if (el) {
-            goToElement(el, action.hint, 5000);
+            goToElement(el, 5000);
+            speakLine(action.spoken, locale, setSpeaking);
           } else {
-            pushHint(action.spoken, 4000);
+            speakLine(action.spoken, locale, setSpeaking);
             setAgentBusy(false);
           }
         } else {
-          pushHint(action.spoken, 4000);
+          speakLine(action.spoken, locale, setSpeaking);
           setAgentBusy(false);
         }
         setThinking(false);
-      }, 320);
+      });
     },
-    [goToElement, pushHint, setAgentBusy],
+    [goToElement, setAgentBusy, setSpeaking, locale],
   );
 
   const stt = useSpeechRecognition({
@@ -115,25 +153,24 @@ export function useClickyAgent(opts: UseClickyAgentOpts = {}): UseClickyAgent {
       setAgentBusy(false);
       setThinking(false);
       if (kind === 'no-speech') {
-        pushHint("I didn't hear anything — try holding the key longer.", 3000);
+        speakLine("I didn't hear anything. Try again.", locale, setSpeaking);
       } else if (kind === 'not-allowed') {
-        pushHint('Microphone permission was blocked. Allow it to talk to me.', 4500);
+        speakLine('Microphone permission was blocked.', locale, setSpeaking);
       } else if (kind === 'unsupported') {
-        pushHint('Voice is not supported in this browser. Try Chrome or Edge.', 4500);
+        // No TTS speakLine here — likely the whole speech stack is unsupported.
       } else {
-        pushHint('Voice recognition stumbled. Try again in a moment.', 3000);
+        speakLine('Voice recognition stumbled. Try again.', locale, setSpeaking);
       }
     },
   });
 
   const start = useCallback(() => {
-    if (!stt.supported) {
-      pushHint('Voice is not supported here. Try Chrome or Edge.', 3500);
-      return;
-    }
-    setAgentBusy(false); // reset stale busy
+    if (!stt.supported) return;
+    stopSpeaking(); // cut Clicky off if it's mid-sentence
+    setSpeaking(false);
+    setAgentBusy(false);
     stt.start();
-  }, [stt, pushHint, setAgentBusy]);
+  }, [stt, setSpeaking, setAgentBusy]);
 
   const stop = useCallback(() => {
     stt.stop();
@@ -144,7 +181,6 @@ export function useClickyAgent(opts: UseClickyAgentOpts = {}): UseClickyAgent {
     else start();
   }, [stt.listening, start, stop]);
 
-  // Hold-to-talk hotkey.
   useEffect(() => {
     if (!enabled) return;
     function onKeyDown(ev: KeyboardEvent) {
@@ -180,4 +216,17 @@ export function useClickyAgent(opts: UseClickyAgentOpts = {}): UseClickyAgent {
     toggle,
     askText: runAgentOn,
   };
+}
+
+function speakLine(
+  text: string,
+  locale: Locale,
+  setSpeaking: (b: boolean) => void,
+): void {
+  speak(text, {
+    locale,
+    onStart: () => setSpeaking(true),
+    onEnd: () => setSpeaking(false),
+    onError: () => setSpeaking(false),
+  });
 }

@@ -11,6 +11,7 @@ import { hrStreamRoutes } from './routes/hr_stream';
 import { gamificationRoutes } from './routes/gamification';
 import { skillsRoutes } from './routes/skills';
 import { lmsRoutes } from './routes/lms';
+import { clickyRoutes } from './routes/clicky';
 import { pingDb } from './plugins/db';
 import { requestIdPlugin } from './plugins/request-id';
 import { jwtPlugin } from './plugins/jwt';
@@ -48,6 +49,7 @@ async function buildServer() {
   await app.register(gamificationRoutes, { prefix: '/' });
   await app.register(skillsRoutes, { prefix: '/' });
   await app.register(lmsRoutes, { prefix: '/' });
+  await app.register(clickyRoutes, { prefix: '/' });
 
   app.get('/', async () => ({ service: 'vitality-api', ok: true }));
 

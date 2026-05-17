@@ -29,6 +29,15 @@ const schema = z.object({
   SUPABASE_URL: z.string().default(''),
   SUPABASE_JWT_SECRET: z.string().default(''),
   SUPABASE_SERVICE_ROLE_KEY: z.string().default(''),
+
+  // Clicky voice agent. The route falls back to a local keyword matcher if
+  // ANTHROPIC_API_KEY is missing or the upstream errors — so the demo still
+  // runs without an API key, it just gets dumber.
+  ANTHROPIC_API_KEY: z.string().default(''),
+  CLICKY_MODEL: z.string().default('claude-haiku-4-5'),
+  // Hard ceiling for the Clicky LLM call (ms). Frontend gives up after this
+  // and falls back to local matching, so 1500 keeps us inside the 2 s budget.
+  CLICKY_TIMEOUT_MS: z.coerce.number().int().default(1500),
 });
 
 export const config = schema.parse(process.env);

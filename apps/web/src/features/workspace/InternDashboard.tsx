@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthProvider';
@@ -6,7 +6,7 @@ import { DEFAULT_LOCALE, isLocale, type Locale, type ScenarioId } from '@vitalit
 import { simApi, SimHttpError } from '../../lib/api';
 import { ErpShell, IconBook, IconChat, IconRocket } from './ErpShell';
 import { buildWorkspaceSections } from './navigation';
-import { useClicky, useClickyEnabled } from '../clicky/ClickyProvider';
+import { useClickyEnabled } from '../clicky/ClickyProvider';
 import { useClickyAgent } from '../clicky/useClickyAgent';
 import { ClickyVoiceOverlay } from '../clicky/ClickyVoiceOverlay';
 
@@ -79,21 +79,11 @@ export function InternDashboard() {
   const total = LEARNING_PATH.length;
   const pct = Math.round((done / total) * 100);
 
-  // Clicky onboarding for the intern surface. Greets once on mount, then
-  // lets data-clicky-hint attributes (on hover) and the voice agent (on
-  // hotkey) drive the rest.
-  useClickyEnabled("Hold ` and ask me out loud — I'll point at the answer.");
-  const { pushHint } = useClicky();
+  // Clicky on. The hotkey + voice agent drive everything from here — the
+  // intern holds backtick, asks aloud, Clicky moves to the answer and
+  // speaks it back. No text bubble.
+  useClickyEnabled();
   const agent = useClickyAgent();
-  useEffect(() => {
-    pushHint(
-      current
-        ? `Hi ${internName.split(' ')[0]}! Hold backtick and ask "where do I start?" — I'll point you there.`
-        : `Hi ${internName.split(' ')[0]}! Your path is complete — your mentor will assign the next module.`,
-      5500,
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   async function startScenario(scenarioId: PathStep['scenarioId']) {
     if (!scenarioId) return;

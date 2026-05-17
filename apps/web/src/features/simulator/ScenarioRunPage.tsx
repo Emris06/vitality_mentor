@@ -6,61 +6,44 @@ import {
   DEFAULT_LOCALE,
   isLocale,
   type Locale,
+  type ScenarioId,
   type ScenarioMistake,
   type ScenarioRun,
 } from '@vitality/shared';
-import { simApi, SimHttpError } from '../../../lib/api';
-import { ChromeShell, type StepDef } from '../ChromeShell';
-import { HintPanel } from '../HintPanel';
-import { useClicky, useClickyEnabled } from '../../clicky/ClickyProvider';
-import { useClickyAgent } from '../../clicky/useClickyAgent';
-import { ClickyVoiceOverlay } from '../../clicky/ClickyVoiceOverlay';
-import { speak } from '../../clicky/tts';
-import { IntakeStep } from './steps/IntakeStep';
-import { VerifyDocumentsStep } from './steps/VerifyDocumentsStep';
-import { SanctionsCheckStep } from './steps/SanctionsCheckStep';
-import { RiskScoreStep } from './steps/RiskScoreStep';
-import { DecisionStep } from './steps/DecisionStep';
-import type { StepProps } from './steps/stepTypes';
+import { simApi, SimHttpError } from '../../lib/api';
+import { ChromeShell, type StepDef } from './ChromeShell';
+import { HintPanel } from './HintPanel';
+import type { StepProps } from './kyc/steps/stepTypes';
 
-const LAST_RUN_KEY = 'vitality.lastKycRunId';
+// ──────────────────────────────────────────────────────────────────────────
+// Generic scenario runner. Same shape as the original KYC page (loading,
+// submitting, toasts, results, hint panel) but parameterized so we don't
+// fork the file four times. Each scenario page is a thin wrapper around
+// this component.
+// ──────────────────────────────────────────────────────────────────────────
 
-const KYC_STEPS: StepDef[] = [
-  { id: 'intake', titleKey: 'sim.kyc.steps.intake.title' },
-  { id: 'verify_documents', titleKey: 'sim.kyc.steps.verify_documents.title' },
-  { id: 'sanctions_check', titleKey: 'sim.kyc.steps.sanctions_check.title' },
-  { id: 'risk_score', titleKey: 'sim.kyc.steps.risk_score.title' },
-  { id: 'decision', titleKey: 'sim.kyc.steps.decision.title' },
-];
-
-// What Clicky should say at each step of the KYC flow. Short, action-first.
-const CLICKY_STEP_HINTS: Record<string, string> = {
-  intake:
-    'Step 1: open the customer file. Just confirm the person on screen and click through to intake.',
-  verify_documents:
-    'Step 2: documents. Mark each one valid or flag the issue — fakes are in here on purpose.',
-  sanctions_check:
-    'Step 3: sanctions screening. Cross-check the name against the watchlist before approving.',
-  risk_score:
-    'Step 4: risk score. Pick the right band based on what you saw in the previous steps.',
-  decision:
-    'Final step: write your decision. Be specific — "approve" or "reject" alone is not enough.',
-};
-
-const STEP_COMPONENTS: Record<string, ComponentType<StepProps>> = {
-  intake: IntakeStep,
-  verify_documents: VerifyDocumentsStep,
-  sanctions_check: SanctionsCheckStep,
-  risk_score: RiskScoreStep,
-  decision: DecisionStep,
-};
+export interface ScenarioRunPageProps {
+  scenarioId: ScenarioId;
+  steps: StepDef[];
+  stepComponents: Record<string, ComponentType<StepProps>>;
+  /** localStorage key used to remember the last run for refresh resume. */
+  lastRunKey: string;
+  /** Where the "back" arrow points (the simulator dashboard, usually). */
+  backRoute?: string;
+}
 
 interface ToastItem {
   id: number;
   message: string;
 }
 
-export function KycRunPage() {
+export function ScenarioRunPage({
+  scenarioId,
+  steps,
+  stepComponents,
+  lastRunKey,
+  backRoute = '/simulator',
+}: ScenarioRunPageProps) {
   const { t, i18n } = useTranslation();
   const { runId } = useParams<{ runId: string }>();
   const navigate = useNavigate();
@@ -77,23 +60,15 @@ export function KycRunPage() {
   const [hintOpen, setHintOpen] = useState(false);
   const [completedStepIds, setCompletedStepIds] = useState<string[]>([]);
 
-  // Clicky on. Voice agent + TTS handle all guidance — hold backtick, ask
-  // out loud, Clicky moves to the right control and speaks the answer.
-  useClickyEnabled();
-  const agent = useClickyAgent();
-  const { setSpeaking } = useClicky();
-
-  // Persist last run id so a refresh resumes the same session.
   useEffect(() => {
     if (!runId) return;
     try {
-      window.localStorage.setItem(LAST_RUN_KEY, runId);
+      window.localStorage.setItem(lastRunKey, runId);
     } catch {
       // ignore
     }
-  }, [runId]);
+  }, [runId, lastRunKey]);
 
-  // Initial load of the run.
   useEffect(() => {
     if (!runId) return;
     let cancelled = false;
@@ -135,28 +110,12 @@ export function KycRunPage() {
           setCompletedStepIds((curr) =>
             curr.includes(stepId) ? curr : [...curr, stepId],
           );
-          const nextHint = result.nextStepId
-            ? (CLICKY_STEP_HINTS[result.nextStepId] ?? 'Next step is up.')
-            : 'All steps done. Let me show you the score.';
-          speak(`Nice. ${nextHint}`, {
-            locale,
-            onStart: () => setSpeaking(true),
-            onEnd: () => setSpeaking(false),
-            onError: () => setSpeaking(false),
-          });
         } else if (result.mistake) {
-          // Translate the mistake message key if i18n knows it, otherwise show the code.
           const m = result.mistake;
           const translated = i18n.exists(m.messageKey)
             ? t(m.messageKey)
             : m.messageKey || m.code;
           pushToast(translated);
-          speak(`Not quite. ${translated}. Try again, you can't break anything.`, {
-            locale,
-            onStart: () => setSpeaking(true),
-            onEnd: () => setSpeaking(false),
-            onError: () => setSpeaking(false),
-          });
         }
       } catch (err) {
         const message =
@@ -166,24 +125,24 @@ export function KycRunPage() {
         setSubmitting(false);
       }
     },
-    [i18n, locale, pushToast, run, runId, setSpeaking, t],
+    [i18n, pushToast, run, runId, t],
   );
 
   const handleRetry = useCallback(async () => {
     try {
-      const fresh = await simApi.startRun('kyc', locale);
+      const fresh = await simApi.startRun(scenarioId, locale);
       try {
-        window.localStorage.setItem(LAST_RUN_KEY, fresh.id);
+        window.localStorage.setItem(lastRunKey, fresh.id);
       } catch {
         // ignore
       }
-      navigate(`/simulator/kyc/${fresh.id}`, { replace: true });
+      navigate(`/simulator/${scenarioId}/${fresh.id}`, { replace: true });
     } catch (err) {
       const message =
         err instanceof SimHttpError ? err.message : t('sim.run.load_error');
       pushToast(message);
     }
-  }, [locale, navigate, pushToast, t]);
+  }, [scenarioId, locale, navigate, lastRunKey, pushToast, t]);
 
   if (loadError) {
     return (
@@ -191,7 +150,7 @@ export function KycRunPage() {
         <div className="w-full max-w-md rounded-2xl border border-rose-200 bg-white p-6 text-center shadow-sm">
           <p className="text-sm text-rose-700">{loadError}</p>
           <Link
-            to="/simulator"
+            to={backRoute}
             className="mt-4 inline-block rounded-full border border-ink-200 bg-white px-4 py-2 text-sm font-semibold text-ink-800 transition-colors hover:bg-ink-50"
           >
             {t('sim.back')}
@@ -210,19 +169,19 @@ export function KycRunPage() {
   }
 
   const scored = run.status === 'scored';
-  const StepComponent = run.currentStepId ? STEP_COMPONENTS[run.currentStepId] : null;
+  const StepComponent = run.currentStepId ? stepComponents[run.currentStepId] : null;
 
   return (
     <>
       <ChromeShell
-        steps={KYC_STEPS}
+        steps={steps}
         currentStepId={run.currentStepId}
         completedStepIds={completedStepIds}
         score={run.score}
         onOpenHint={scored ? undefined : () => setHintOpen(true)}
       >
         {scored ? (
-          <ResultsView run={run} onRetry={() => void handleRetry()} />
+          <ResultsView run={run} onRetry={() => void handleRetry()} backRoute={backRoute} />
         ) : StepComponent ? (
           <StepComponent run={run} submitting={submitting} onSubmit={(p) => void handleSubmit(p)} />
         ) : (
@@ -239,7 +198,6 @@ export function KycRunPage() {
         />
       )}
 
-      {/* Toast stack — inline implementation, no external lib. */}
       <div className="pointer-events-none fixed bottom-6 left-1/2 z-40 flex w-full max-w-md -translate-x-1/2 flex-col gap-2 px-4">
         <AnimatePresence>
           {toasts.map((toast) => (
@@ -257,8 +215,6 @@ export function KycRunPage() {
           ))}
         </AnimatePresence>
       </div>
-
-      <ClickyVoiceOverlay agent={agent} />
     </>
   );
 }
@@ -266,9 +222,10 @@ export function KycRunPage() {
 interface ResultsViewProps {
   run: ScenarioRun;
   onRetry: () => void;
+  backRoute: string;
 }
 
-function ResultsView({ run, onRetry }: ResultsViewProps) {
+function ResultsView({ run, onRetry, backRoute }: ResultsViewProps) {
   const { t } = useTranslation();
   const score = run.score ?? 0;
   const mistakes: ScenarioMistake[] = run.mistakes ?? [];
@@ -283,50 +240,43 @@ function ResultsView({ run, onRetry }: ResultsViewProps) {
         <p className="text-xs uppercase tracking-wide text-ink-500">
           {t('sim.run.finished')}
         </p>
-        <p className={'text-6xl font-bold tabular-nums ' + scoreClass}>{score}</p>
-        <p className="text-sm text-ink-600">
-          {mistakes.length === 0
-            ? t('sim.run.no_mistakes')
-            : t('sim.run.mistake_count', { count: mistakes.length })}
-        </p>
+        <p className={`font-display text-6xl tabular ${scoreClass}`}>{score}</p>
+        <p className="text-sm text-ink-600">{t('sim.run.score_of_100')}</p>
       </div>
 
       {mistakes.length > 0 && (
-        <ul className="mt-5 space-y-2">
-          {mistakes.map((mistake, idx) => (
-            <li
-              key={`${mistake.stepId}-${mistake.code}-${idx}`}
-              className="flex items-start gap-3 rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm"
-            >
-              <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-rose-600 text-[10px] font-bold text-white tabular-nums">
-                {idx + 1}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-rose-900">{mistake.messageKey || mistake.code}</p>
-                <p className="text-xs text-rose-700">
-                  <span className="font-mono">{mistake.stepId}</span>
-                  <span className="mx-1">·</span>
-                  <span className="tabular-nums">-{mistake.penalty}</span>
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <div className="mt-6">
+          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-500">
+            {t('sim.run.mistakes')}
+          </h3>
+          <ul className="space-y-2">
+            {mistakes.map((m, i) => (
+              <li
+                key={`${m.stepId}-${i}`}
+                className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900"
+              >
+                <span className="font-mono text-xs text-amber-700">{m.stepId}</span>
+                <span className="ml-2">{m.messageKey || m.code}</span>
+                <span className="ml-2 text-xs text-amber-600">−{m.penalty}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
-      <div className="mt-6 flex flex-wrap justify-center gap-2">
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
         <button
           type="button"
           onClick={onRetry}
-          className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-300"
+          className="rounded-full bg-brand-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-brand-700"
         >
-          {t('sim.run.retry')}
+          {t('sim.run.try_again')}
         </button>
         <Link
-          to="/chat"
-          className="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white px-5 py-2.5 text-sm font-semibold text-ink-800 shadow-sm transition-colors hover:bg-ink-50"
+          to={backRoute}
+          className="rounded-full border border-ink-200 bg-white px-5 py-2 text-sm font-semibold text-ink-800 hover:bg-ink-50"
         >
-          {t('sim.run.open_chat')}
+          {t('sim.back')}
         </Link>
       </div>
     </div>
