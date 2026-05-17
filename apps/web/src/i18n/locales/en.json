@@ -456,9 +456,13 @@
     "scenarios": "Scenarios",
     "quests": "Quests",
     "chat": "Ask the bank",
+    "knowledge": "Knowledge",
     "messages": "Messages",
     "resources": "Resources",
     "profile": "Profile",
+    "newcomers": "Newcomers",
+    "mentors": "Mentors",
+    "performance": "Performance",
     "coming_soon": "Coming soon"
   },
   "clicky": {

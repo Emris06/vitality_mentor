@@ -25,7 +25,7 @@ export function DeadlineBadge({ deadline, className }: DeadlineBadgeProps) {
   const parsed = new Date(deadline);
   if (Number.isNaN(parsed.getTime())) {
     return (
-      <span className={`rounded-full bg-ink-100 px-2 py-0.5 text-[11px] text-ink-500 ${className ?? ''}`}>
+      <span className={`rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] text-zinc-500 ${className ?? ''}`}>
         —
       </span>
     );
@@ -58,7 +58,7 @@ export function DeadlineBadge({ deadline, className }: DeadlineBadgeProps) {
     days <= 3
       ? 'bg-amber-100 text-amber-800'
       : days <= 7
-        ? 'bg-brand-50 text-brand-700'
+        ? 'bg-mentora-50 text-mentora-700'
         : 'bg-emerald-50 text-emerald-700';
 
   return (

@@ -7,8 +7,19 @@ import { useAuth } from '../auth/AuthProvider';
 import { hrApi, HrHttpError, type NewcomerDetailDto } from '../../lib/api';
 import { DeadlineBadge } from './DeadlineBadge';
 import { MentorPicker } from './MentorPicker';
-import { ErpShell } from '../workspace/ErpShell';
-import { buildWorkspaceSections } from '../workspace/navigation';
+import { InternShell } from '../workspace/InternShell';
+import { buildMentoraNav } from '../workspace/mentoraNav';
+import { WarmCard } from '../../components/warm/WarmCard';
+
+// ──────────────────────────────────────────────────────────────────────────
+// HR newcomer detail (`/hr/newcomers/:id`) — warm theme (Phase C).
+//
+// Same behavior as the prior ErpShell version:
+//   - hrApi.getNewcomer(id) on mount, refetch on mentor change
+//   - hrApi.unassign(id) wired to the unassign button
+//   - MentorPicker modal preserved unchanged
+//   - "Open run" deep-link → /simulator/kyc/:runId for KYC scenarios
+// ──────────────────────────────────────────────────────────────────────────
 
 export function NewcomerDetail() {
   const { id = '' } = useParams<{ id: string }>();
@@ -43,83 +54,104 @@ export function NewcomerDetail() {
     }
   }, [id, refetch]);
 
-  return (
-    <ErpShell
-      title={t('hr.title')}
-      subtitle={t('hr.subtitle')}
-      userName={profile?.fullName ?? 'HR Manager'}
-      userRole={t('auth.role_hr_name')}
-      sections={buildWorkspaceSections(profile?.role ?? null)}
-      searchPlaceholder="Search by newcomer, mentor, or run id"
-      topActions={
-        <button
-          type="button"
-          onClick={() => navigate('/hr')}
-          className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-        >
-          {t('hr.newcomer_detail.back')}
-        </button>
-      }
-    >
-      <section className="space-y-4">
-        {err && (
-          <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">
-            {err}
-          </div>
-        )}
+  const userName = profile?.fullName ?? 'HR Manager';
+  const firstName = userName.split(/\s+/)[0] ?? userName;
 
-        {!data ? (
-          <p className="text-sm text-ink-500">…</p>
-        ) : (
-          <>
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-            >
+  // Use the newcomer's full name as the page title once loaded; while loading,
+  // fall back to the HR section title so the chrome doesn't flash empty.
+  const pageTitle = data?.newcomer.fullName ?? t('hr.title');
+  const subtitle = data?.newcomer.department
+    ? `${data.newcomer.department}${data.newcomer.position ? ` · ${data.newcomer.position}` : ''}`
+    : undefined;
+
+  return (
+    <InternShell
+      userName={userName}
+      userRole={t('auth.role_hr_name')}
+      greeting={t('intern.shell.greeting', { name: firstName })}
+      pageTitle={pageTitle}
+      navItems={buildMentoraNav('hr')}
+      currentScenarioCta={{
+        label: t('hr.newcomer_detail.back'),
+        onClick: () => navigate('/hr'),
+        clickyTarget: 'back, cohort, hr, dashboard, return',
+        clickyHint: 'Return to the cohort dashboard.',
+      }}
+    >
+      {err && (
+        <div
+          className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700 ring-1 ring-rose-200"
+          role="alert"
+        >
+          {err}
+        </div>
+      )}
+
+      {!data ? (
+        <div className="rounded-2xl bg-white px-6 py-8 text-center text-sm text-[var(--muted-warm)] ring-1 ring-zinc-100">
+          <div className="mx-auto mb-3 h-1 w-24 overflow-hidden rounded-full bg-zinc-100">
+            <div className="h-full w-1/2 animate-pulse rounded-full bg-mentora-600" />
+          </div>
+          {t('sim.run.loading_run')}
+        </div>
+      ) : (
+        <>
+          {/* Identity card */}
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <WarmCard className="p-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <h1 className="text-2xl font-bold tracking-tight text-ink-900">
-                    {data.newcomer.fullName}
-                  </h1>
-                  {data.newcomer.department && (
-                    <p className="mt-1 text-sm text-ink-500">
-                      {data.newcomer.department}
-                      {data.newcomer.position ? ` · ${data.newcomer.position}` : ''}
+                <div className="min-w-0">
+                  {subtitle && (
+                    <p className="font-mono-tech text-[11px] uppercase tracking-wider text-[var(--muted-warm)]">
+                      {subtitle}
                     </p>
                   )}
+                  <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-[var(--ink-warm)]">
+                    {data.newcomer.fullName}
+                  </h2>
                   <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
-                    <span className="text-ink-500">
+                    <span className="text-[var(--muted-warm)]">
                       {t('hr.newcomer_detail.started')}:{' '}
-                      <span className="font-medium text-ink-800 tabular-nums">
+                      <span className="font-mono-tech font-bold text-[var(--ink-warm)]">
                         {formatDate(data.newcomer.startDate)}
                       </span>
                     </span>
-                    <span className="text-ink-500">
-                      {t('hr.newcomer_detail.deadline')}:{' '}
+                    <span className="text-[var(--muted-warm)]">
+                      {t('hr.newcomer_detail.deadline')}:
                     </span>
                     <DeadlineBadge deadline={data.newcomer.onboardingDeadline} />
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </WarmCard>
+          </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.05 }}
-              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-            >
+          {/* Mentor card */}
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.05 }}
+          >
+            <WarmCard className="p-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-500">
+                <h3 className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted-warm)]">
                   {t('hr.newcomer_detail.current_mentor')}
-                </h2>
+                </h3>
                 <div className="inline-flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setPickerOpen(true)}
-                    className="rounded-full bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-700"
+                    data-clicky-target={`${data.mentor ? 'reassign' : 'assign'}, mentor, pick, match`}
+                    data-clicky-hint={
+                      data.mentor
+                        ? `Pick a different mentor for ${data.newcomer.fullName}.`
+                        : `Assign a mentor to ${data.newcomer.fullName}.`
+                    }
+                    className="rounded-md bg-mentora-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-mentora-700 focus:outline-none focus:ring-2 focus:ring-mentora-600/30"
                   >
                     {data.mentor ? t('hr.newcomers.reassign') : t('hr.newcomers.assign')}
                   </button>
@@ -127,7 +159,9 @@ export function NewcomerDetail() {
                     <button
                       type="button"
                       onClick={() => void handleUnassign()}
-                      className="rounded-full border border-ink-200 bg-white px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50"
+                      data-clicky-target="unassign, remove, clear, mentor"
+                      data-clicky-hint="Remove the current mentor from this newcomer. They'll be unassigned until you pick a new one."
+                      className="rounded-md bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 ring-1 ring-zinc-200 transition hover:bg-zinc-50"
                     >
                       {t('hr.newcomers.unassign')}
                     </button>
@@ -136,15 +170,19 @@ export function NewcomerDetail() {
               </div>
               {data.mentor ? (
                 <div className="mt-3">
-                  <p className="text-lg font-semibold text-ink-900">{data.mentor.fullName}</p>
+                  <p className="text-lg font-extrabold text-[var(--ink-warm)]">
+                    {data.mentor.fullName}
+                  </p>
                   {data.mentor.department && (
-                    <p className="text-xs text-ink-500">{data.mentor.department}</p>
+                    <p className="font-mono-tech text-[11px] uppercase tracking-wider text-[var(--muted-warm)]">
+                      {data.mentor.department}
+                    </p>
                   )}
                   <div className="mt-3 flex flex-wrap gap-1">
                     {data.mentor.languages.map((l) => (
                       <span
                         key={l}
-                        className="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-700"
+                        className="rounded-full bg-mentora-50 px-2 py-0.5 text-[11px] font-semibold text-mentora-700"
                       >
                         {l.toUpperCase()}
                       </span>
@@ -152,7 +190,7 @@ export function NewcomerDetail() {
                     {data.mentor.skills.map((s) => (
                       <span
                         key={s}
-                        className="rounded-full bg-ink-100 px-2 py-0.5 text-[11px] font-medium text-ink-700"
+                        className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-semibold text-zinc-700"
                       >
                         {s}
                       </span>
@@ -160,30 +198,38 @@ export function NewcomerDetail() {
                   </div>
                 </div>
               ) : (
-                <p className="mt-3 text-sm text-rose-600">{t('hr.newcomers.no_mentor')}</p>
+                <p className="mt-3 text-sm font-medium text-rose-600">
+                  {t('hr.newcomers.no_mentor')}
+                </p>
               )}
-            </motion.div>
+            </WarmCard>
+          </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-            >
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-500">
-                {t('hr.newcomer_detail.recent_runs')}
-              </h2>
+          {/* Recent runs */}
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+          >
+            <WarmCard className="overflow-hidden p-0">
+              <div className="border-b border-zinc-100 px-6 py-4">
+                <h3 className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted-warm)]">
+                  {t('hr.newcomer_detail.recent_runs')}
+                </h3>
+              </div>
               {data.recentRuns.length === 0 ? (
-                <p className="mt-3 text-sm text-ink-500">{t('hr.newcomer_detail.no_runs')}</p>
+                <p className="px-6 py-8 text-center text-sm text-[var(--muted-warm)]">
+                  {t('hr.newcomer_detail.no_runs')}
+                </p>
               ) : (
-                <div className="mt-3 overflow-hidden rounded-xl border border-ink-100">
+                <div className="overflow-x-auto">
                   <table className="min-w-full text-sm">
-                    <thead className="bg-ink-50 text-left text-xs uppercase tracking-wide text-ink-500">
+                    <thead className="bg-cream-50 text-left font-mono-tech text-[11px] uppercase tracking-wider text-[var(--muted-warm)]">
                       <tr>
-                        <th className="px-3 py-2">{t('hr.newcomer_detail.scenario')}</th>
-                        <th className="px-3 py-2">{t('hr.newcomer_detail.score')}</th>
-                        <th className="px-3 py-2">{t('hr.newcomer_detail.date')}</th>
-                        <th className="px-3 py-2 text-right">{t('hr.newcomer_detail.open_run')}</th>
+                        <th className="px-4 py-3 font-semibold">{t('hr.newcomer_detail.scenario')}</th>
+                        <th className="px-4 py-3 font-semibold">{t('hr.newcomer_detail.score')}</th>
+                        <th className="px-4 py-3 font-semibold">{t('hr.newcomer_detail.date')}</th>
+                        <th className="px-4 py-3 text-right font-semibold">{t('hr.newcomer_detail.open_run')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -194,10 +240,10 @@ export function NewcomerDetail() {
                   </table>
                 </div>
               )}
-            </motion.div>
-          </>
-        )}
-      </section>
+            </WarmCard>
+          </motion.div>
+        </>
+      )}
 
       {pickerOpen && (
         <MentorPicker
@@ -207,31 +253,49 @@ export function NewcomerDetail() {
           onAssigned={() => void refetch()}
         />
       )}
-    </ErpShell>
+    </InternShell>
   );
 }
 
 function RunRow({ run }: { run: ScenarioRun }) {
   const isKyc = run.scenarioId === 'kyc';
+  const score = run.score;
+  const scoreClass =
+    score === undefined
+      ? 'text-[var(--muted-warm)]'
+      : score >= 85
+        ? 'bg-emerald-50 text-emerald-700'
+        : score >= 60
+          ? 'bg-amber-50 text-amber-700'
+          : 'bg-rose-50 text-rose-700';
+  const shortId = run.id.slice(0, 8);
   return (
-    <tr className="border-t border-ink-100">
-      <td className="px-3 py-2 text-ink-900">{run.scenarioId}</td>
-      <td className="px-3 py-2 text-ink-800 tabular-nums">
-        {run.score !== undefined ? run.score : '—'}
+    <tr className="border-t border-zinc-100 hover:bg-cream-50">
+      <td className="px-4 py-3 font-bold text-[var(--ink-warm)]">{run.scenarioId}</td>
+      <td className="px-4 py-3">
+        {score === undefined ? (
+          <span className="font-mono-tech text-[var(--muted-warm)]">—</span>
+        ) : (
+          <span className={`inline-flex rounded-full px-2 py-0.5 font-mono-tech text-xs font-bold ${scoreClass}`}>
+            {score}
+          </span>
+        )}
       </td>
-      <td className="px-3 py-2 text-ink-700 tabular-nums">
+      <td className="px-4 py-3 font-mono-tech text-[var(--ink-warm-2)]">
         {formatDate(run.finishedAt ?? run.startedAt)}
       </td>
-      <td className="px-3 py-2 text-right">
+      <td className="px-4 py-3 text-right">
         {isKyc ? (
           <Link
             to={`/simulator/kyc/${encodeURIComponent(run.id)}`}
-            className="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-100"
+            data-clicky-target={`open, run, ${shortId.toLowerCase()}, kyc, replay`}
+            data-clicky-hint={`Open run ${shortId} in the KYC simulator chrome.`}
+            className="inline-flex rounded-md bg-mentora-50 px-3 py-1 font-mono-tech text-xs font-bold text-mentora-700 transition hover:bg-mentora-100"
           >
-            {run.id.slice(0, 8)}
+            {shortId}
           </Link>
         ) : (
-          <span className="text-xs text-ink-500">{run.id.slice(0, 8)}</span>
+          <span className="font-mono-tech text-xs text-[var(--muted-warm)]">{shortId}</span>
         )}
       </td>
     </tr>

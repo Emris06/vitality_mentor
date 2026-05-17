@@ -30,6 +30,85 @@ interface CurrentScenarioCta {
   clickyHint?: string;
 }
 
+/**
+ * One slot in the navy icon sidebar.
+ *
+ * Items carry i18n KEYS, not resolved strings — the shell calls `t(...)` at
+ * render time so locale changes don't require the caller to rebuild the
+ * array.
+ *
+ * Build per-role nav arrays in `mentoraNav.tsx` via `buildMentoraNav(role)`.
+ */
+export interface MentoraNavItem {
+  /** Route to navigate to. Omit for placeholder ("coming soon") slots. */
+  to?: string;
+  /** i18n key for the label, e.g. 'nav.home'. */
+  labelKey: string;
+  icon: ReactNode;
+  /** Active matching: exact pathname or prefix-match. Default false (prefix). */
+  matchExact?: boolean;
+  /** Render as disabled placeholder with the `tooltip` and dimmed style. */
+  comingSoon?: boolean;
+  /** Small dot badge in the corner — used for unread-message hints. */
+  badge?: 'dot';
+  /** Clicky annotation: comma-separated keywords. */
+  clickyTarget?: string;
+  /** Optional i18n key for the Clicky hint (e.g. 'clicky.hint.nav.home'). */
+  clickyHintKey?: string;
+}
+
+/**
+ * Default sidebar nav — the intern's 6 slots from the prior phase.
+ * Used when the shell is mounted WITHOUT a `navItems` prop, so the existing
+ * `/intern` and `/simulator` routes don't need to be updated.
+ *
+ * Phase B onwards: callers pass `navItems={buildMentoraNav(role)}` and this
+ * default is bypassed.
+ */
+const DEFAULT_INTERN_NAV: MentoraNavItem[] = [
+  {
+    to: '/intern',
+    labelKey: 'nav.home',
+    icon: <IconHome />,
+    matchExact: true,
+    clickyTarget: 'home, dashboard, today, intern',
+    clickyHintKey: 'clicky.hint.nav.home',
+  },
+  {
+    to: '/simulator',
+    labelKey: 'nav.scenarios',
+    icon: <IconBoard />,
+    clickyTarget: 'scenarios, simulator, catalog, browse, lab',
+    clickyHintKey: 'clicky.hint.nav.scenarios',
+  },
+  {
+    labelKey: 'nav.quests',
+    icon: <IconCheckBoard />,
+    comingSoon: true,
+    clickyTarget: 'quests, tasks, todo',
+  },
+  {
+    to: '/chat',
+    labelKey: 'nav.chat',
+    icon: <IconChat />,
+    clickyTarget: 'chat, ai, mentor, ask, bank, question',
+    clickyHintKey: 'clicky.hint.nav.chat',
+  },
+  {
+    labelKey: 'nav.messages',
+    icon: <IconMessage />,
+    comingSoon: true,
+    badge: 'dot',
+    clickyTarget: 'messages, inbox, mail',
+  },
+  {
+    labelKey: 'nav.resources',
+    icon: <IconBook />,
+    comingSoon: true,
+    clickyTarget: 'resources, docs, library, sop',
+  },
+];
+
 interface Props {
   userName: string;
   /** Localized role label (e.g. "Intern", "Стажёр", "Stajyor"). */
@@ -40,6 +119,8 @@ interface Props {
   dateRange?: string;
   searchPlaceholder?: string;
   currentScenarioCta?: CurrentScenarioCta;
+  /** Sidebar nav items. Omit to use the default intern nav. */
+  navItems?: MentoraNavItem[];
   rightPanel?: ReactNode;
   children: ReactNode;
 }
@@ -52,6 +133,7 @@ export function InternShell({
   dateRange,
   searchPlaceholder,
   currentScenarioCta,
+  navItems,
   rightPanel,
   children,
 }: Props) {
@@ -75,7 +157,7 @@ export function InternShell({
       }}
     >
       <div className="mx-auto flex max-w-[1480px]">
-        <Sidebar />
+        <Sidebar items={navItems ?? DEFAULT_INTERN_NAV} />
 
         <main className="min-w-0 flex-1 px-7 py-6">
           <TopBar
@@ -136,7 +218,7 @@ export function InternShell({
 // Sidebar
 // ───────────────────────────────────────────────────────────────────────
 
-function Sidebar() {
+function Sidebar({ items }: { items: MentoraNavItem[] }) {
   const { t } = useTranslation();
   const cs = t('nav.coming_soon');
   return (
@@ -161,50 +243,25 @@ function Sidebar() {
           className="flex flex-col items-center gap-1.5"
           aria-label={t('nav.home')}
         >
-          <NavSlot
-            to="/intern"
-            label={t('nav.home')}
-            icon={<IconHome />}
-            matchExact
-            clickyTarget="home, dashboard, today, intern"
-            clickyHint={t('clicky.hint.nav.home')}
-          />
-          <NavSlot
-            to="/simulator"
-            label={t('nav.scenarios')}
-            icon={<IconBoard />}
-            clickyTarget="scenarios, simulator, catalog, browse, lab"
-            clickyHint={t('clicky.hint.nav.scenarios')}
-          />
-          <NavSlot
-            label={t('nav.quests')}
-            icon={<IconCheckBoard />}
-            comingSoon
-            tooltip={`${t('nav.quests')} — ${cs}`}
-            clickyTarget="quests, tasks, todo"
-          />
-          <NavSlot
-            to="/chat"
-            label={t('nav.chat')}
-            icon={<IconChat />}
-            clickyTarget="chat, ai, mentor, ask, bank, question"
-            clickyHint={t('clicky.hint.nav.chat')}
-          />
-          <NavSlot
-            label={t('nav.messages')}
-            icon={<IconMessage />}
-            comingSoon
-            tooltip={`${t('nav.messages')} — ${cs}`}
-            badge="dot"
-            clickyTarget="messages, inbox, mail"
-          />
-          <NavSlot
-            label={t('nav.resources')}
-            icon={<IconBook />}
-            comingSoon
-            tooltip={`${t('nav.resources')} — ${cs}`}
-            clickyTarget="resources, docs, library, sop"
-          />
+          {items.map((item, idx) => {
+            const label = t(item.labelKey);
+            return (
+              <NavSlot
+                key={`${item.labelKey}-${idx}`}
+                to={item.to}
+                label={label}
+                icon={item.icon}
+                matchExact={item.matchExact}
+                comingSoon={item.comingSoon}
+                tooltip={
+                  item.comingSoon ? `${label} — ${cs}` : undefined
+                }
+                badge={item.badge}
+                clickyTarget={item.clickyTarget}
+                clickyHint={item.clickyHintKey ? t(item.clickyHintKey) : undefined}
+              />
+            );
+          })}
         </nav>
       </div>
 
@@ -431,7 +488,7 @@ function computeInitials(fullName: string): string {
 // Icons (kept inline — small, monochrome, no external deps)
 // ───────────────────────────────────────────────────────────────────────
 
-function IconHome() {
+export function IconHome() {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -447,7 +504,7 @@ function IconHome() {
     </svg>
   );
 }
-function IconBoard() {
+export function IconBoard() {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -463,7 +520,7 @@ function IconBoard() {
     </svg>
   );
 }
-function IconCheckBoard() {
+export function IconCheckBoard() {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -479,7 +536,7 @@ function IconCheckBoard() {
     </svg>
   );
 }
-function IconChat() {
+export function IconChat() {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -494,7 +551,7 @@ function IconChat() {
     </svg>
   );
 }
-function IconMessage() {
+export function IconMessage() {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -509,7 +566,7 @@ function IconMessage() {
     </svg>
   );
 }
-function IconBook() {
+export function IconBook() {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -525,7 +582,7 @@ function IconBook() {
     </svg>
   );
 }
-function IconProfile() {
+export function IconProfile() {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -538,6 +595,43 @@ function IconProfile() {
     >
       <circle cx="12" cy="8" r="4" />
       <path d="M4 21a8 8 0 0 1 16 0" />
+    </svg>
+  );
+}
+export function IconPeople() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="9" cy="8" r="3.2" />
+      <path d="M3 20a6 6 0 0 1 12 0" />
+      <circle cx="17" cy="9" r="2.6" />
+      <path d="M15 20a4 4 0 0 1 7-2.6" />
+    </svg>
+  );
+}
+export function IconChart() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 20V10" />
+      <path d="M10 20V4" />
+      <path d="M16 20v-8" />
+      <path d="M22 20v-5" />
+      <path d="M3 20h19" />
     </svg>
   );
 }

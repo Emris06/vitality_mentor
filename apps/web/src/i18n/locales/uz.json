@@ -456,9 +456,13 @@
     "scenarios": "Stsenariylar",
     "quests": "Vazifalar",
     "chat": "So‘rang",
+    "knowledge": "Bilim bazasi",
     "messages": "Xabarlar",
     "resources": "Materiallar",
     "profile": "Profil",
+    "newcomers": "Yangi xodimlar",
+    "mentors": "Mentorlar",
+    "performance": "Natijalar",
     "coming_soon": "Tez orada"
   },
   "clicky": {

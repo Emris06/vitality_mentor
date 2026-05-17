@@ -14,9 +14,9 @@ interface MentorPickerProps {
 }
 
 function toneFor(score: number): string {
-  if (score >= 85) return 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200';
-  if (score >= 60) return 'bg-amber-100 text-amber-800 ring-1 ring-amber-200';
-  return 'bg-ink-100 text-ink-700 ring-1 ring-ink-200';
+  if (score >= 85) return 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200';
+  if (score >= 60) return 'bg-amber-50 text-amber-700 ring-1 ring-amber-200';
+  return 'bg-zinc-100 text-zinc-700 ring-1 ring-zinc-200';
 }
 
 /**
@@ -88,7 +88,7 @@ export function MentorPicker({
     <AnimatePresence>
       <motion.div
         key="overlay"
-        className="fixed inset-0 z-50 flex items-end justify-center bg-ink-900/40 backdrop-blur-sm md:items-center"
+        className="fixed inset-0 z-50 flex items-end justify-center bg-zinc-900/40 backdrop-blur-sm md:items-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -99,7 +99,7 @@ export function MentorPicker({
       >
         <motion.div
           key="panel"
-          className="w-full max-w-2xl rounded-t-2xl bg-white p-6 shadow-xl md:rounded-2xl"
+          className="w-full max-w-2xl rounded-t-3xl bg-white p-6 shadow-card-warm md:rounded-3xl"
           initial={{ y: 24, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 12, opacity: 0 }}
@@ -108,33 +108,33 @@ export function MentorPicker({
         >
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="text-xl font-semibold text-ink-900">{t('hr.mentor_picker.title')}</h2>
-              <p className="mt-1 text-sm text-ink-600">{t('hr.mentor_picker.subtitle')}</p>
+              <h2 className="text-xl font-extrabold text-[var(--ink-warm)]">{t('hr.mentor_picker.title')}</h2>
+              <p className="mt-1 text-sm text-[var(--ink-warm-2)]">{t('hr.mentor_picker.subtitle')}</p>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full border border-ink-200 px-3 py-1 text-xs font-medium text-ink-700 hover:bg-ink-50"
+              className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-zinc-700 ring-1 ring-zinc-200 transition hover:bg-zinc-50"
             >
               {t('hr.mentor_picker.cancel')}
             </button>
           </div>
 
           {error && (
-            <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700" role="alert">
+            <div className="mt-4 rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700 ring-1 ring-rose-200" role="alert">
               {error}
             </div>
           )}
 
           <div className="mt-5 max-h-[60vh] space-y-3 overflow-y-auto pr-1">
             {candidates === null && (
-              <div className="rounded-xl border border-ink-200 bg-ink-50 px-4 py-6 text-center text-sm text-ink-600">
+              <div className="rounded-2xl bg-cream-50 px-4 py-6 text-center text-sm text-[var(--muted-warm)] ring-1 ring-zinc-100">
                 {t('hr.mentor_picker.loading')}
               </div>
             )}
 
             {candidates && sorted.length === 0 && (
-              <div className="rounded-xl border border-ink-200 bg-ink-50 px-4 py-6 text-center text-sm text-ink-600">
+              <div className="rounded-2xl bg-cream-50 px-4 py-6 text-center text-sm text-[var(--muted-warm)] ring-1 ring-zinc-100">
                 {t('hr.mentor_picker.no_candidates')}
               </div>
             )}
@@ -150,24 +150,26 @@ export function MentorPicker({
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.25, ease: 'easeOut', delay: idx * 0.04 }}
-                  className="rounded-2xl border border-ink-200 bg-white p-4 shadow-sm"
+                  className="rounded-2xl bg-white p-4 ring-1 ring-zinc-200"
+                  data-clicky-target={`mentor, candidate, ${name.toLowerCase()}, assign`}
+                  data-clicky-hint={`Mentor candidate ${name}, match score ${score}. Click "Assign" to make them this newcomer's mentor.`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-base font-semibold text-ink-900">{name}</h3>
+                        <h3 className="text-base font-bold text-[var(--ink-warm)]">{name}</h3>
                         <span
-                          className={`rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums ${toneFor(score)}`}
+                          className={`rounded-full px-2 py-0.5 font-mono-tech text-[11px] font-semibold ${toneFor(score)}`}
                           title={t('hr.mentor_picker.score') ?? undefined}
                         >
                           {score}
                         </span>
                       </div>
                       {department && (
-                        <p className="mt-1 text-xs uppercase tracking-wide text-ink-500">{department}</p>
+                        <p className="mt-1 font-mono-tech text-[11px] uppercase tracking-wider text-[var(--muted-warm)]">{department}</p>
                       )}
                       {c.reasons.length > 0 && (
-                        <ul className="mt-2 list-disc space-y-0.5 pl-5 text-sm text-ink-600">
+                        <ul className="mt-2 list-disc space-y-0.5 pl-5 text-sm text-[var(--ink-warm-2)]">
                           {c.reasons.map((r, i) => (
                             <li key={i}>{r}</li>
                           ))}
@@ -178,7 +180,9 @@ export function MentorPicker({
                       type="button"
                       onClick={() => void handleAssign(c.mentorId)}
                       disabled={assigning !== null}
-                      className="rounded-full bg-brand-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      data-clicky-target={`assign, pick, ${name.toLowerCase()}, mentor`}
+                      data-clicky-hint={`Assign ${name} as this newcomer's mentor.`}
+                      className="rounded-md bg-mentora-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-mentora-700 focus:outline-none focus:ring-2 focus:ring-mentora-600/30 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {assigning === c.mentorId ? '…' : t('hr.mentor_picker.assign')}
                     </button>

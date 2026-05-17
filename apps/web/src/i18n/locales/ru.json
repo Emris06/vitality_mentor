@@ -466,9 +466,13 @@
     "scenarios": "Сценарии",
     "quests": "Квесты",
     "chat": "Спросить",
+    "knowledge": "База знаний",
     "messages": "Сообщения",
     "resources": "Материалы",
     "profile": "Профиль",
+    "newcomers": "Новички",
+    "mentors": "Менторы",
+    "performance": "Результаты",
     "coming_soon": "Скоро"
   },
   "clicky": {

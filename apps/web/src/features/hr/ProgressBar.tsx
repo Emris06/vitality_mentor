@@ -15,14 +15,14 @@ export function ProgressBar({ value, showLabel = true, className }: ProgressBarP
     safe >= 75
       ? 'bg-emerald-500'
       : safe >= 50
-        ? 'bg-brand-600'
+        ? 'bg-mentora-600'
         : safe >= 25
           ? 'bg-amber-500'
           : 'bg-rose-500';
 
   return (
     <div className={`flex items-center gap-2 ${className ?? ''}`}>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink-100">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
         <div
           className={`h-full rounded-full transition-[width] duration-500 ease-out ${tone}`}
           style={{ width: `${safe}%` }}
@@ -30,7 +30,7 @@ export function ProgressBar({ value, showLabel = true, className }: ProgressBarP
         />
       </div>
       {showLabel && (
-        <span className="w-10 shrink-0 text-right text-xs font-medium tabular-nums text-ink-600">
+        <span className="w-10 shrink-0 text-right font-mono-tech text-xs font-medium text-[var(--muted-warm)]">
           {safe}%
         </span>
       )}
