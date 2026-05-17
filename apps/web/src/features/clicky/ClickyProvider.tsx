@@ -13,37 +13,44 @@ import { Clicky } from './Clicky';
 // ──────────────────────────────────────────────────────────────────────────
 // Clicky — a small companion cursor for the Intern flow.
 //
-// What it does: hovers above-right of the real cursor with a soft glow,
-// and shows a one-line tip about what to do next. Tips come from three
-// places, in priority order:
+// Two modes:
+//   • Follow mode (default): trails the real cursor with an offset, shows
+//     a hint from hover (data-clicky-hint) or a pinned hint.
+//   • Target mode: an agent has decided Clicky should point at a specific
+//     element on screen. Clicky animates there and stays for `pinMs`.
 //
-//   1. Imperative pushHint() / setSticky() from page code (highest)
-//   2. Hover over any element carrying `data-clicky-hint="..."`
-//   3. The fallback set by setFallback() (lowest, shown when idle)
-//
-// Pages opt in by calling enable() in a useEffect, and opt out on unmount.
-// Off by default so the rest of the app stays neutral.
+// Hint priority when in follow mode: sticky > hover > fallback.
 // ──────────────────────────────────────────────────────────────────────────
+
+export interface ClickyTarget {
+  x: number;
+  y: number;
+  hint: string;
+  /** How long to stay pinned at the target (ms). */
+  pinMs: number;
+}
 
 interface ClickyState {
   enabled: boolean;
-  /** Pinned hint set by a page; takes precedence over hover hints. */
   sticky: string | null;
-  /** Hint from the currently-hovered element. */
   hover: string | null;
-  /** Quiet default shown when nothing else is active. */
   fallback: string | null;
+  /** When set, Clicky goes to this screen-space point instead of the cursor. */
+  target: ClickyTarget | null;
+  /** Visual cue that the agent is thinking. */
+  agentBusy: boolean;
 }
 
 interface ClickyApi {
   enable: () => void;
   disable: () => void;
-  /** Set a sticky hint. Pass null to clear. */
   setSticky: (hint: string | null) => void;
-  /** Quiet idle-state hint. */
   setFallback: (hint: string | null) => void;
-  /** One-shot hint with auto-dismiss (default 3.5s). */
   pushHint: (hint: string, ms?: number) => void;
+  /** Drive Clicky to an element. Auto-releases after pinMs (default 4500). */
+  goToElement: (el: HTMLElement, hint: string, pinMs?: number) => void;
+  releaseTarget: () => void;
+  setAgentBusy: (busy: boolean) => void;
 }
 
 interface ClickyContextValue extends ClickyApi {
@@ -58,6 +65,8 @@ const INITIAL_STATE: ClickyState = {
   sticky: null,
   hover: null,
   fallback: null,
+  target: null,
+  agentBusy: false,
 };
 
 export function ClickyProvider({ children }: { children: ReactNode }) {
@@ -67,6 +76,7 @@ export function ClickyProvider({ children }: { children: ReactNode }) {
     y: typeof window === 'undefined' ? 0 : window.innerHeight / 2,
   }));
   const oneShotTimer = useRef<number | null>(null);
+  const pinTimer = useRef<number | null>(null);
 
   // ── Imperative API ──
   const enable = useCallback(() => {
@@ -78,6 +88,10 @@ export function ClickyProvider({ children }: { children: ReactNode }) {
     if (oneShotTimer.current) {
       window.clearTimeout(oneShotTimer.current);
       oneShotTimer.current = null;
+    }
+    if (pinTimer.current) {
+      window.clearTimeout(pinTimer.current);
+      pinTimer.current = null;
     }
   }, []);
 
@@ -98,7 +112,44 @@ export function ClickyProvider({ children }: { children: ReactNode }) {
     }, ms);
   }, []);
 
-  // ── Cursor tracking (always on when enabled, very cheap) ──
+  const setAgentBusy = useCallback((busy: boolean) => {
+    setState((s) => ({ ...s, agentBusy: busy }));
+  }, []);
+
+  const releaseTarget = useCallback(() => {
+    if (pinTimer.current) {
+      window.clearTimeout(pinTimer.current);
+      pinTimer.current = null;
+    }
+    setState((s) => ({ ...s, target: null }));
+  }, []);
+
+  const goToElement = useCallback(
+    (el: HTMLElement, hint: string, pinMs = 4500) => {
+      const r = el.getBoundingClientRect();
+      // Aim slightly off the top-right corner so Clicky is visibly *pointing*
+      // at the element instead of sitting on top of it.
+      const x = r.right - 8;
+      const y = r.top + Math.min(18, r.height / 2);
+      setState((s) => ({
+        ...s,
+        target: { x, y, hint, pinMs },
+        agentBusy: false,
+      }));
+      // Optional: scroll into view if the element is off-screen.
+      if (r.top < 0 || r.bottom > window.innerHeight) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      if (pinTimer.current) window.clearTimeout(pinTimer.current);
+      pinTimer.current = window.setTimeout(() => {
+        setState((s) => ({ ...s, target: null }));
+        pinTimer.current = null;
+      }, pinMs);
+    },
+    [],
+  );
+
+  // ── Cursor tracking ──
   useEffect(() => {
     if (!state.enabled) return;
     function onMove(ev: PointerEvent) {
@@ -108,7 +159,7 @@ export function ClickyProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('pointermove', onMove);
   }, [state.enabled]);
 
-  // ── Hover hint detection: walk up the DOM to find data-clicky-hint ──
+  // ── Hover hint detection ──
   useEffect(() => {
     if (!state.enabled) return;
     function onMove(ev: PointerEvent) {
@@ -125,18 +176,43 @@ export function ClickyProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     return () => {
       if (oneShotTimer.current) window.clearTimeout(oneShotTimer.current);
+      if (pinTimer.current) window.clearTimeout(pinTimer.current);
     };
   }, []);
 
   const value = useMemo<ClickyContextValue>(
-    () => ({ state, cursor, enable, disable, setSticky, setFallback, pushHint }),
-    [state, cursor, enable, disable, setSticky, setFallback, pushHint],
+    () => ({
+      state,
+      cursor,
+      enable,
+      disable,
+      setSticky,
+      setFallback,
+      pushHint,
+      goToElement,
+      releaseTarget,
+      setAgentBusy,
+    }),
+    [
+      state,
+      cursor,
+      enable,
+      disable,
+      setSticky,
+      setFallback,
+      pushHint,
+      goToElement,
+      releaseTarget,
+      setAgentBusy,
+    ],
   );
 
   return (
     <ClickyContext.Provider value={value}>
       {children}
-      {state.enabled && <Clicky cursor={cursor} state={state} onDismiss={() => setSticky(null)} />}
+      {state.enabled && (
+        <Clicky cursor={cursor} state={state} onDismiss={() => setSticky(null)} />
+      )}
     </ClickyContext.Provider>
   );
 }
@@ -146,14 +222,38 @@ export function useClicky(): ClickyApi {
   if (!ctx) {
     throw new Error('useClicky() must be used inside <ClickyProvider>');
   }
-  const { enable, disable, setSticky, setFallback, pushHint } = ctx;
-  return { enable, disable, setSticky, setFallback, pushHint };
+  const {
+    enable,
+    disable,
+    setSticky,
+    setFallback,
+    pushHint,
+    goToElement,
+    releaseTarget,
+    setAgentBusy,
+  } = ctx;
+  return {
+    enable,
+    disable,
+    setSticky,
+    setFallback,
+    pushHint,
+    goToElement,
+    releaseTarget,
+    setAgentBusy,
+  };
 }
 
-/**
- * Convenience hook: enables Clicky on mount, disables on unmount.
- * Pages that always want Clicky should call this once at the top.
- */
+/** Read the current Clicky state (for the agent overlay). */
+export function useClickyState(): ClickyState {
+  const ctx = useContext(ClickyContext);
+  if (!ctx) {
+    throw new Error('useClickyState() must be used inside <ClickyProvider>');
+  }
+  return ctx.state;
+}
+
+/** Convenience: enable Clicky on mount, disable on unmount. */
 export function useClickyEnabled(fallback?: string): void {
   const ctx = useContext(ClickyContext);
   if (!ctx) {
@@ -167,7 +267,7 @@ export function useClickyEnabled(fallback?: string): void {
   }, [enable, disable, setFallback, fallback]);
 }
 
-/** Resolve which hint should be shown right now. */
 export function resolveActiveHint(state: ClickyState): string | null {
+  if (state.target) return state.target.hint;
   return state.sticky ?? state.hover ?? state.fallback ?? null;
 }

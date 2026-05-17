@@ -90,6 +90,14 @@ export function ChromeShell({
               return (
                 <li
                   key={step.id}
+                  data-clicky-target={`${step.id}, ${t(step.titleKey).toLowerCase()}, step ${idx + 1}, ${isCurrent ? 'current, here, now' : isCompleted ? 'done, completed' : 'next, later, upcoming'}`}
+                  data-clicky-hint={
+                    isCurrent
+                      ? `You are on step ${idx + 1}: ${t(step.titleKey)}. Complete it to move on.`
+                      : isCompleted
+                        ? `Step ${idx + 1} (${t(step.titleKey)}) is done.`
+                        : `Step ${idx + 1}: ${t(step.titleKey)}. Locked until you finish the current step.`
+                  }
                   className={
                     'flex items-center gap-2 rounded border px-2.5 py-2 text-xs md:text-sm whitespace-nowrap md:whitespace-normal ' +
                     stateClasses
@@ -166,6 +174,8 @@ export function ChromeShell({
         <button
           type="button"
           onClick={onOpenHint}
+          data-clicky-target="hint, help, stuck, idea, tip, ai"
+          data-clicky-hint="Stuck? This button opens an AI hint scoped to your current step."
           className="fixed bottom-6 right-6 z-30 inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-300"
         >
           <svg

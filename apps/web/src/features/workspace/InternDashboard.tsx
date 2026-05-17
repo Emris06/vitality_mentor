@@ -7,6 +7,8 @@ import { simApi, SimHttpError } from '../../lib/api';
 import { ErpShell, IconBook, IconChat, IconRocket } from './ErpShell';
 import { buildWorkspaceSections } from './navigation';
 import { useClicky, useClickyEnabled } from '../clicky/ClickyProvider';
+import { useClickyAgent } from '../clicky/useClickyAgent';
+import { ClickyVoiceOverlay } from '../clicky/ClickyVoiceOverlay';
 
 // ──────────────────────────────────────────────────────────────────────────
 // Intern workspace ("Newcomer" in the brief). Single responsibility: get the
@@ -78,15 +80,17 @@ export function InternDashboard() {
   const pct = Math.round((done / total) * 100);
 
   // Clicky onboarding for the intern surface. Greets once on mount, then
-  // lets data-clicky-hint attributes drive the rest.
-  useClickyEnabled("Hover the Start button — that's your current step.");
+  // lets data-clicky-hint attributes (on hover) and the voice agent (on
+  // hotkey) drive the rest.
+  useClickyEnabled("Hold ` and ask me out loud — I'll point at the answer.");
   const { pushHint } = useClicky();
+  const agent = useClickyAgent();
   useEffect(() => {
     pushHint(
       current
-        ? `Hi ${internName.split(' ')[0]}! Let's start with "${current.title}". Click Start when you're ready.`
+        ? `Hi ${internName.split(' ')[0]}! Hold backtick and ask "where do I start?" — I'll point you there.`
         : `Hi ${internName.split(' ')[0]}! Your path is complete — your mentor will assign the next module.`,
-      4500,
+      5500,
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -106,6 +110,7 @@ export function InternDashboard() {
   }
 
   return (
+    <>
     <ErpShell
       title="Intern desk"
       subtitle="Your learning path"
@@ -119,6 +124,7 @@ export function InternDashboard() {
             type="button"
             onClick={() => void startScenario(current.scenarioId)}
             disabled={starting}
+            data-clicky-target="start, begin, continue, kyc, next, scenario, simulator"
             data-clicky-hint={`This launches the "${current.title}" simulator with synthetic data. Safe to experiment — you can't break anything real.`}
             className="rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-card hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-70"
           >
@@ -168,6 +174,8 @@ export function InternDashboard() {
         </article>
       </section>
     </ErpShell>
+    <ClickyVoiceOverlay agent={agent} />
+    </>
   );
 }
 
@@ -266,15 +274,23 @@ function PathRow({
           type="button"
           onClick={onStart}
           disabled={starting}
+          data-clicky-target={`start, ${step.id}, ${step.scenarioId}, current, ${step.title.toLowerCase()}`}
           data-clicky-hint={`Click to launch "${step.title}" — about ${step.estMins} minutes on synthetic data.`}
           className="rounded-md bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-70"
         >
           Start
         </button>
       ) : step.state === 'done' ? (
-        <span className="text-xs text-ink-400">—</span>
+        <span
+          data-clicky-target={`done, completed, finished, ${step.id}`}
+          data-clicky-hint={`"${step.title}" is done. Nice work.`}
+          className="text-xs text-ink-400"
+        >
+          —
+        </span>
       ) : (
         <span
+          data-clicky-target={`locked, later, ${step.id}, ${step.scenarioId ?? ''}`}
           data-clicky-hint="Locked until you finish your current step. One thing at a time."
           className="rounded-md border border-ink-100 px-3 py-1.5 text-xs text-ink-400"
           title="Unlocks after the current step"
@@ -314,6 +330,7 @@ function InternRightRail({
             hint="UZ / RU / EN — answers from internal SOPs"
             icon={<IconChat />}
             clickyHint="Ask anything in Uzbek, Russian, or English. Answers are grounded in internal SOPs — no guessing."
+            clickyTarget="chat, ai, mentor, ask, question, help"
           />
           <Helper
             to="/simulator"
@@ -321,6 +338,7 @@ function InternRightRail({
             hint="Outside your path"
             icon={<IconRocket />}
             clickyHint="Optional scenarios outside your path. Try them once your current step is done."
+            clickyTarget="scenarios, simulator, lab, browse, catalog"
           />
           <Helper
             to="/me"
@@ -328,6 +346,7 @@ function InternRightRail({
             hint="What you've earned"
             icon={<IconBook />}
             clickyHint="See the badges and XP you've collected as you finish modules."
+            clickyTarget="badges, xp, points, profile, me, my"
           />
         </div>
       </section>
@@ -358,17 +377,20 @@ function Helper({
   hint,
   icon,
   clickyHint,
+  clickyTarget,
 }: {
   to: string;
   label: string;
   hint: string;
   icon: ReactNode;
   clickyHint?: string;
+  clickyTarget?: string;
 }) {
   return (
     <Link
       to={to}
       data-clicky-hint={clickyHint}
+      data-clicky-target={clickyTarget}
       className="group flex items-center gap-3 rounded-md border border-ink-100 bg-white px-3 py-2 transition-colors hover:border-sky-200 hover:bg-sky-50"
     >
       <span className="grid h-8 w-8 place-items-center rounded-md bg-ink-50 text-ink-600 group-hover:bg-sky-100 group-hover:text-sky-700">

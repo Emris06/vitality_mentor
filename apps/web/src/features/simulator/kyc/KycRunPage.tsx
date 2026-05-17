@@ -13,6 +13,8 @@ import { simApi, SimHttpError } from '../../../lib/api';
 import { ChromeShell, type StepDef } from '../ChromeShell';
 import { HintPanel } from '../HintPanel';
 import { useClicky, useClickyEnabled } from '../../clicky/ClickyProvider';
+import { useClickyAgent } from '../../clicky/useClickyAgent';
+import { ClickyVoiceOverlay } from '../../clicky/ClickyVoiceOverlay';
 import { IntakeStep } from './steps/IntakeStep';
 import { VerifyDocumentsStep } from './steps/VerifyDocumentsStep';
 import { SanctionsCheckStep } from './steps/SanctionsCheckStep';
@@ -77,8 +79,9 @@ export function KycRunPage() {
   // Clicky escorts the intern through every step of the simulator. The
   // fallback hint changes as run.currentStepId advances; one-shot hints
   // fire on submit success / mistake so Clicky reacts to the user's moves.
-  useClickyEnabled('Read the step instructions, then act. Clicky will react as you move.');
+  useClickyEnabled('Hold ` and ask out loud — I will point at what to click next.');
   const { setFallback, pushHint } = useClicky();
+  const agent = useClickyAgent();
   useEffect(() => {
     const stepId = run?.currentStepId;
     if (!stepId) return;
@@ -249,6 +252,8 @@ export function KycRunPage() {
           ))}
         </AnimatePresence>
       </div>
+
+      <ClickyVoiceOverlay agent={agent} />
     </>
   );
 }
