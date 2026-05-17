@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthProvider';
@@ -6,6 +6,7 @@ import { DEFAULT_LOCALE, isLocale, type Locale, type ScenarioId } from '@vitalit
 import { simApi, SimHttpError } from '../../lib/api';
 import { ErpShell, IconBook, IconChat, IconRocket } from './ErpShell';
 import { buildWorkspaceSections } from './navigation';
+import { useClicky, useClickyEnabled } from '../clicky/ClickyProvider';
 
 // ──────────────────────────────────────────────────────────────────────────
 // Intern workspace ("Newcomer" in the brief). Single responsibility: get the
@@ -76,6 +77,20 @@ export function InternDashboard() {
   const total = LEARNING_PATH.length;
   const pct = Math.round((done / total) * 100);
 
+  // Clicky onboarding for the intern surface. Greets once on mount, then
+  // lets data-clicky-hint attributes drive the rest.
+  useClickyEnabled("Hover the Start button — that's your current step.");
+  const { pushHint } = useClicky();
+  useEffect(() => {
+    pushHint(
+      current
+        ? `Hi ${internName.split(' ')[0]}! Let's start with "${current.title}". Click Start when you're ready.`
+        : `Hi ${internName.split(' ')[0]}! Your path is complete — your mentor will assign the next module.`,
+      4500,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function startScenario(scenarioId: PathStep['scenarioId']) {
     if (!scenarioId) return;
     setStarting(true);
@@ -104,6 +119,7 @@ export function InternDashboard() {
             type="button"
             onClick={() => void startScenario(current.scenarioId)}
             disabled={starting}
+            data-clicky-hint={`This launches the "${current.title}" simulator with synthetic data. Safe to experiment — you can't break anything real.`}
             className="rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-card hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {starting ? 'Starting…' : `Continue: ${current.title}`}
@@ -250,6 +266,7 @@ function PathRow({
           type="button"
           onClick={onStart}
           disabled={starting}
+          data-clicky-hint={`Click to launch "${step.title}" — about ${step.estMins} minutes on synthetic data.`}
           className="rounded-md bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-70"
         >
           Start
@@ -258,6 +275,7 @@ function PathRow({
         <span className="text-xs text-ink-400">—</span>
       ) : (
         <span
+          data-clicky-hint="Locked until you finish your current step. One thing at a time."
           className="rounded-md border border-ink-100 px-3 py-1.5 text-xs text-ink-400"
           title="Unlocks after the current step"
         >
@@ -295,18 +313,21 @@ function InternRightRail({
             label="Ask AI mentor"
             hint="UZ / RU / EN — answers from internal SOPs"
             icon={<IconChat />}
+            clickyHint="Ask anything in Uzbek, Russian, or English. Answers are grounded in internal SOPs — no guessing."
           />
           <Helper
             to="/simulator"
             label="Browse scenarios"
             hint="Outside your path"
             icon={<IconRocket />}
+            clickyHint="Optional scenarios outside your path. Try them once your current step is done."
           />
           <Helper
             to="/me"
             label="My badges"
             hint="What you've earned"
             icon={<IconBook />}
+            clickyHint="See the badges and XP you've collected as you finish modules."
           />
         </div>
       </section>
@@ -336,15 +357,18 @@ function Helper({
   label,
   hint,
   icon,
+  clickyHint,
 }: {
   to: string;
   label: string;
   hint: string;
   icon: ReactNode;
+  clickyHint?: string;
 }) {
   return (
     <Link
       to={to}
+      data-clicky-hint={clickyHint}
       className="group flex items-center gap-3 rounded-md border border-ink-100 bg-white px-3 py-2 transition-colors hover:border-sky-200 hover:bg-sky-50"
     >
       <span className="grid h-8 w-8 place-items-center rounded-md bg-ink-50 text-ink-600 group-hover:bg-sky-100 group-hover:text-sky-700">

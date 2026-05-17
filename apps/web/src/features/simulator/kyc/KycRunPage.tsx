@@ -12,6 +12,7 @@ import {
 import { simApi, SimHttpError } from '../../../lib/api';
 import { ChromeShell, type StepDef } from '../ChromeShell';
 import { HintPanel } from '../HintPanel';
+import { useClicky, useClickyEnabled } from '../../clicky/ClickyProvider';
 import { IntakeStep } from './steps/IntakeStep';
 import { VerifyDocumentsStep } from './steps/VerifyDocumentsStep';
 import { SanctionsCheckStep } from './steps/SanctionsCheckStep';
@@ -28,6 +29,20 @@ const KYC_STEPS: StepDef[] = [
   { id: 'risk_score', titleKey: 'sim.kyc.steps.risk_score.title' },
   { id: 'decision', titleKey: 'sim.kyc.steps.decision.title' },
 ];
+
+// What Clicky should say at each step of the KYC flow. Short, action-first.
+const CLICKY_STEP_HINTS: Record<string, string> = {
+  intake:
+    'Step 1: open the customer file. Just confirm the person on screen and click through to intake.',
+  verify_documents:
+    'Step 2: documents. Mark each one valid or flag the issue — fakes are in here on purpose.',
+  sanctions_check:
+    'Step 3: sanctions screening. Cross-check the name against the watchlist before approving.',
+  risk_score:
+    'Step 4: risk score. Pick the right band based on what you saw in the previous steps.',
+  decision:
+    'Final step: write your decision. Be specific — "approve" or "reject" alone is not enough.',
+};
 
 const STEP_COMPONENTS: Record<string, ComponentType<StepProps>> = {
   intake: IntakeStep,
@@ -58,6 +73,17 @@ export function KycRunPage() {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const [hintOpen, setHintOpen] = useState(false);
   const [completedStepIds, setCompletedStepIds] = useState<string[]>([]);
+
+  // Clicky escorts the intern through every step of the simulator. The
+  // fallback hint changes as run.currentStepId advances; one-shot hints
+  // fire on submit success / mistake so Clicky reacts to the user's moves.
+  useClickyEnabled('Read the step instructions, then act. Clicky will react as you move.');
+  const { setFallback, pushHint } = useClicky();
+  useEffect(() => {
+    const stepId = run?.currentStepId;
+    if (!stepId) return;
+    setFallback(CLICKY_STEP_HINTS[stepId] ?? 'Follow the on-screen instructions.');
+  }, [run?.currentStepId, setFallback]);
 
   // Persist last run id so a refresh resumes the same session.
   useEffect(() => {
@@ -111,6 +137,10 @@ export function KycRunPage() {
           setCompletedStepIds((curr) =>
             curr.includes(stepId) ? curr : [...curr, stepId],
           );
+          const nextHint = result.nextStepId
+            ? (CLICKY_STEP_HINTS[result.nextStepId] ?? 'Next step is up.')
+            : 'All steps done — let me show you the score.';
+          pushHint(`Nice. ${nextHint}`, 4000);
         } else if (result.mistake) {
           // Translate the mistake message key if i18n knows it, otherwise show the code.
           const m = result.mistake;
@@ -118,6 +148,7 @@ export function KycRunPage() {
             ? t(m.messageKey)
             : m.messageKey || m.code;
           pushToast(translated);
+          pushHint(`Not quite — ${translated}. Try again, you can't break anything.`, 5000);
         }
       } catch (err) {
         const message =
@@ -127,7 +158,7 @@ export function KycRunPage() {
         setSubmitting(false);
       }
     },
-    [i18n, pushToast, run, runId, t],
+    [i18n, pushHint, pushToast, run, runId, t],
   );
 
   const handleRetry = useCallback(async () => {

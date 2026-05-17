@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
 import { i18n } from './i18n';
 import { AuthProvider } from './features/auth/AuthProvider';
+import { ClickyProvider } from './features/clicky/ClickyProvider';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -12,7 +13,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <I18nextProvider i18n={i18n}>
       <AuthProvider>
         <BrowserRouter>
-          <App />
+          <ClickyProvider>
+            <App />
+          </ClickyProvider>
         </BrowserRouter>
       </AuthProvider>
     </I18nextProvider>
