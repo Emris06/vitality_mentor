@@ -21,6 +21,24 @@
 
     --border: #cbd5e1;
     --highlight: #dbeafe;
+
+    /* Mentora warm theme (v3) — additive; consumed by InternShell + warm
+       primitives. Cool theme vars above remain authoritative for ErpShell.
+       `--sidebar-warm` / `--ink-warm` deliberately namespaced to avoid
+       collision with `--sidebar` above. */
+    --mentora: #2046ff;
+    --mentora-deep: #1a3cd8;
+    --mentora-soft: #e0e7ff;
+    --mentora-tint: #f1f4ff;
+    --coral: #ff6b4a;
+    --coral-soft: #ffe5dd;
+    --amber: #f59e0b;
+    --ink-warm: #0e1130;
+    --ink-warm-2: #4a4e72;
+    --muted-warm: #8a8fb0;
+    --sidebar-warm: #16193a;
+    --sidebar-warm-2: #1f2348;
+    --cream: #fbfaf7;
   }
 
   html,
@@ -98,4 +116,13 @@
   .scrollarea::-webkit-scrollbar-thumb:hover {
     background: rgba(71, 85, 105, 0.46);
   }
+
+  /* Mentora warm theme (v3) — avatar color blocks from mockup 06.
+     Combines bg + text color in one class for terse avatar markup. */
+  .av-amber { background: #fde68a; color: #92400e; }
+  .av-rose  { background: #fecdd3; color: #9f1239; }
+  .av-sky   { background: #bae6fd; color: #075985; }
+  .av-em    { background: #bbf7d0; color: #166534; }
+  .av-viol  { background: #ddd6fe; color: #5b21b6; }
+  .av-orng  { background: #fed7aa; color: #9a3412; }
 }

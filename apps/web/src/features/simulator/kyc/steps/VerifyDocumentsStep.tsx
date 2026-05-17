@@ -19,10 +19,10 @@ export function VerifyDocumentsStep({ run, submitting, onSubmit }: StepProps) {
 
   return (
     <div className="p-6">
-      <h2 className="text-lg font-semibold text-ink-900">
+      <h2 className="text-base font-semibold tracking-tight text-zinc-900">
         {t('sim.kyc.steps.verify_documents.title')}
       </h2>
-      <p className="mt-2 max-w-2xl text-sm text-ink-600">
+      <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-zinc-600">
         {t('sim.kyc.steps.verify_documents.description')}
       </p>
 
@@ -103,7 +103,9 @@ export function VerifyDocumentsStep({ run, submitting, onSubmit }: StepProps) {
               incomeStatementValid: incomeVerdict === 'valid',
             })
           }
-          className="inline-flex items-center gap-2 rounded bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-300 disabled:cursor-not-allowed disabled:opacity-50"
+          data-clicky-target="confirm, next, continue, submit, verify, documents"
+          data-clicky-hint="Confirms your verdict on both documents and moves to sanctions."
+          className="inline-flex items-center gap-2 rounded-md bg-mentora-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mentora-700 focus:outline-none focus:ring-2 focus:ring-mentora-600/30 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {t('sim.kyc.steps.verify_documents.confirm')}
         </button>
@@ -142,32 +144,38 @@ function DocumentPanel({
   whyPlaceholder,
 }: DocumentPanelProps) {
   return (
-    <div className="rounded border border-ink-300 bg-ink-50/50">
-      <div className="border-b border-ink-300 bg-ink-100 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-ink-700">
+    <div className="overflow-hidden rounded-md ring-1 ring-zinc-200">
+      <div className="border-b border-zinc-200 bg-zinc-50 px-4 py-2 font-mono-tech text-[11px] uppercase tracking-wider text-zinc-600">
         {title}
       </div>
-      <dl className="divide-y divide-ink-200">
+      <dl className="divide-y divide-zinc-100">
         {fields.map((field) => (
-          <div key={field.label} className="grid grid-cols-[140px_1fr] gap-2 px-4 py-2 text-sm">
-            <dt className="text-ink-500">{field.label}</dt>
+          <div
+            key={field.label}
+            className="grid grid-cols-[140px_1fr] gap-2 bg-white px-4 py-2 text-[13px]"
+          >
+            <dt className="text-zinc-500">{field.label}</dt>
             <dd
               className={
-                'text-ink-900 ' + (field.mono ? 'tabular-nums font-mono text-[13px]' : '')
+                'text-zinc-900 ' +
+                (field.mono ? 'font-mono-tech text-[12px]' : '')
               }
             >
-              {field.value ?? <span className="text-ink-400">—</span>}
+              {field.value ?? <span className="text-zinc-400">—</span>}
             </dd>
           </div>
         ))}
       </dl>
-      <div className="space-y-2 border-t border-ink-200 bg-white px-4 py-3">
+      <div className="space-y-2 border-t border-zinc-100 bg-zinc-50/50 px-4 py-3">
         <div className="flex flex-wrap gap-2 text-sm">
           <label
+            data-clicky-target={`valid, ok, accept, pass, ${title.toLowerCase()}`}
+            data-clicky-hint={`Mark "${title}" as valid — only when every field matches what you'd see on a real document.`}
             className={
-              'inline-flex items-center gap-2 rounded border px-3 py-1.5 cursor-pointer ' +
+              'inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-[13px] transition ' +
               (verdict === 'valid'
-                ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
-                : 'border-ink-200 bg-white text-ink-700 hover:bg-ink-50')
+                ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'
+                : 'bg-white text-zinc-700 ring-1 ring-zinc-200 hover:bg-zinc-50')
             }
           >
             <input
@@ -179,11 +187,13 @@ function DocumentPanel({
             {validLabel}
           </label>
           <label
+            data-clicky-target={`invalid, reject, fail, flag, ${title.toLowerCase()}`}
+            data-clicky-hint={`Mark "${title}" as invalid — when a field is fake, expired, or inconsistent.`}
             className={
-              'inline-flex items-center gap-2 rounded border px-3 py-1.5 cursor-pointer ' +
+              'inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-[13px] transition ' +
               (verdict === 'invalid'
-                ? 'border-rose-300 bg-rose-50 text-rose-800'
-                : 'border-ink-200 bg-white text-ink-700 hover:bg-ink-50')
+                ? 'bg-rose-50 text-rose-700 ring-1 ring-rose-200'
+                : 'bg-white text-zinc-700 ring-1 ring-zinc-200 hover:bg-zinc-50')
             }
           >
             <input
@@ -200,7 +210,9 @@ function DocumentPanel({
           onChange={(e) => onWhyChange(e.target.value)}
           placeholder={whyPlaceholder}
           rows={2}
-          className="w-full resize-none rounded border border-ink-200 bg-white px-2.5 py-1.5 text-xs text-ink-800 placeholder:text-ink-400 focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-300"
+          data-clicky-target={`why, reason, notes, rationale, ${title.toLowerCase()}`}
+          data-clicky-hint={`Briefly note why you reached your verdict on "${title}". The grader reads this for partial credit.`}
+          className="w-full resize-none rounded-md bg-white px-2.5 py-1.5 text-xs text-zinc-800 ring-1 ring-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-mentora-600/30"
         />
       </div>
     </div>

@@ -5,23 +5,17 @@
  * Ideathon walk-through expects. Re-runnable: every step is idempotent.
  *
  * Order (each step depends on the previous one):
- *   1. Skill taxonomy + role requirements + training modules.
- *      (services/api/src/skills/seed.ts — but we run it *inline* by
- *      shelling out to `tsx` so its top-level `main()` executes once.)
- *   2. Synthetic HR cohort + badge/quest catalogues
- *      (services/api/src/hr/seed.ts — same approach).
- *   3. Overlay the three demo personas (upsert by stable UUID).
- *   4. Prime Aziz's demo state: chat history, KYCScenario run (score 88),
+ *   1. Synthetic HR cohort + badge/quest catalogues
+ *      (services/api/src/hr/seed.ts — invoked via tsx child process).
+ *   2. Overlay the three demo personas (upsert by stable UUID).
+ *   3. Prime Aziz's demo state: chat history, KYCScenario run (score 88),
  *      XP ledger entries, and the `first_kyc` badge.
  *
- * Why shell out to the two existing seeders rather than import them?
- * Both `hr/seed.ts` and `skills/seed.ts` call `process.exit()` from their
- * top-level `main()` — importing them would tear down our event loop before
- * step 3 even ran. The user's instruction is to "import their functions",
- * but neither file currently exports its `main()`. The cleanest, smallest
- * change is to invoke them as separate child processes; we can replace this
- * with direct imports the moment those modules export `main`. See TODO at
- * the bottom of this file.
+ * Why shell out to the existing seeder rather than import it?
+ * `hr/seed.ts` calls `process.exit()` from its top-level `main()` — importing
+ * it would tear down our event loop before step 2 even ran. The cleanest,
+ * smallest change is to invoke it as a separate child process; we can
+ * replace this with a direct import the moment that module exports `main`.
  *
  * Run:
  *   pnpm --filter @vitality/api exec tsx src/demo/seed-demo.ts
@@ -297,31 +291,30 @@ function printSummary(extra: Record<string, number | string>): void {
 // ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
-  results.push(runSeeder('1. skills taxonomy + role reqs + modules', 'skills/seed.ts'));
-  results.push(runSeeder('2. HR cohort + badges + quests',          'hr/seed.ts'));
+  results.push(runSeeder('1. HR cohort + badges + quests', 'hr/seed.ts'));
 
-  // If any sub-seeder failed, bail before we overlay personas (we'd be
+  // If the sub-seeder failed, bail before we overlay personas (we'd be
   // overlaying onto an inconsistent base).
   if (results.some((r) => !r.ok)) {
     printSummary({ aborted: 'sub-seeder failed' });
     process.exit(1);
   }
 
-  logStep('3. overlay demo personas');
+  logStep('2. overlay demo personas');
   await sql.begin(async (tx) => {
     for (const p of DEMO_PERSONAS) {
       await upsertPersona(tx as unknown as Sql, p);
     }
     await upsertNewcomerRow(tx as unknown as Sql);
   });
-  results.push({ step: '3. overlay demo personas', ok: true, details: `${DEMO_PERSONAS.length} personas` });
+  results.push({ step: '2. overlay demo personas', ok: true, details: `${DEMO_PERSONAS.length} personas` });
 
-  logStep("4. prime Aziz's demo state");
+  logStep("3. prime Aziz's demo state");
   const chatRows = await primeChatHistory();
   const runId = await primeScenarioRun();
   const xpRows = await primeXpLedger();
   await primeBadge();
-  results.push({ step: '4. prime demo state', ok: true });
+  results.push({ step: '3. prime demo state', ok: true });
 
   printSummary({
     'chat_messages inserted': chatRows,
@@ -342,7 +335,7 @@ main()
     process.exit(1);
   });
 
-// TODO: once `hr/seed.ts` and `skills/seed.ts` export their `main()`
-// function (instead of invoking it at module top-level + calling
-// `process.exit`), replace `runSeeder` with direct in-process imports —
-// it'll roughly halve seed time and let us share one DB pool.
+// TODO: once `hr/seed.ts` exports its `main()` function (instead of
+// invoking it at module top-level + calling `process.exit`), replace
+// `runSeeder` with a direct in-process import — it'll roughly halve seed
+// time and let us share one DB pool.

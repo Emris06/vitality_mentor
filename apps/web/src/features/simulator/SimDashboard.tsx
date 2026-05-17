@@ -5,8 +5,16 @@ import { motion } from 'framer-motion';
 import { DEFAULT_LOCALE, isLocale, type Locale, type ScenarioId } from '@vitality/shared';
 import { simApi, SimHttpError } from '../../lib/api';
 import { useAuth } from '../auth/AuthProvider';
-import { ErpShell } from '../workspace/ErpShell';
-import { buildWorkspaceSections } from '../workspace/navigation';
+import { InternShell } from '../workspace/InternShell';
+import { WarmCard } from '../../components/warm/WarmCard';
+
+// ──────────────────────────────────────────────────────────────────────────
+// Scenario catalog — the intern's "all scenarios" view.
+//
+// Wraps in InternShell (warm) since `/simulator` is an intern surface in
+// `buildWorkspaceSections`. Picking a scenario routes into the Direction A
+// run pages — the mode-shift happens on click, not on this page.
+// ──────────────────────────────────────────────────────────────────────────
 
 const LAST_RUN_KEY = 'vitality.lastKycRunId';
 
@@ -17,7 +25,7 @@ interface ScenarioCard {
   taglineKey: string;
   durationKey?: string;
   disabledKey?: string;
-  accent: string;
+  iconTone: 'mentora' | 'emerald' | 'violet' | 'rose';
   emoji: string;
 }
 
@@ -28,8 +36,8 @@ const SCENARIOS: ScenarioCard[] = [
     nameKey: 'sim.scenarios.kyc.name',
     taglineKey: 'sim.scenarios.kyc.tagline',
     durationKey: 'sim.scenarios.kyc.duration',
-    accent: 'from-brand-600 to-brand-800',
-    emoji: 'KYC',
+    iconTone: 'mentora',
+    emoji: '📋',
   },
   {
     id: 'open-account',
@@ -37,8 +45,8 @@ const SCENARIOS: ScenarioCard[] = [
     nameKey: 'sim.scenarios.open_account.name',
     taglineKey: 'sim.scenarios.open_account.tagline',
     disabledKey: 'sim.scenarios.open_account.disabled',
-    accent: 'from-ink-400 to-ink-600',
-    emoji: 'ACC',
+    iconTone: 'emerald',
+    emoji: '💳',
   },
   {
     id: 'deposit',
@@ -46,8 +54,8 @@ const SCENARIOS: ScenarioCard[] = [
     nameKey: 'sim.scenarios.deposit.name',
     taglineKey: 'sim.scenarios.deposit.tagline',
     disabledKey: 'sim.scenarios.deposit.disabled',
-    accent: 'from-ink-400 to-ink-600',
-    emoji: 'DEP',
+    iconTone: 'violet',
+    emoji: '💰',
   },
   {
     id: 'transfer',
@@ -55,10 +63,17 @@ const SCENARIOS: ScenarioCard[] = [
     nameKey: 'sim.scenarios.transfer.name',
     taglineKey: 'sim.scenarios.transfer.tagline',
     disabledKey: 'sim.scenarios.transfer.disabled',
-    accent: 'from-ink-400 to-ink-600',
-    emoji: 'TRF',
+    iconTone: 'rose',
+    emoji: '↔',
   },
 ];
+
+const ICON_BG: Record<ScenarioCard['iconTone'], string> = {
+  mentora: 'bg-mentora-50 text-mentora-600',
+  emerald: 'bg-emerald-50 text-emerald-600',
+  violet: 'bg-violet-50 text-violet-600',
+  rose: 'bg-rose-50 text-rose-600',
+};
 
 export function SimDashboard() {
   const { t, i18n } = useTranslation();
@@ -95,95 +110,93 @@ export function SimDashboard() {
     [locale, navigate, t],
   );
 
-  const roleLabel =
-    profile?.role === 'hr'
-      ? t('auth.role_hr_name')
-      : profile?.role === 'intern'
-        ? t('auth.role_intern_name')
-        : t('auth.role_employee_name');
+  const userName = profile?.fullName ?? 'Intern';
+  const firstName = userName.split(/\s+/)[0] ?? userName;
 
   return (
-    <ErpShell
-      title={t('sim.dashboard_title')}
-      subtitle={t('app.name')}
-      userName={profile?.fullName ?? 'Team Member'}
-      userRole={roleLabel}
-      sections={buildWorkspaceSections(profile?.role ?? null)}
-      searchPlaceholder="Search scenarios, steps, and simulation runs"
+    <InternShell
+      userName={userName}
+      userRole={t('auth.role_intern_name')}
+      greeting={t('intern.shell.greeting', { name: firstName })}
+      pageTitle={t('sim.dashboard_title')}
     >
-      <section className="space-y-4">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: 'easeOut' }}
-          className="mb-8"
+      <motion.p
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+        className="max-w-2xl text-[15px] leading-relaxed text-[var(--ink-warm-2)]"
+      >
+        {t('sim.dashboard_subtitle')}
+      </motion.p>
+
+      {startError && (
+        <div
+          role="alert"
+          className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700 ring-1 ring-rose-200"
         >
-          <h1 className="text-3xl font-bold tracking-tight text-ink-900 md:text-4xl">
-            {t('sim.dashboard_title')}
-          </h1>
-          <p className="mt-3 max-w-2xl text-base text-ink-600">{t('sim.dashboard_subtitle')}</p>
-        </motion.div>
+          {startError}
+        </div>
+      )}
 
-        {startError && (
-          <div
-            role="alert"
-            className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
-          >
-            {startError}
-          </div>
-        )}
-
-        <div className="grid gap-4 md:grid-cols-2">
-          {SCENARIOS.map((scenario, idx) => {
-            const isStarting = starting === scenario.id;
-            const disabled = !scenario.enabled || isStarting;
-            return (
-              <motion.button
-                key={scenario.id}
-                type="button"
-                disabled={disabled}
-                onClick={() => void handleStart(scenario.id)}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, ease: 'easeOut', delay: 0.05 * idx }}
-                whileHover={scenario.enabled ? { y: -2 } : undefined}
-                className={
-                  'group relative overflow-hidden rounded-2xl border bg-white p-6 text-left shadow-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-brand-300 ' +
-                  (scenario.enabled
-                    ? 'border-ink-200 hover:shadow-md cursor-pointer'
-                    : 'border-ink-200 opacity-70 cursor-not-allowed')
-                }
-                aria-disabled={disabled}
-              >
+      <div className="grid gap-4 md:grid-cols-2">
+        {SCENARIOS.map((scenario, idx) => {
+          const isStarting = starting === scenario.id;
+          const disabled = !scenario.enabled || isStarting;
+          return (
+            <motion.button
+              key={scenario.id}
+              type="button"
+              disabled={disabled}
+              onClick={() => void handleStart(scenario.id)}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: 'easeOut', delay: 0.04 * idx }}
+              whileHover={scenario.enabled ? { y: -2 } : undefined}
+              data-clicky-target={`${scenario.id}, scenario, ${t(scenario.nameKey).toLowerCase()}`}
+              data-clicky-hint={
+                scenario.enabled
+                  ? `Start the "${t(scenario.nameKey)}" scenario with synthetic data.`
+                  : `"${t(scenario.nameKey)}" — coming soon.`
+              }
+              aria-disabled={disabled}
+              className={
+                'block text-left ' +
+                (scenario.enabled ? 'cursor-pointer' : 'cursor-not-allowed opacity-70')
+              }
+            >
+              <WarmCard className="p-6 transition hover:shadow-card-warm">
                 <div className="flex items-start gap-4">
                   <div
                     className={
-                      'grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br text-xs font-bold tracking-wide text-white ' +
-                      scenario.accent
+                      'grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-xl ' +
+                      ICON_BG[scenario.iconTone]
                     }
                   >
                     {scenario.emoji}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-lg font-semibold text-ink-900">{t(scenario.nameKey)}</h2>
+                      <h2 className="text-lg font-extrabold text-[var(--ink-warm)]">
+                        {t(scenario.nameKey)}
+                      </h2>
                       {!scenario.enabled && scenario.disabledKey && (
-                        <span className="rounded-full bg-ink-100 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-ink-600">
+                        <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-zinc-600">
                           {t(scenario.disabledKey)}
                         </span>
                       )}
                       {scenario.enabled && scenario.durationKey && (
-                        <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-brand-700">
+                        <span className="rounded-full bg-mentora-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-mentora-600">
                           {t(scenario.durationKey)}
                         </span>
                       )}
                     </div>
-                    <p className="mt-2 text-sm text-ink-600">{t(scenario.taglineKey)}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-[var(--ink-warm-2)]">
+                      {t(scenario.taglineKey)}
+                    </p>
                     {scenario.enabled && (
-                      <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-700 group-hover:gap-3 transition-all">
+                      <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-mentora-600 transition-all group-hover:gap-3">
                         {isStarting ? t('sim.run.loading_run') : t('sim.start')}
                         <svg
-                          xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -200,15 +213,15 @@ export function SimDashboard() {
                     )}
                   </div>
                 </div>
-              </motion.button>
-            );
-          })}
-        </div>
+              </WarmCard>
+            </motion.button>
+          );
+        })}
+      </div>
 
-        <p className="mt-10 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          {t('sim.kyc.banner_synthetic')}
-        </p>
-      </section>
-    </ErpShell>
+      <div className="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200">
+        {t('sim.kyc.banner_synthetic')}
+      </div>
+    </InternShell>
   );
 }

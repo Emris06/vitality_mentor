@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mentora — Direction C · Friendly & Gamified</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --mentora: #2046ff;
+      --mentora-soft: #e0e7ff;
+      --mentora-tint: #f1f4ff;
+      --coral: #ff6b4a;
+      --sand: #fff7ed;
+      --amber: #f59e0b;
+      --ink: #0e1130;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background:
+        radial-gradient(900px 500px at 80% -200px, rgba(32, 70, 255, 0.10), transparent 60%),
+        radial-gradient(700px 400px at -10% 200px, rgba(255, 107, 74, 0.08), transparent 60%),
+        #fbfaf7;
+      color: var(--ink);
+    }
+    .card-shadow {
+      box-shadow:
+        0 1px 0 rgba(14, 17, 48, 0.04),
+        0 8px 24px -8px rgba(14, 17, 48, 0.10),
+        0 24px 48px -24px rgba(14, 17, 48, 0.12);
+    }
+    .bounce-soft { animation: bounceSoft 2.6s ease-in-out infinite; }
+    @keyframes bounceSoft {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+  </style>
+</head>
+<body class="antialiased">
+  <!-- direction tag -->
+  <div class="border-b border-zinc-200/70 bg-white/70 backdrop-blur">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-2 text-[11px] uppercase tracking-[0.16em] text-zinc-500">
+      <span>Direction C · Friendly &amp; Gamified</span>
+      <span>Duolingo / Notion-AI · rounded · badge-forward</span>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <header class="bg-transparent">
+    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+      <img src="../logo_name.jpg" alt="Mentora" class="h-7" />
+      <nav class="hidden gap-7 text-sm font-medium text-zinc-600 md:flex">
+        <a href="#" class="hover:text-[var(--ink)]">Product</a>
+        <a href="#" class="hover:text-[var(--ink)]">For interns</a>
+        <a href="#" class="hover:text-[var(--ink)]">For HR</a>
+        <a href="#" class="hover:text-[var(--ink)]">Pricing</a>
+      </nav>
+      <div class="flex items-center gap-3 text-sm">
+        <a href="#" class="font-medium text-zinc-700 hover:text-[var(--ink)]">Sign in</a>
+        <a
+          href="#"
+          class="rounded-full bg-[var(--mentora)] px-4 py-2 font-semibold text-white shadow-sm transition hover:brightness-110"
+          >Start free →</a
+        >
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="relative">
+    <div class="mx-auto max-w-6xl px-6 pt-20 pb-16">
+      <div class="grid grid-cols-1 gap-14 lg:grid-cols-[1.05fr_1fr] lg:items-center">
+        <div>
+          <span class="inline-flex items-center gap-2 rounded-full bg-[var(--mentora-tint)] px-3 py-1.5 text-xs font-semibold text-[var(--mentora)] ring-1 ring-[var(--mentora-soft)]">
+            <span class="text-[14px] leading-none">✦</span>
+            Onboarding that newcomers actually finish
+          </span>
+          <h1 class="mt-6 text-[60px] font-extrabold leading-[1.02] tracking-[-0.025em] text-[var(--ink)]">
+            Practice the bank.
+            <span class="relative inline-block text-[var(--mentora)]">
+              Without<span class="ml-3">touching</span>
+              <svg class="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" fill="none" aria-hidden="true">
+                <path d="M2 9 C 80 2, 220 2, 298 9" stroke="#ff6b4a" stroke-width="3" stroke-linecap="round" />
+              </svg>
+            </span>
+            <span class="block">it.</span>
+          </h1>
+          <p class="mt-6 max-w-md text-[17px] leading-relaxed text-zinc-600">
+            Mentora is a synthetic-data twin of your bank's ABC/CRM. Newcomers earn badges, finish quests, and learn from <strong class="text-[var(--ink)]">Clicky</strong> — an AI agent that follows their cursor and explains as they go.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a
+              href="#"
+              class="rounded-full bg-[var(--ink)] px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:brightness-110"
+              >Try the simulator</a
+            >
+            <a
+              href="#"
+              class="rounded-full bg-white px-5 py-3 text-sm font-semibold text-[var(--ink)] ring-1 ring-zinc-200 transition hover:bg-zinc-50"
+              >👋 Meet Clicky</a
+            >
+          </div>
+          <div class="mt-8 flex items-center gap-4 text-xs text-zinc-500">
+            <div class="flex -space-x-2">
+              <span class="grid h-7 w-7 place-items-center rounded-full bg-amber-200 text-amber-800 ring-2 ring-white">M</span>
+              <span class="grid h-7 w-7 place-items-center rounded-full bg-rose-200 text-rose-800 ring-2 ring-white">D</span>
+              <span class="grid h-7 w-7 place-items-center rounded-full bg-sky-200 text-sky-800 ring-2 ring-white">A</span>
+            </div>
+            <span>Interns at 3 banks completed KYC training in week 1.</span>
+          </div>
+        </div>
+
+        <!-- Right: playful sim + progress card -->
+        <div class="relative">
+          <!-- Main card -->
+          <div class="rounded-3xl bg-white p-2.5 card-shadow">
+            <div class="rounded-2xl bg-[var(--mentora-tint)] p-5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="grid h-7 w-7 place-items-center rounded-full bg-[var(--mentora)] text-white text-[12px] font-bold">M</span>
+                  <span class="font-semibold text-[var(--ink)]">Madina · KYC quest</span>
+                </div>
+                <span class="rounded-full bg-white px-2.5 py-0.5 text-[11px] font-semibold text-[var(--mentora)] ring-1 ring-[var(--mentora-soft)]">2 / 4</span>
+              </div>
+              <div class="mt-4 h-2 w-full overflow-hidden rounded-full bg-white">
+                <div class="h-full w-1/2 rounded-full bg-gradient-to-r from-[var(--mentora)] to-[#7a91ff]"></div>
+              </div>
+              <ul class="mt-5 space-y-2.5 text-sm">
+                <li class="flex items-center gap-3 rounded-xl bg-white px-3 py-2.5">
+                  <span class="grid h-5 w-5 place-items-center rounded-full bg-emerald-500 text-[11px] font-bold text-white">✓</span>
+                  <span class="text-zinc-500 line-through">Verify documents</span>
+                </li>
+                <li class="flex items-center gap-3 rounded-xl bg-white px-3 py-2.5 ring-2 ring-[var(--mentora)]">
+                  <span class="grid h-5 w-5 place-items-center rounded-full bg-[var(--mentora)] text-[11px] font-bold text-white">2</span>
+                  <span class="font-semibold text-[var(--ink)]">Sanctions check</span>
+                  <span class="ml-auto rounded-full bg-[var(--mentora-tint)] px-2 py-0.5 text-[10px] font-semibold text-[var(--mentora)]">+15 XP</span>
+                </li>
+                <li class="flex items-center gap-3 rounded-xl bg-white/60 px-3 py-2.5">
+                  <span class="grid h-5 w-5 place-items-center rounded-full bg-zinc-200 text-[11px] font-bold text-zinc-500">3</span>
+                  <span class="text-zinc-500">Risk score</span>
+                </li>
+                <li class="flex items-center gap-3 rounded-xl bg-white/60 px-3 py-2.5">
+                  <span class="grid h-5 w-5 place-items-center rounded-full bg-zinc-200 text-[11px] font-bold text-zinc-500">4</span>
+                  <span class="text-zinc-500">Decision</span>
+                </li>
+              </ul>
+              <!-- Clicky bubble -->
+              <div class="mt-4 flex items-start gap-2.5 rounded-2xl bg-[var(--ink)] p-3 text-white">
+                <div class="bounce-soft mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[var(--coral)] text-[12px] font-bold">✦</div>
+                <p class="text-[13px] leading-snug">
+                  <span class="font-semibold">Clicky:</span> "Hold <kbd class="rounded bg-white/15 px-1 py-0.5 font-mono text-[10px]">`</kbd> and ask. I'll point at the right field."
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- Floating badges -->
+          <div class="absolute -left-6 top-10 hidden rotate-[-6deg] rounded-2xl bg-white px-3 py-2 card-shadow lg:flex lg:items-center lg:gap-2">
+            <span class="grid h-7 w-7 place-items-center rounded-full bg-amber-400 text-white">🏆</span>
+            <div class="text-xs">
+              <div class="font-bold text-[var(--ink)]">First KYC</div>
+              <div class="text-zinc-500">+50 XP</div>
+            </div>
+          </div>
+          <div class="absolute -right-4 -bottom-6 hidden rotate-[5deg] rounded-2xl bg-white px-3 py-2 card-shadow lg:flex lg:items-center lg:gap-2">
+            <span class="grid h-7 w-7 place-items-center rounded-full bg-[var(--coral)]/15 text-[var(--coral)]">🔥</span>
+            <div class="text-xs">
+              <div class="font-bold text-[var(--ink)]">3-day streak</div>
+              <div class="text-zinc-500">keep it up</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Value props -->
+  <section class="relative">
+    <div class="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-6 pb-20 md:grid-cols-3">
+      <div class="rounded-3xl bg-white p-7 card-shadow">
+        <div class="grid h-11 w-11 place-items-center rounded-2xl bg-[var(--mentora-tint)] text-[var(--mentora)]">🛡️</div>
+        <h3 class="mt-4 text-lg font-bold tracking-tight">Zero leak risk</h3>
+        <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+          Every account, transaction, and client is synthetic. Compliance can't object — there's nothing to leak.
+        </p>
+      </div>
+      <div class="rounded-3xl bg-white p-7 card-shadow">
+        <div class="grid h-11 w-11 place-items-center rounded-2xl bg-[var(--coral)]/15 text-[var(--coral)]">✦</div>
+        <h3 class="mt-4 text-lg font-bold tracking-tight">Clicky teaches as they click</h3>
+        <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+          Newcomers hold a hotkey and ask out loud. Clicky points, explains, and stays out of the way while they do it.
+        </p>
+      </div>
+      <div class="rounded-3xl bg-white p-7 card-shadow">
+        <div class="grid h-11 w-11 place-items-center rounded-2xl bg-amber-100 text-amber-700">🏆</div>
+        <h3 class="mt-4 text-lg font-bold tracking-tight">Quests, XP, streaks</h3>
+        <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+          The platform interns actually open. HR sees every badge, every completion, every streak — without asking.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="border-t border-zinc-200/70 bg-white/60 backdrop-blur">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-8 text-xs text-zinc-500">
+      <span>Mentora · synthetic-data banking simulator</span>
+      <span>uz · ru</span>
+    </div>
+  </footer>
+</body>
+</html>

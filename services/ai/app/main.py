@@ -11,7 +11,6 @@ from app.rag.cache import close_cache
 from app.routes.chat import router as chat_router
 from app.routes.health import router as health_router
 from app.routes.sim_hint import router as sim_hint_router
-from app.routes.skills import router as skills_router
 
 
 @asynccontextmanager
@@ -56,7 +55,6 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     app.include_router(chat_router)
     app.include_router(sim_hint_router)
-    app.include_router(skills_router)
 
     @app.get("/")
     async def root() -> dict[str, str]:

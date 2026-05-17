@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mentora — v2 · Intern dashboard (inspiration-matched)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --mentora: #2046ff;
+      --mentora-deep: #1a3cd8;
+      --mentora-soft: #e8eeff;
+      --mentora-tint: #f3f6ff;
+      --sidebar: #1d2240;
+      --sidebar-2: #272d52;
+      --canvas: #f4f6fb;
+      --ink: #1a1d3a;
+      --ink-2: #4a4e72;
+      --muted: #9097b3;
+      --line: #eaecf4;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: var(--canvas);
+      color: var(--ink);
+    }
+    .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    .sim-chrome {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-feature-settings: 'cv11', 'ss01';
+      color: #18181b;
+    }
+    .sim-chrome .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow:
+        0 1px 2px rgba(28, 33, 67, 0.04),
+        0 8px 24px -12px rgba(28, 33, 67, 0.08);
+    }
+    .card-soft {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(28, 33, 67, 0.04);
+    }
+    .bounce-soft { animation: bounceSoft 2.6s ease-in-out infinite; }
+    @keyframes bounceSoft {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    /* avatar color blocks */
+    .av-amber { background: #fde68a; color: #92400e; }
+    .av-rose  { background: #fecdd3; color: #9f1239; }
+    .av-sky   { background: #bae6fd; color: #075985; }
+    .av-em    { background: #bbf7d0; color: #166534; }
+    .av-viol  { background: #ddd6fe; color: #5b21b6; }
+    .av-orng  { background: #fed7aa; color: #9a3412; }
+  </style>
+</head>
+<body class="antialiased">
+  <!-- direction tag -->
+  <div class="border-b border-zinc-200/70 bg-white">
+    <div class="mx-auto flex max-w-[1480px] items-center justify-between px-6 py-2 text-[11px] uppercase tracking-[0.16em] text-zinc-500">
+      <span>v2 · Intern dashboard · inspiration-matched (cool palette · sidebar shell · gamification subtle)</span>
+      <span>Mentora · /intern</span>
+    </div>
+  </div>
+
+  <div class="mx-auto flex max-w-[1480px]">
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!--  SIDEBAR  (deep navy, icon-only, Clicky lives at the bottom)    -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <aside
+      class="sticky top-0 flex h-screen w-[84px] shrink-0 flex-col items-center justify-between py-5"
+      style="background: var(--sidebar);"
+    >
+      <!-- Mark -->
+      <div class="flex flex-col items-center gap-7">
+        <a href="#" class="grid h-10 w-10 place-items-center">
+          <svg viewBox="0 0 32 32" class="h-7 w-7 text-white" fill="none">
+            <g stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+              <line x1="16" y1="3" x2="16" y2="10" />
+              <line x1="16" y1="22" x2="16" y2="29" />
+              <line x1="3" y1="16" x2="10" y2="16" />
+              <line x1="22" y1="16" x2="29" y2="16" />
+              <line x1="6.5" y1="6.5" x2="11" y2="11" />
+              <line x1="21" y1="21" x2="25.5" y2="25.5" />
+              <line x1="6.5" y1="25.5" x2="11" y2="21" />
+              <line x1="21" y1="11" x2="25.5" y2="6.5" />
+            </g>
+          </svg>
+        </a>
+
+        <!-- nav -->
+        <nav class="flex flex-col items-center gap-1.5">
+          <!-- Home (active) -->
+          <a href="#" class="group relative grid h-11 w-11 place-items-center rounded-xl bg-white/10 text-white">
+            <span class="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full bg-white"></span>
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12 12 4l9 8" />
+              <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" />
+            </svg>
+          </a>
+          <!-- Scenarios -->
+          <a href="#" class="grid h-11 w-11 place-items-center rounded-xl text-white/45 transition hover:bg-white/5 hover:text-white">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="16" rx="2" />
+              <path d="M3 9h18M9 4v16" />
+            </svg>
+          </a>
+          <!-- Quests -->
+          <a href="#" class="grid h-11 w-11 place-items-center rounded-xl text-white/45 transition hover:bg-white/5 hover:text-white">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 11l3 3 8-8" />
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+            </svg>
+          </a>
+          <!-- Chat / Ask the bank -->
+          <a href="#" class="grid h-11 w-11 place-items-center rounded-xl text-white/45 transition hover:bg-white/5 hover:text-white">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12z" />
+            </svg>
+          </a>
+          <!-- Messages -->
+          <a href="#" class="relative grid h-11 w-11 place-items-center rounded-xl text-white/45 transition hover:bg-white/5 hover:text-white">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 5h16v12H7l-3 3z" />
+            </svg>
+            <span class="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#ff6b4a]"></span>
+          </a>
+          <!-- Resources -->
+          <a href="#" class="grid h-11 w-11 place-items-center rounded-xl text-white/45 transition hover:bg-white/5 hover:text-white">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z" />
+              <path d="M8 8h8M8 12h8M8 16h5" />
+            </svg>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Clicky card + logout (mirrors the inspiration's support character) -->
+      <div class="flex flex-col items-center gap-4">
+        <div class="relative w-[64px]">
+          <!-- Clicky illustrated chip -->
+          <div class="relative grid place-items-center rounded-2xl bg-gradient-to-br from-[var(--mentora)] to-[#7a91ff] p-3">
+            <svg viewBox="0 0 32 32" class="h-7 w-7 text-white" fill="none">
+              <g stroke="currentColor" stroke-width="2.8" stroke-linecap="round">
+                <line x1="16" y1="3" x2="16" y2="10" />
+                <line x1="16" y1="22" x2="16" y2="29" />
+                <line x1="3" y1="16" x2="10" y2="16" />
+                <line x1="22" y1="16" x2="29" y2="16" />
+                <line x1="6.5" y1="6.5" x2="11" y2="11" />
+                <line x1="21" y1="21" x2="25.5" y2="25.5" />
+                <line x1="6.5" y1="25.5" x2="11" y2="21" />
+                <line x1="21" y1="11" x2="25.5" y2="6.5" />
+              </g>
+            </svg>
+            <span class="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-emerald-400 ring-2 ring-[var(--sidebar)]">
+              <span class="h-2 w-2 rounded-full bg-white"></span>
+            </span>
+          </div>
+          <div class="mt-1.5 text-center text-[10px] font-bold uppercase tracking-wider text-white/70">Clicky</div>
+        </div>
+        <a href="#" class="grid h-10 w-10 place-items-center text-white/45 transition hover:text-white">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 17l5-5-5-5M20 12H9M12 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" />
+          </svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!--  MAIN COLUMN                                                    -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <main class="flex-1 px-7 py-6">
+      <!-- TOPBAR -->
+      <div class="flex items-center gap-4">
+        <!-- search -->
+        <div class="relative flex-1 max-w-[520px]">
+          <svg class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search scenarios, SOPs, people…"
+            class="w-full rounded-xl bg-white px-10 py-2.5 text-sm shadow-[0_1px_2px_rgba(28,33,67,0.04)] placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-[var(--mentora)]/30"
+          />
+        </div>
+        <!-- spacer -->
+        <div class="flex-1"></div>
+        <!-- locale -->
+        <div class="flex items-center gap-1 rounded-full bg-white px-1.5 py-1 text-xs font-semibold shadow-[0_1px_2px_rgba(28,33,67,0.04)]">
+          <button class="rounded-full px-2 py-1 text-zinc-500 hover:text-[var(--ink)]">UZ</button>
+          <button class="rounded-full bg-[var(--ink)] px-2.5 py-1 text-white">RU</button>
+          <button class="rounded-full px-2 py-1 text-zinc-500 hover:text-[var(--ink)]">EN</button>
+        </div>
+        <!-- bell -->
+        <button class="relative grid h-10 w-10 place-items-center rounded-full bg-white shadow-[0_1px_2px_rgba(28,33,67,0.04)]">
+          <svg class="h-5 w-5 text-[var(--ink-2)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 8a6 6 0 0 1 12 0v5l1.5 3h-15L6 13z" />
+            <path d="M10 19a2 2 0 0 0 4 0" />
+          </svg>
+          <span class="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#ff6b4a]"></span>
+        </button>
+        <!-- avatar -->
+        <button class="flex items-center gap-2 rounded-full bg-white py-1.5 pl-1.5 pr-3 shadow-[0_1px_2px_rgba(28,33,67,0.04)]">
+          <span class="av-amber grid h-7 w-7 place-items-center rounded-full text-xs font-bold">MY</span>
+          <span class="text-sm font-semibold">Madina Y.</span>
+          <svg class="h-4 w-4 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Page title row -->
+      <div class="mt-6 flex items-end justify-between">
+        <div>
+          <div class="text-sm text-[var(--ink-2)]">Welcome back, Madina</div>
+          <h1 class="mt-1 text-[32px] font-extrabold leading-tight tracking-tight">Dashboard</h1>
+        </div>
+        <div class="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm shadow-[0_1px_2px_rgba(28,33,67,0.04)]">
+          <svg class="h-4 w-4 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="5" width="18" height="16" rx="2" />
+            <path d="M16 3v4M8 3v4M3 11h18" />
+          </svg>
+          <span class="text-[var(--ink)]">May 13 — May 17, 2026</span>
+        </div>
+      </div>
+
+      <!-- 12-col grid -->
+      <div class="mt-6 grid grid-cols-12 gap-5">
+        <!-- LEFT (8 cols) -->
+        <section class="col-span-12 lg:col-span-8 space-y-5">
+          <!-- Mini stats row -->
+          <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div class="card p-4">
+              <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+                <span class="grid h-7 w-7 place-items-center rounded-full bg-[var(--mentora-tint)] text-[var(--mentora)]">✦</span>
+                Level
+              </div>
+              <div class="mt-2 flex items-baseline gap-1.5">
+                <div class="text-2xl font-extrabold">4</div>
+                <div class="text-xs text-[var(--muted)]">420 / 600 XP</div>
+              </div>
+              <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[var(--canvas)]">
+                <div class="h-full w-[70%] rounded-full bg-gradient-to-r from-[var(--mentora)] to-[#7a91ff]"></div>
+              </div>
+            </div>
+            <div class="card p-4">
+              <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+                <span class="grid h-7 w-7 place-items-center rounded-full bg-orange-50 text-orange-500">🔥</span>
+                Streak
+              </div>
+              <div class="mt-2 text-2xl font-extrabold">3 <span class="text-sm font-medium text-[var(--muted)]">days</span></div>
+              <div class="mt-1 text-xs text-[var(--muted)]">2 more for "Consistent"</div>
+            </div>
+            <div class="card p-4">
+              <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+                <span class="grid h-7 w-7 place-items-center rounded-full bg-amber-50 text-amber-500">🏆</span>
+                Badges
+              </div>
+              <div class="mt-2 text-2xl font-extrabold">7 <span class="text-sm font-medium text-[var(--muted)]">earned</span></div>
+              <div class="mt-1 text-xs text-[var(--muted)]">+ "First KYC" today</div>
+            </div>
+            <div class="card p-4">
+              <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+                <span class="grid h-7 w-7 place-items-center rounded-full bg-emerald-50 text-emerald-600">⌛</span>
+                Onboarding
+              </div>
+              <div class="mt-2 text-2xl font-extrabold">14 <span class="text-sm font-medium text-[var(--muted)]">days left</span></div>
+              <div class="mt-1 text-xs text-[var(--muted)]">deadline · May 31</div>
+            </div>
+          </div>
+
+          <!-- Active scenario hero (Direction A sim chrome lives inside) -->
+          <div class="card overflow-hidden p-0">
+            <div class="flex items-center justify-between border-b border-[var(--line)] px-6 py-4">
+              <div>
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-[var(--mentora)]">Active scenario</div>
+                <div class="mt-0.5 text-lg font-bold">Run a full KYC · Step 2 of 4</div>
+              </div>
+              <a href="#" class="rounded-xl bg-[var(--mentora)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--mentora-deep)]">Continue scenario →</a>
+            </div>
+
+            <!-- Inner sim chrome (Direction A) -->
+            <div class="sim-chrome bg-[#FAFAFA] px-6 py-6">
+              <div class="overflow-hidden rounded-lg bg-white ring-1 ring-zinc-200">
+                <!-- A chrome bar -->
+                <div class="flex items-center justify-between border-b border-zinc-200 px-4 py-2.5 text-[12px] text-zinc-500">
+                  <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1.5">
+                      <span class="h-2 w-2 rounded-full bg-zinc-300"></span>
+                      <span class="h-2 w-2 rounded-full bg-zinc-300"></span>
+                      <span class="h-2 w-2 rounded-full bg-zinc-300"></span>
+                    </div>
+                    <span class="text-zinc-300">|</span>
+                    <span class="mono">ABC ▸ KYC ▸ Sanctions</span>
+                  </div>
+                  <span class="mono">SYN-849-2207 · step 2/4</span>
+                </div>
+                <!-- A body -->
+                <div class="grid grid-cols-1 gap-5 p-5 lg:grid-cols-[1fr_220px]">
+                  <div class="space-y-4">
+                    <h3 class="text-base font-semibold tracking-tight">Sanctions check</h3>
+                    <div class="rounded-md border border-zinc-200">
+                      <div class="flex items-center justify-between border-b border-zinc-100 px-3 py-2.5">
+                        <div class="flex items-center gap-3 text-sm"><span class="mono text-[11px] text-zinc-400">01</span><span class="font-medium">UN consolidated</span></div>
+                        <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">No match</span>
+                      </div>
+                      <div class="flex items-center justify-between border-b border-zinc-100 px-3 py-2.5">
+                        <div class="flex items-center gap-3 text-sm"><span class="mono text-[11px] text-zinc-400">02</span><span class="font-medium">OFAC SDN</span></div>
+                        <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">No match</span>
+                      </div>
+                      <div
+                        class="flex items-center justify-between bg-[#fffbeb] px-3 py-2.5 ring-1 ring-amber-200"
+                        data-clicky-target="cbu,sanctions,domestic"
+                        data-clicky-hint="CBU is where local matches usually appear. Check name and DOB."
+                      >
+                        <div class="flex items-center gap-3 text-sm"><span class="mono text-[11px] text-amber-600">03</span><span class="font-medium">CBU domestic</span></div>
+                        <span class="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700">1 potential</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center justify-between pt-1">
+                      <button class="text-sm font-medium text-zinc-600 hover:text-zinc-900">← Back</button>
+                      <div class="flex gap-2">
+                        <button class="rounded-md border border-zinc-300 bg-white px-3.5 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50">Escalate</button>
+                        <button class="rounded-md bg-[var(--mentora)] px-3.5 py-1.5 text-sm font-medium text-white hover:bg-[var(--mentora-deep)]">Continue →</button>
+                      </div>
+                    </div>
+                  </div>
+                  <aside class="space-y-3 text-[13px] lg:border-l lg:border-zinc-200 lg:pl-5">
+                    <div class="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Progress</div>
+                    <ol class="space-y-1.5">
+                      <li class="flex items-center gap-2 text-zinc-500"><span class="grid h-4 w-4 place-items-center rounded-full bg-zinc-300 text-[10px] text-white">✓</span>Intake</li>
+                      <li class="flex items-center gap-2 font-medium"><span class="grid h-4 w-4 place-items-center rounded-full bg-[var(--mentora)] text-[10px] font-bold text-white">2</span>Sanctions check</li>
+                      <li class="flex items-center gap-2 text-zinc-400"><span class="grid h-4 w-4 place-items-center rounded-full bg-zinc-200 text-[10px] text-zinc-500">3</span>Risk score</li>
+                      <li class="flex items-center gap-2 text-zinc-400"><span class="grid h-4 w-4 place-items-center rounded-full bg-zinc-200 text-[10px] text-zinc-500">4</span>Decision</li>
+                    </ol>
+                    <div class="rounded-md bg-zinc-100 px-2.5 py-2 text-[11px] text-zinc-500">
+                      <span class="font-semibold text-zinc-700">Synthetic-data twin</span> — generated.
+                    </div>
+                  </aside>
+                </div>
+
+                <!-- Clicky cursor + speech (sits over the sim card) -->
+                <div class="pointer-events-none relative">
+                  <div class="absolute -top-[180px] left-[270px] hidden lg:block">
+                    <span class="absolute -inset-3 rounded-full bg-amber-300/40 blur-md"></span>
+                    <svg viewBox="0 0 24 24" class="relative h-5 w-5 text-amber-500 drop-shadow-[0_2px_6px_rgba(245,158,11,0.7)]" fill="currentColor">
+                      <path d="M4 3.2 17.6 12.2l-6.4 1.5 2.5 6.6-2.4 1-2.5-6.6L4 19.8z" stroke="white" stroke-width="1.2" stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Clicky speech card -->
+              <div class="mt-4 flex max-w-xl items-start gap-3 rounded-2xl bg-[var(--ink)] p-3 pr-4 text-white">
+                <div class="bounce-soft mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[var(--mentora)] to-[#7a91ff]">
+                  <svg viewBox="0 0 32 32" class="h-5 w-5 text-white" fill="none">
+                    <g stroke="currentColor" stroke-width="2.8" stroke-linecap="round">
+                      <line x1="16" y1="3" x2="16" y2="10" />
+                      <line x1="16" y1="22" x2="16" y2="29" />
+                      <line x1="3" y1="16" x2="10" y2="16" />
+                      <line x1="22" y1="16" x2="29" y2="16" />
+                      <line x1="6.5" y1="6.5" x2="11" y2="11" />
+                      <line x1="21" y1="21" x2="25.5" y2="25.5" />
+                      <line x1="6.5" y1="25.5" x2="11" y2="21" />
+                      <line x1="21" y1="11" x2="25.5" y2="6.5" />
+                    </g>
+                  </svg>
+                </div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-[#7a91ff]">Clicky · pointing</span>
+                    <span class="text-[10px] text-zinc-400">RU</span>
+                  </div>
+                  <p class="mt-0.5 text-[13px] leading-snug">
+                    "Локальный список ЦБУ — здесь обычно появляются местные совпадения. Прочитай строку: если имя и дата рождения совпадают — escalate."
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Your scenarios (table-card style, like Projects List from inspiration) -->
+          <div class="card">
+            <div class="flex items-center justify-between px-6 py-4">
+              <div>
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">Your scenarios</div>
+                <div class="text-lg font-bold">Assigned to you</div>
+              </div>
+              <a href="#" class="text-sm font-semibold text-[var(--mentora)] hover:underline">View all →</a>
+            </div>
+            <div class="border-t border-[var(--line)]">
+              <!-- header row -->
+              <div class="grid grid-cols-[1.4fr_0.9fr_1fr_0.7fr_0.5fr] gap-3 px-6 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+                <span>Scenario</span><span>Module</span><span>Progress</span><span>Status</span><span></span>
+              </div>
+              <!-- rows -->
+              <div class="grid grid-cols-[1.4fr_0.9fr_1fr_0.7fr_0.5fr] items-center gap-3 border-t border-[var(--line)] px-6 py-3.5">
+                <div class="flex items-center gap-3">
+                  <span class="grid h-9 w-9 place-items-center rounded-xl bg-[var(--mentora-tint)] text-base">📋</span>
+                  <div class="min-w-0">
+                    <div class="font-semibold">Run a full KYC</div>
+                    <div class="text-xs text-[var(--muted)]">2 / 4 steps</div>
+                  </div>
+                </div>
+                <span class="text-sm text-[var(--ink-2)]">Retail Ops</span>
+                <div class="flex items-center gap-2">
+                  <div class="h-1.5 w-full overflow-hidden rounded-full bg-[var(--canvas)]"><div class="h-full w-1/2 rounded-full bg-[var(--mentora)]"></div></div>
+                  <span class="text-xs font-semibold text-[var(--mentora)]">50%</span>
+                </div>
+                <span class="w-fit rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">In progress</span>
+                <button class="ml-auto grid h-7 w-7 place-items-center rounded-full text-zinc-400 hover:bg-zinc-100">⋯</button>
+              </div>
+              <div class="grid grid-cols-[1.4fr_0.9fr_1fr_0.7fr_0.5fr] items-center gap-3 border-t border-[var(--line)] px-6 py-3.5">
+                <div class="flex items-center gap-3">
+                  <span class="grid h-9 w-9 place-items-center rounded-xl bg-emerald-50 text-base">💳</span>
+                  <div class="min-w-0">
+                    <div class="font-semibold">Open a deposit account</div>
+                    <div class="text-xs text-[var(--muted)]">3 / 3 steps</div>
+                  </div>
+                </div>
+                <span class="text-sm text-[var(--ink-2)]">Retail Ops</span>
+                <div class="flex items-center gap-2">
+                  <div class="h-1.5 w-full overflow-hidden rounded-full bg-[var(--canvas)]"><div class="h-full w-full rounded-full bg-emerald-500"></div></div>
+                  <span class="text-xs font-semibold text-emerald-600">100%</span>
+                </div>
+                <span class="w-fit rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Mastered</span>
+                <button class="ml-auto grid h-7 w-7 place-items-center rounded-full text-zinc-400 hover:bg-zinc-100">⋯</button>
+              </div>
+              <div class="grid grid-cols-[1.4fr_0.9fr_1fr_0.7fr_0.5fr] items-center gap-3 border-t border-[var(--line)] px-6 py-3.5">
+                <div class="flex items-center gap-3">
+                  <span class="grid h-9 w-9 place-items-center rounded-xl bg-violet-50 text-base">↔</span>
+                  <div class="min-w-0">
+                    <div class="font-semibold">Domestic transfer</div>
+                    <div class="text-xs text-[var(--muted)]">0 / 5 steps</div>
+                  </div>
+                </div>
+                <span class="text-sm text-[var(--ink-2)]">Payments</span>
+                <div class="flex items-center gap-2">
+                  <div class="h-1.5 w-full overflow-hidden rounded-full bg-[var(--canvas)]"><div class="h-full w-0 rounded-full bg-[var(--mentora)]"></div></div>
+                  <span class="text-xs font-semibold text-[var(--muted)]">0%</span>
+                </div>
+                <span class="w-fit rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-semibold text-zinc-600">Not started</span>
+                <button class="ml-auto grid h-7 w-7 place-items-center rounded-full text-zinc-400 hover:bg-zinc-100">⋯</button>
+              </div>
+              <div class="grid grid-cols-[1.4fr_0.9fr_1fr_0.7fr_0.5fr] items-center gap-3 border-t border-[var(--line)] px-6 py-3.5">
+                <div class="flex items-center gap-3">
+                  <span class="grid h-9 w-9 place-items-center rounded-xl bg-rose-50 text-base">🛡️</span>
+                  <div class="min-w-0">
+                    <div class="font-semibold">AML alert triage</div>
+                    <div class="text-xs text-[var(--muted)]">Locked — finish KYC first</div>
+                  </div>
+                </div>
+                <span class="text-sm text-[var(--ink-2)]">Compliance</span>
+                <div class="flex items-center gap-2">
+                  <div class="h-1.5 w-full overflow-hidden rounded-full bg-[var(--canvas)]"><div class="h-full w-0 rounded-full"></div></div>
+                  <span class="text-xs font-semibold text-[var(--muted)]">—</span>
+                </div>
+                <span class="w-fit rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-semibold text-zinc-500">Locked</span>
+                <button class="ml-auto grid h-7 w-7 place-items-center rounded-full text-zinc-400 hover:bg-zinc-100">⋯</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- RIGHT (4 cols) -->
+        <section class="col-span-12 lg:col-span-4 space-y-5">
+          <!-- Today's tasks -->
+          <div class="card p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">Today's tasks</div>
+                <div class="text-lg font-bold">3 to finish</div>
+              </div>
+              <span class="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">2 due</span>
+            </div>
+            <ul class="mt-4 space-y-2">
+              <li class="flex items-start gap-3 rounded-xl bg-[var(--canvas)] px-3 py-2.5">
+                <span class="mt-0.5 grid h-4.5 w-4.5 place-items-center rounded-md ring-2 ring-zinc-300"></span>
+                <div class="min-w-0 flex-1">
+                  <div class="text-sm font-semibold">Finish KYC step 2</div>
+                  <div class="text-xs text-[var(--muted)]">Sanctions check · 8 min</div>
+                </div>
+                <span class="rounded-full bg-[var(--mentora-tint)] px-2 py-0.5 text-[10px] font-bold text-[var(--mentora)]">+15 XP</span>
+              </li>
+              <li class="flex items-start gap-3 rounded-xl bg-[var(--canvas)] px-3 py-2.5">
+                <span class="mt-0.5 grid h-4.5 w-4.5 place-items-center rounded-md ring-2 ring-zinc-300"></span>
+                <div class="min-w-0 flex-1">
+                  <div class="text-sm font-semibold">Read AML SOP intro</div>
+                  <div class="text-xs text-[var(--muted)]">12 min reading</div>
+                </div>
+                <span class="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">+5 XP</span>
+              </li>
+              <li class="flex items-start gap-3 rounded-xl bg-[var(--canvas)] px-3 py-2.5">
+                <span class="mt-0.5 grid h-4.5 w-4.5 place-items-center rounded-md ring-2 ring-zinc-300"></span>
+                <div class="min-w-0 flex-1">
+                  <div class="text-sm font-semibold">Reply to mentor</div>
+                  <div class="text-xs text-[var(--muted)]">Oscar asked about your deposit run</div>
+                </div>
+                <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">+10 XP</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Mentor + cohort activity (combines inspiration's Activity Stream + Workload) -->
+          <div class="card p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">Activity</div>
+                <div class="text-lg font-bold">Mentor &amp; cohort</div>
+              </div>
+              <a href="#" class="text-sm font-semibold text-[var(--mentora)] hover:underline">View all</a>
+            </div>
+            <ul class="mt-4 space-y-3">
+              <li class="flex items-start gap-3">
+                <span class="av-sky grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-bold">OH</span>
+                <div class="min-w-0 flex-1 text-sm">
+                  <p><span class="font-semibold">Oscar Holloway</span> <span class="text-[var(--ink-2)]">left a comment on your</span> <span class="font-semibold text-[var(--mentora)]">KYC step 1</span></p>
+                  <p class="mt-0.5 text-xs text-[var(--muted)]">"Nice attention to detail on the passport check."</p>
+                  <p class="mt-1 text-[11px] text-[var(--muted)]">10 minutes ago</p>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[var(--mentora)] to-[#7a91ff]">
+                  <svg viewBox="0 0 32 32" class="h-4 w-4 text-white" fill="none">
+                    <g stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                      <line x1="16" y1="3" x2="16" y2="10" /><line x1="16" y1="22" x2="16" y2="29" />
+                      <line x1="3" y1="16" x2="10" y2="16" /><line x1="22" y1="16" x2="29" y2="16" />
+                      <line x1="6.5" y1="6.5" x2="11" y2="11" /><line x1="21" y1="21" x2="25.5" y2="25.5" />
+                      <line x1="6.5" y1="25.5" x2="11" y2="21" /><line x1="21" y1="11" x2="25.5" y2="6.5" />
+                    </g>
+                  </svg>
+                </span>
+                <div class="min-w-0 flex-1 text-sm">
+                  <p><span class="font-semibold">Clicky</span> <span class="text-[var(--ink-2)]">unlocked a tip:</span> <span class="font-semibold">"Reading the CBU list"</span></p>
+                  <p class="mt-1 text-[11px] text-[var(--muted)]">25 minutes ago</p>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="av-em grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-bold">DK</span>
+                <div class="min-w-0 flex-1 text-sm">
+                  <p><span class="font-semibold">Dilshoda K.</span> <span class="text-[var(--ink-2)]">finished</span> <span class="font-semibold text-emerald-600">Open a deposit</span></p>
+                  <p class="mt-1 text-[11px] text-[var(--muted)]">1 hour ago</p>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="av-rose grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-bold">HR</span>
+                <div class="min-w-0 flex-1 text-sm">
+                  <p><span class="font-semibold">Nilufar (HR)</span> <span class="text-[var(--ink-2)]">assigned</span> <span class="font-semibold">AML triage</span> <span class="text-[var(--ink-2)]">to your cohort</span></p>
+                  <p class="mt-1 text-[11px] text-[var(--muted)]">2 hours ago</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Cohort mini-grid (mirrors inspiration's "Workload") -->
+          <div class="card p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">Your cohort</div>
+                <div class="text-lg font-bold">5 interns</div>
+              </div>
+              <a href="#" class="text-sm font-semibold text-[var(--mentora)] hover:underline">View all</a>
+            </div>
+            <div class="mt-4 grid grid-cols-3 gap-3">
+              <div class="rounded-xl bg-[var(--canvas)] p-3 text-center">
+                <span class="av-em mx-auto grid h-10 w-10 place-items-center rounded-full text-sm font-bold">DK</span>
+                <div class="mt-2 text-[12px] font-semibold">Dilshoda</div>
+                <div class="text-[11px] text-[var(--muted)]">Lv 5</div>
+              </div>
+              <div class="rounded-xl bg-[var(--canvas)] p-3 text-center">
+                <span class="av-orng mx-auto grid h-10 w-10 place-items-center rounded-full text-sm font-bold">AT</span>
+                <div class="mt-2 text-[12px] font-semibold">Aziz</div>
+                <div class="text-[11px] text-[var(--muted)]">Lv 3</div>
+              </div>
+              <div class="rounded-xl bg-[var(--canvas)] p-3 text-center">
+                <span class="av-sky mx-auto grid h-10 w-10 place-items-center rounded-full text-sm font-bold">JK</span>
+                <div class="mt-2 text-[12px] font-semibold">Jasur</div>
+                <div class="text-[11px] text-[var(--muted)]">Lv 4</div>
+              </div>
+              <div class="rounded-xl bg-[var(--canvas)] p-3 text-center">
+                <span class="av-viol mx-auto grid h-10 w-10 place-items-center rounded-full text-sm font-bold">ZN</span>
+                <div class="mt-2 text-[12px] font-semibold">Zarina</div>
+                <div class="text-[11px] text-[var(--muted)]">Lv 4</div>
+              </div>
+              <div class="rounded-xl bg-[var(--canvas)] p-3 text-center">
+                <span class="av-rose mx-auto grid h-10 w-10 place-items-center rounded-full text-sm font-bold">LK</span>
+                <div class="mt-2 text-[12px] font-semibold">Laylo</div>
+                <div class="text-[11px] text-[var(--muted)]">Lv 2</div>
+              </div>
+              <a href="#" class="grid place-items-center rounded-xl border-2 border-dashed border-zinc-200 p-3 text-center text-xs text-[var(--muted)] hover:border-[var(--mentora)] hover:text-[var(--mentora)]">+ Invite</a>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- legend at bottom -->
+      <div class="mt-7 grid grid-cols-1 gap-3 text-xs text-zinc-500 sm:grid-cols-2">
+        <div class="rounded-xl bg-white p-3 ring-1 ring-zinc-200/70">
+          <div class="font-bold text-[var(--mentora)]">Outer shell · inspiration-matched</div>
+          <p class="mt-1 leading-relaxed">Navy icon sidebar with Clicky in the support slot, cool-white canvas, rounded cards, photo-style avatars, status pills as the only saturated color. Gamification present but subtle — slim XP bar, small chips, no celebratory mascots.</p>
+        </div>
+        <div class="rounded-xl bg-white p-3 ring-1 ring-zinc-200/70">
+          <div class="font-bold" style="color:#18181b;">Inner sim chrome · Direction A (retained)</div>
+          <p class="mt-1 leading-relaxed">Inter + JetBrains Mono inside the "Active scenario" card. Sharp 4-8px corners, dense data rows, monospace IDs, emerald/amber status pills. The mode-shift between dashboard and sim is what tells the intern "now you are doing the real bank work."</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

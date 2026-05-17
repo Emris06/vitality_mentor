@@ -187,12 +187,12 @@ export function KycRunPage() {
 
   if (loadError) {
     return (
-      <main className="grid min-h-full place-items-center bg-ink-50 px-6 py-12">
-        <div className="w-full max-w-md rounded-2xl border border-rose-200 bg-white p-6 text-center shadow-sm">
+      <main className="grid min-h-screen place-items-center bg-zinc-100 px-6 py-12 font-tech">
+        <div className="w-full max-w-md rounded-md bg-white p-6 text-center ring-1 ring-rose-200">
           <p className="text-sm text-rose-700">{loadError}</p>
           <Link
             to="/simulator"
-            className="mt-4 inline-block rounded-full border border-ink-200 bg-white px-4 py-2 text-sm font-semibold text-ink-800 transition-colors hover:bg-ink-50"
+            className="mt-4 inline-block rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-700 ring-1 ring-zinc-300 transition hover:bg-zinc-50"
           >
             {t('sim.back')}
           </Link>
@@ -203,8 +203,8 @@ export function KycRunPage() {
 
   if (!run || !runId) {
     return (
-      <main className="grid min-h-full place-items-center bg-ink-50 px-6 py-12">
-        <p className="text-sm text-ink-600">{t('sim.run.loading_run')}</p>
+      <main className="grid min-h-screen place-items-center bg-zinc-100 px-6 py-12 font-tech">
+        <p className="text-sm text-zinc-600">{t('sim.run.loading_run')}</p>
       </main>
     );
   }
@@ -219,6 +219,7 @@ export function KycRunPage() {
         currentStepId={run.currentStepId}
         completedStepIds={completedStepIds}
         score={run.score}
+        runIdShort={shortenRunId(runId)}
         onOpenHint={scored ? undefined : () => setHintOpen(true)}
       >
         {scored ? (
@@ -226,7 +227,7 @@ export function KycRunPage() {
         ) : StepComponent ? (
           <StepComponent run={run} submitting={submitting} onSubmit={(p) => void handleSubmit(p)} />
         ) : (
-          <div className="p-6 text-sm text-ink-500">{t('sim.run.loading_run')}</div>
+          <div className="p-6 text-sm text-zinc-500">{t('sim.run.loading_run')}</div>
         )}
       </ChromeShell>
 
@@ -240,7 +241,7 @@ export function KycRunPage() {
       )}
 
       {/* Toast stack — inline implementation, no external lib. */}
-      <div className="pointer-events-none fixed bottom-6 left-1/2 z-40 flex w-full max-w-md -translate-x-1/2 flex-col gap-2 px-4">
+      <div className="pointer-events-none fixed bottom-6 left-1/2 z-40 flex w-full max-w-md -translate-x-1/2 flex-col gap-2 px-4 font-tech">
         <AnimatePresence>
           {toasts.map((toast) => (
             <motion.div
@@ -250,7 +251,7 @@ export function KycRunPage() {
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.2 }}
               role="alert"
-              className="pointer-events-auto rounded-lg border border-rose-300 bg-rose-600 px-4 py-3 text-sm font-medium text-white shadow-lg"
+              className="pointer-events-auto rounded-md bg-rose-600 px-4 py-3 text-sm font-medium text-white shadow-card-warm-sm"
             >
               {toast.message}
             </motion.div>
@@ -261,6 +262,14 @@ export function KycRunPage() {
       <ClickyVoiceOverlay agent={agent} />
     </>
   );
+}
+
+// Shorten a UUID-shaped run id into a banking-ops style identifier the
+// chrome bar can show without overflow. e.g. "abc12345-..." → "SYN-ABC-1234".
+function shortenRunId(id: string): string {
+  const hex = id.replace(/-/g, '').slice(0, 8).toUpperCase();
+  if (hex.length < 8) return 'SYN-' + hex;
+  return `SYN-${hex.slice(0, 3)}-${hex.slice(3, 7)}`;
 }
 
 interface ResultsViewProps {
@@ -279,12 +288,12 @@ function ResultsView({ run, onRetry }: ResultsViewProps) {
 
   return (
     <div className="p-6">
-      <div className="flex flex-col items-center gap-2 border-b border-ink-200 pb-6 text-center">
-        <p className="text-xs uppercase tracking-wide text-ink-500">
+      <div className="flex flex-col items-center gap-2 border-b border-zinc-100 pb-6 text-center">
+        <p className="font-mono-tech text-[11px] uppercase tracking-wider text-zinc-500">
           {t('sim.run.finished')}
         </p>
-        <p className={'text-6xl font-bold tabular-nums ' + scoreClass}>{score}</p>
-        <p className="text-sm text-ink-600">
+        <p className={'font-mono-tech text-6xl font-bold ' + scoreClass}>{score}</p>
+        <p className="text-sm text-zinc-600">
           {mistakes.length === 0
             ? t('sim.run.no_mistakes')
             : t('sim.run.mistake_count', { count: mistakes.length })}
@@ -296,17 +305,17 @@ function ResultsView({ run, onRetry }: ResultsViewProps) {
           {mistakes.map((mistake, idx) => (
             <li
               key={`${mistake.stepId}-${mistake.code}-${idx}`}
-              className="flex items-start gap-3 rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm"
+              className="flex items-start gap-3 rounded-md bg-rose-50 px-3 py-2 text-sm ring-1 ring-rose-200"
             >
-              <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-rose-600 text-[10px] font-bold text-white tabular-nums">
+              <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-rose-600 font-mono-tech text-[10px] font-bold text-white">
                 {idx + 1}
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-rose-900">{mistake.messageKey || mistake.code}</p>
                 <p className="text-xs text-rose-700">
-                  <span className="font-mono">{mistake.stepId}</span>
+                  <span className="font-mono-tech">{mistake.stepId}</span>
                   <span className="mx-1">·</span>
-                  <span className="tabular-nums">-{mistake.penalty}</span>
+                  <span className="font-mono-tech">-{mistake.penalty}</span>
                 </p>
               </div>
             </li>
@@ -318,13 +327,17 @@ function ResultsView({ run, onRetry }: ResultsViewProps) {
         <button
           type="button"
           onClick={onRetry}
-          className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-300"
+          data-clicky-target="retry, again, restart, run, kyc"
+          data-clicky-hint="Start a fresh KYC run with new synthetic data."
+          className="inline-flex items-center gap-2 rounded-md bg-mentora-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mentora-700 focus:outline-none focus:ring-2 focus:ring-mentora-600/30"
         >
           {t('sim.run.retry')}
         </button>
         <Link
           to="/chat"
-          className="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white px-5 py-2.5 text-sm font-semibold text-ink-800 shadow-sm transition-colors hover:bg-ink-50"
+          data-clicky-target="chat, ai, mentor, ask, talk"
+          data-clicky-hint="Open the AI mentor chat to ask follow-up questions about the run."
+          className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-2 text-sm font-semibold text-zinc-700 ring-1 ring-zinc-300 transition hover:bg-zinc-50"
         >
           {t('sim.run.open_chat')}
         </Link>

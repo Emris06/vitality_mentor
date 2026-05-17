@@ -402,102 +402,6 @@
       "load_leaderboard": "Could not load the leaderboard."
     }
   },
-  "skills": {
-    "title": "Skills analytics",
-    "subtitle": "Visualize every employee's skill profile, surface gaps, and plan growth.",
-    "back": "Back to home",
-    "tabs": {
-      "team": "Team",
-      "matrix": "Matrix",
-      "analytics": "Analytics"
-    },
-    "department": {
-      "label": "Department",
-      "all": "All"
-    },
-    "employee": {
-      "title": "Employee skills",
-      "skill_map": "Skill map",
-      "gaps": "Skill gaps",
-      "recommendations": "Training recommendations",
-      "readiness": "Promotion readiness",
-      "forecast": "Skill forecast",
-      "back": "Back to skills"
-    },
-    "target": {
-      "label": "Target role",
-      "senior_compliance": "Senior compliance",
-      "senior_operations": "Senior operations"
-    },
-    "severity": {
-      "low": "Low",
-      "medium": "Medium",
-      "high": "High"
-    },
-    "readiness": {
-      "ready": "Ready",
-      "not_ready": "Not ready",
-      "confidence": "Confidence",
-      "met": "Met requirements",
-      "missing": "Missing requirements",
-      "empty": "Pick a target role to check readiness."
-    },
-    "recommendations": {
-      "impact": "Impact",
-      "minutes": "{{count}} min",
-      "empty": "No training recommendations yet.",
-      "loading": "Finding the best modules…"
-    },
-    "forecast": {
-      "title": "Skill forecast",
-      "horizon": "Horizon",
-      "skill_label": "Skill",
-      "expected": "Expected",
-      "band": "Range",
-      "empty": "Click a skill gap above to forecast its growth.",
-      "close": "Close"
-    },
-    "matrix": {
-      "empty": "Nothing to display.",
-      "hint": "Swipe to view all skills",
-      "legend": {
-        "high_gap": "Big gap",
-        "medium_gap": "Mid gap",
-        "low_gap": "Small gap",
-        "met": "Met"
-      },
-      "tooltip": {
-        "xp": "XP {{xp}} / {{target}}"
-      }
-    },
-    "analytics": {
-      "skill_distribution": "Median skill XP across the team",
-      "completion_velocity": "Scored runs — last 30 days",
-      "mentor_effectiveness": "Mentor effectiveness (avg newcomer score)"
-    },
-    "team": {
-      "empty": "No employees yet.",
-      "open": "Open"
-    },
-    "errors": {
-      "load_team": "Could not load team data.",
-      "load_employee": "Could not load this employee.",
-      "load_forecast": "Could not load the forecast."
-    },
-    "names": {
-      "kyc": "KYC",
-      "aml": "AML",
-      "accounts": "Accounts",
-      "deposits": "Deposits",
-      "transfers": "Transfers",
-      "customer_service": "Customer service",
-      "risk": "Risk",
-      "compliance": "Compliance",
-      "products": "Products",
-      "fx": "Foreign exchange"
-    },
-    "modules": {}
-  },
   "auth": {
     "app_name": "AI-Mentor",
     "app_tagline": "Onboarding for finance, reimagined.",
@@ -546,5 +450,151 @@
     "error_confirmation_email": "Could not send the confirmation email. In Supabase, check Auth → Email or disable “Confirm email” for local dev.",
     "error_signup_disabled": "Sign-up is disabled in Supabase. Enable it under Auth → Providers → Email.",
     "success_signup": "Account created — taking you in…"
+  },
+  "nav": {
+    "home": "Home",
+    "scenarios": "Scenarios",
+    "quests": "Quests",
+    "chat": "Ask the bank",
+    "messages": "Messages",
+    "resources": "Resources",
+    "profile": "Profile",
+    "coming_soon": "Coming soon"
+  },
+  "clicky": {
+    "hint": {
+      "nav": {
+        "home": "Your dashboard — current scenario, today's tasks, and cohort.",
+        "scenarios": "Browse every simulator scenario assigned to you.",
+        "chat": "Ask the bank's AI mentor anything in Uzbek, Russian, or English.",
+        "profile": "Your XP, badges, and progress profile."
+      },
+      "topbar": {
+        "search": "Search scenarios, SOPs, and people in the bank's knowledge base.",
+        "locale": "Switch the interface language between Uzbek, Russian, and English.",
+        "notifications": "Recent activity from your mentor, HR, and the cohort.",
+        "account": "Your profile, level, and sign-out option."
+      },
+      "stats": {
+        "level": "Your current level. Rises as you complete scenarios and quests.",
+        "streak": "Days in a row you've opened Mentora and made progress.",
+        "badges": "Achievements unlocked through scenario completions.",
+        "onboarding": "Days until your onboarding window closes."
+      },
+      "kyc": {
+        "scenario": "KYC scenario — full customer onboarding flow on synthetic data.",
+        "sanctions": "Sanctions screening — check the client against UN, OFAC, and CBU lists.",
+        "sanctions_cbu": "Local CBU list — local matches usually appear here. Check the row's name and date of birth.",
+        "risk_score": "Pick a risk band based on the documents and sanctions screening you already did.",
+        "decision": "Final KYC decision: approve, send for manual review, or reject."
+      },
+      "scenario_row": "Open this scenario.",
+      "task": "Today's task. Tap the checkbox to mark it done."
+    }
+  },
+  "intern": {
+    "shell": {
+      "greeting": "Welcome back, {{name}} ✦",
+      "page_title": "Your dashboard",
+      "search_placeholder": "Search scenarios, SOPs, people…",
+      "account_label": "Account"
+    },
+    "dashboard": {
+      "continue_cta": "Continue: {{title}}",
+      "starting": "Starting…",
+      "stats": {
+        "level_label": "Level",
+        "level_progress": "{{xp}} / {{next}} XP",
+        "streak_label": "Streak",
+        "streak_days": "{{count}} days",
+        "streak_subline_next": "{{count}} more for \"Consistent\"",
+        "streak_subline_great": "Great consistency!",
+        "streak_subline_none": "Open the simulator to start a streak",
+        "badges_label": "Badges",
+        "badges_earned": "{{count}} earned",
+        "badges_recent": "+ \"{{name}}\" recently",
+        "badges_none": "Earn your first badge",
+        "onboarding_label": "Onboarding",
+        "onboarding_days_left": "{{count}} days left",
+        "onboarding_deadline": "deadline · {{date}}",
+        "onboarding_overdue": "past deadline"
+      },
+      "hero": {
+        "today_quest_label": "Today's quest · Active scenario",
+        "step_of": "{{title}} · Step {{current}} of {{total}}",
+        "all_done": "All steps complete — wait for your mentor",
+        "xp_pill": "+{{xp}} XP on completion",
+        "continue_short": "Continue →",
+        "synthetic_badge": "Synthetic-data twin — generated"
+      },
+      "scenarios": {
+        "section_label": "Your scenarios",
+        "section_title": "Assigned to you",
+        "view_all": "View all →",
+        "col_scenario": "Scenario",
+        "col_module": "Module",
+        "col_progress": "Progress",
+        "col_status": "Status",
+        "steps_progress": "{{done}} / {{total}} steps",
+        "locked_reason": "Locked — finish previous step first",
+        "status": {
+          "in_progress": "In progress",
+          "mastered": "Mastered",
+          "not_started": "Not started",
+          "locked": "Locked"
+        },
+        "module": {
+          "retail_ops": "Retail Ops",
+          "payments": "Payments",
+          "compliance": "Compliance",
+          "orientation": "Orientation"
+        },
+        "item": {
+          "orientation": "Bank floor orientation",
+          "kyc": "Run a full KYC",
+          "open_account": "Open an account",
+          "transfer": "Domestic transfer"
+        }
+      },
+      "tasks": {
+        "section_label": "Today's tasks",
+        "section_title_count": "{{count}} to finish",
+        "due_pill": "{{count}} due",
+        "kyc_step_2": "Finish your KYC scenario",
+        "kyc_step_2_sub": "Sanctions check · 8 min",
+        "aml_intro": "Read the AML SOP intro",
+        "aml_intro_sub": "12 min reading",
+        "reply_mentor": "Reply to your mentor",
+        "reply_mentor_sub": "They asked about your last run"
+      },
+      "activity": {
+        "section_label": "Activity",
+        "section_title": "Mentor & cohort",
+        "view_all": "View all",
+        "mentor_comment_lead": "{{name}} commented on your",
+        "mentor_comment_object": "KYC step 1",
+        "mentor_comment_excerpt": "\"Nice attention to detail on the passport check.\"",
+        "clicky_tip_lead": "Clicky unlocked a tip:",
+        "clicky_tip_name": "\"Reading the CBU list\"",
+        "peer_finished_lead": "{{name}} finished",
+        "peer_finished_object": "Open a deposit",
+        "hr_assigned_lead": "{{name}} assigned",
+        "hr_assigned_object": "AML triage",
+        "hr_assigned_tail": "to your cohort",
+        "minutes_ago": "{{count}} minutes ago",
+        "hour_ago": "1 hour ago",
+        "hours_ago": "{{count}} hours ago"
+      },
+      "cohort": {
+        "section_label": "Your cohort",
+        "section_count": "{{count}} interns",
+        "lv": "Lv {{n}}",
+        "invite": "+ Invite",
+        "view_all": "View all"
+      },
+      "errors": {
+        "game_load_failed": "Could not load your progress — showing defaults"
+      }
+    }
   }
 }

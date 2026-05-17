@@ -146,12 +146,12 @@ export function ScenarioRunPage({
 
   if (loadError) {
     return (
-      <main className="grid min-h-full place-items-center bg-ink-50 px-6 py-12">
-        <div className="w-full max-w-md rounded-2xl border border-rose-200 bg-white p-6 text-center shadow-sm">
+      <main className="grid min-h-screen place-items-center bg-zinc-100 px-6 py-12 font-tech">
+        <div className="w-full max-w-md rounded-md bg-white p-6 text-center ring-1 ring-rose-200">
           <p className="text-sm text-rose-700">{loadError}</p>
           <Link
             to={backRoute}
-            className="mt-4 inline-block rounded-full border border-ink-200 bg-white px-4 py-2 text-sm font-semibold text-ink-800 transition-colors hover:bg-ink-50"
+            className="mt-4 inline-block rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-700 ring-1 ring-zinc-300 transition hover:bg-zinc-50"
           >
             {t('sim.back')}
           </Link>
@@ -162,8 +162,8 @@ export function ScenarioRunPage({
 
   if (!run || !runId) {
     return (
-      <main className="grid min-h-full place-items-center bg-ink-50 px-6 py-12">
-        <p className="text-sm text-ink-600">{t('sim.run.loading_run')}</p>
+      <main className="grid min-h-screen place-items-center bg-zinc-100 px-6 py-12 font-tech">
+        <p className="text-sm text-zinc-600">{t('sim.run.loading_run')}</p>
       </main>
     );
   }
@@ -178,6 +178,7 @@ export function ScenarioRunPage({
         currentStepId={run.currentStepId}
         completedStepIds={completedStepIds}
         score={run.score}
+        runIdShort={shortenRunId(runId)}
         onOpenHint={scored ? undefined : () => setHintOpen(true)}
       >
         {scored ? (
@@ -185,7 +186,7 @@ export function ScenarioRunPage({
         ) : StepComponent ? (
           <StepComponent run={run} submitting={submitting} onSubmit={(p) => void handleSubmit(p)} />
         ) : (
-          <div className="p-6 text-sm text-ink-500">{t('sim.run.loading_run')}</div>
+          <div className="p-6 text-sm text-zinc-500">{t('sim.run.loading_run')}</div>
         )}
       </ChromeShell>
 
@@ -198,7 +199,7 @@ export function ScenarioRunPage({
         />
       )}
 
-      <div className="pointer-events-none fixed bottom-6 left-1/2 z-40 flex w-full max-w-md -translate-x-1/2 flex-col gap-2 px-4">
+      <div className="pointer-events-none fixed bottom-6 left-1/2 z-40 flex w-full max-w-md -translate-x-1/2 flex-col gap-2 px-4 font-tech">
         <AnimatePresence>
           {toasts.map((toast) => (
             <motion.div
@@ -208,7 +209,7 @@ export function ScenarioRunPage({
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.2 }}
               role="alert"
-              className="pointer-events-auto rounded-lg border border-rose-300 bg-rose-600 px-4 py-3 text-sm font-medium text-white shadow-lg"
+              className="pointer-events-auto rounded-md bg-rose-600 px-4 py-3 text-sm font-medium text-white shadow-card-warm-sm"
             >
               {toast.message}
             </motion.div>
@@ -217,6 +218,12 @@ export function ScenarioRunPage({
       </div>
     </>
   );
+}
+
+function shortenRunId(id: string): string {
+  const hex = id.replace(/-/g, '').slice(0, 8).toUpperCase();
+  if (hex.length < 8) return 'SYN-' + hex;
+  return `SYN-${hex.slice(0, 3)}-${hex.slice(3, 7)}`;
 }
 
 interface ResultsViewProps {
@@ -236,28 +243,28 @@ function ResultsView({ run, onRetry, backRoute }: ResultsViewProps) {
 
   return (
     <div className="p-6">
-      <div className="flex flex-col items-center gap-2 border-b border-ink-200 pb-6 text-center">
-        <p className="text-xs uppercase tracking-wide text-ink-500">
+      <div className="flex flex-col items-center gap-2 border-b border-zinc-100 pb-6 text-center">
+        <p className="font-mono-tech text-[11px] uppercase tracking-wider text-zinc-500">
           {t('sim.run.finished')}
         </p>
-        <p className={`font-display text-6xl tabular ${scoreClass}`}>{score}</p>
-        <p className="text-sm text-ink-600">{t('sim.run.score_of_100')}</p>
+        <p className={`font-mono-tech text-6xl font-bold ${scoreClass}`}>{score}</p>
+        <p className="text-sm text-zinc-600">{t('sim.run.score_of_100')}</p>
       </div>
 
       {mistakes.length > 0 && (
         <div className="mt-6">
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-500">
+          <h3 className="mb-3 font-mono-tech text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
             {t('sim.run.mistakes')}
           </h3>
           <ul className="space-y-2">
             {mistakes.map((m, i) => (
               <li
                 key={`${m.stepId}-${i}`}
-                className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900"
+                className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900 ring-1 ring-amber-200"
               >
-                <span className="font-mono text-xs text-amber-700">{m.stepId}</span>
+                <span className="font-mono-tech text-xs text-amber-700">{m.stepId}</span>
                 <span className="ml-2">{m.messageKey || m.code}</span>
-                <span className="ml-2 text-xs text-amber-600">−{m.penalty}</span>
+                <span className="ml-2 font-mono-tech text-xs text-amber-600">−{m.penalty}</span>
               </li>
             ))}
           </ul>
@@ -268,13 +275,15 @@ function ResultsView({ run, onRetry, backRoute }: ResultsViewProps) {
         <button
           type="button"
           onClick={onRetry}
-          className="rounded-full bg-brand-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-brand-700"
+          data-clicky-target="retry, again, restart, run"
+          data-clicky-hint="Start a fresh run with new synthetic data."
+          className="rounded-md bg-mentora-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mentora-700 focus:outline-none focus:ring-2 focus:ring-mentora-600/30"
         >
           {t('sim.run.try_again')}
         </button>
         <Link
           to={backRoute}
-          className="rounded-full border border-ink-200 bg-white px-5 py-2 text-sm font-semibold text-ink-800 hover:bg-ink-50"
+          className="rounded-md bg-white px-5 py-2 text-sm font-semibold text-zinc-700 ring-1 ring-zinc-300 transition hover:bg-zinc-50"
         >
           {t('sim.back')}
         </Link>

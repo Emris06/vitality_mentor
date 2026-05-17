@@ -54,7 +54,7 @@ export function HintPanel({ open, onClose, runId, stepId }: HintPanelProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             onClick={onClose}
-            className="fixed inset-0 z-40 bg-ink-900/30"
+            className="fixed inset-0 z-40 bg-zinc-900/30"
             aria-hidden="true"
           />
           <motion.aside
@@ -63,22 +63,24 @@ export function HintPanel({ open, onClose, runId, stepId }: HintPanelProps) {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
-            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-ink-300 bg-white shadow-2xl"
+            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-white font-tech shadow-card-warm ring-1 ring-zinc-200"
             role="dialog"
             aria-label={t('sim.run.hint')}
           >
-            <header className="flex items-center justify-between border-b border-ink-200 px-5 py-4">
+            <header className="flex items-center justify-between border-b border-zinc-200 px-5 py-4">
               <div className="flex items-center gap-2">
-                <div className="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-xs font-bold text-white">
+                <div className="grid h-8 w-8 place-items-center rounded-md bg-mentora-600 font-mono-tech text-xs font-bold text-white">
                   AI
                 </div>
-                <h2 className="text-base font-semibold text-ink-900">{t('sim.run.hint')}</h2>
+                <h2 className="text-base font-semibold text-zinc-900">{t('sim.run.hint')}</h2>
               </div>
               <button
                 type="button"
                 onClick={onClose}
                 aria-label={t('sim.back')}
-                className="rounded-full p-1.5 text-ink-500 transition-colors hover:bg-ink-100 hover:text-ink-800"
+                data-clicky-target="close, dismiss, hide, hint, back, exit"
+                data-clicky-hint="Close the hint panel and return to the scenario."
+                className="rounded-md p-1.5 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-800"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -100,7 +102,7 @@ export function HintPanel({ open, onClose, runId, stepId }: HintPanelProps) {
             <div className="flex-1 overflow-y-auto px-5 py-5">
               {loading && (
                 <div
-                  className="inline-flex items-center gap-2 rounded-2xl border border-ink-200 bg-white px-4 py-3 text-sm text-ink-600 shadow-sm"
+                  className="inline-flex items-center gap-2 rounded-md bg-white px-4 py-3 text-sm text-zinc-600 ring-1 ring-zinc-200"
                   role="status"
                 >
                   <span className="sr-only">{t('sim.run.hint_loading')}</span>
@@ -108,7 +110,7 @@ export function HintPanel({ open, onClose, runId, stepId }: HintPanelProps) {
                     {[0, 0.15, 0.3].map((delay) => (
                       <motion.span
                         key={delay}
-                        className="block h-1.5 w-1.5 rounded-full bg-brand-600"
+                        className="block h-1.5 w-1.5 rounded-full bg-mentora-600"
                         animate={{ y: [0, -4, 0], opacity: [0.4, 1, 0.4] }}
                         transition={{
                           duration: 0.9,
@@ -126,7 +128,7 @@ export function HintPanel({ open, onClose, runId, stepId }: HintPanelProps) {
               {error && !loading && (
                 <div
                   role="alert"
-                  className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
+                  className="rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700 ring-1 ring-rose-200"
                 >
                   {error}
                 </div>
@@ -134,22 +136,22 @@ export function HintPanel({ open, onClose, runId, stepId }: HintPanelProps) {
 
               {hint && !loading && (
                 <div className="space-y-4">
-                  <p className="text-base font-semibold leading-relaxed text-brand-700">
+                  <p className="text-base font-semibold leading-relaxed text-mentora-700">
                     {hint.hint}
                   </p>
                   {hint.rationale && (
-                    <p className="text-sm leading-relaxed text-ink-700">{hint.rationale}</p>
+                    <p className="text-sm leading-relaxed text-zinc-700">{hint.rationale}</p>
                   )}
                   {hint.citations.length > 0 && (
-                    <div className="border-t border-ink-200 pt-4">
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-500">
+                    <div className="border-t border-zinc-200 pt-4">
+                      <p className="mb-2 font-mono-tech text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
                         {t('sim.run.hint_citations')}
                       </p>
                       <ul className="flex flex-wrap gap-1.5">
                         {hint.citations.map((cite) => (
                           <li
                             key={cite}
-                            className="rounded-full border border-ink-200 bg-ink-50 px-2.5 py-1 text-xs text-ink-700 tabular-nums"
+                            className="rounded-full bg-zinc-50 px-2.5 py-1 font-mono-tech text-xs text-zinc-700 ring-1 ring-zinc-200"
                           >
                             {cite}
                           </li>

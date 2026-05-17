@@ -9,7 +9,6 @@ import { simRoutes } from './routes/sim';
 import { hrRoutes } from './routes/hr';
 import { hrStreamRoutes } from './routes/hr_stream';
 import { gamificationRoutes } from './routes/gamification';
-import { skillsRoutes } from './routes/skills';
 import { lmsRoutes } from './routes/lms';
 import { clickyRoutes } from './routes/clicky';
 import { pingDb } from './plugins/db';
@@ -47,7 +46,6 @@ async function buildServer() {
   await app.register(hrRoutes, { prefix: '/' });
   await app.register(hrStreamRoutes, { prefix: '/' });
   await app.register(gamificationRoutes, { prefix: '/' });
-  await app.register(skillsRoutes, { prefix: '/' });
   await app.register(lmsRoutes, { prefix: '/' });
   await app.register(clickyRoutes, { prefix: '/' });
 

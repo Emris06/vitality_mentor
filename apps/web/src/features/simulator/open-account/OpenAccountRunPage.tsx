@@ -6,6 +6,9 @@ import type { StepProps } from '../kyc/steps/stepTypes';
 // ──────────────────────────────────────────────────────────────────────────
 // Open Account — three steps: choose product → fund account → confirm.
 // Step UIs are inline in this file because they're tiny and tightly coupled.
+// Direction A discipline: Inter body + JetBrains Mono for IDs/amounts,
+// 4–8px corners, status pills emerald-50 / amber-50 / rose-50, primary
+// actions on bg-mentora-600.
 // ──────────────────────────────────────────────────────────────────────────
 
 const STEPS: StepDef[] = [
@@ -20,13 +23,13 @@ function ChooseProductStep({ submitting, onSubmit }: StepProps) {
 
   return (
     <div className="p-6">
-      <h2 className="text-lg font-semibold text-ink-900">Choose product</h2>
-      <p className="mt-2 max-w-2xl text-sm text-ink-600">
+      <h2 className="text-base font-semibold tracking-tight text-zinc-900">Choose product</h2>
+      <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-zinc-600">
         Pick the account type and currency the customer is opening. Both are valid
         choices — the system will only flag clearly wrong combinations later.
       </p>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
         <FieldCard label="Account type">
           <Radio
             name="accountType"
@@ -35,6 +38,7 @@ function ChooseProductStep({ submitting, onSubmit }: StepProps) {
             onChange={() => setAccountType('current')}
             label="Current account"
             hint="Daily use, low minimum"
+            clickyTarget="current, account, daily, type"
           />
           <Radio
             name="accountType"
@@ -43,6 +47,7 @@ function ChooseProductStep({ submitting, onSubmit }: StepProps) {
             onChange={() => setAccountType('savings')}
             label="Savings account"
             hint="Higher minimum, interest-bearing"
+            clickyTarget="savings, account, interest, type"
           />
         </FieldCard>
         <FieldCard label="Currency">
@@ -53,6 +58,7 @@ function ChooseProductStep({ submitting, onSubmit }: StepProps) {
             onChange={() => setCurrency('UZS')}
             label="UZS"
             hint="Local currency"
+            clickyTarget="uzs, soum, local, currency"
           />
           <Radio
             name="currency"
@@ -61,6 +67,7 @@ function ChooseProductStep({ submitting, onSubmit }: StepProps) {
             onChange={() => setCurrency('USD')}
             label="USD"
             hint="Foreign currency"
+            clickyTarget="usd, dollar, foreign, currency"
           />
         </FieldCard>
       </div>
@@ -72,7 +79,7 @@ function ChooseProductStep({ submitting, onSubmit }: StepProps) {
           onClick={() => onSubmit({ accountType, currency })}
           data-clicky-target="next, continue, submit, choose, product, account, currency"
           data-clicky-hint="Confirms your product pick and moves to funding."
-          className="rounded bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-md bg-mentora-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mentora-700 focus:outline-none focus:ring-2 focus:ring-mentora-600/30 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting ? '…' : 'Next'}
         </button>
@@ -92,15 +99,16 @@ function FundAccountStep({ run, submitting, onSubmit }: StepProps) {
 
   return (
     <div className="p-6">
-      <h2 className="text-lg font-semibold text-ink-900">Fund account</h2>
-      <p className="mt-2 max-w-2xl text-sm text-ink-600">
-        Enter the initial deposit in <span className="font-semibold">{currency}</span>. Below
+      <h2 className="text-base font-semibold tracking-tight text-zinc-900">Fund account</h2>
+      <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-zinc-600">
+        Enter the initial deposit in{' '}
+        <span className="font-mono-tech font-semibold text-zinc-900">{currency}</span>. Below
         the minimum or above the regulatory ceiling counts as a mistake — the system will
         tell you which way you went wrong.
       </p>
 
-      <div className="mt-6 max-w-md">
-        <label className="block text-xs uppercase tracking-wide text-ink-500">
+      <div className="mt-5 max-w-md">
+        <label className="block font-mono-tech text-[11px] uppercase tracking-wider text-zinc-500">
           Initial deposit ({currency})
         </label>
         <input
@@ -111,7 +119,7 @@ function FundAccountStep({ run, submitting, onSubmit }: StepProps) {
           placeholder={currency === 'UZS' ? 'e.g. 500000' : 'e.g. 1000'}
           data-clicky-target="amount, deposit, money, fund, input, field"
           data-clicky-hint="Type the initial deposit amount here."
-          className="mt-2 w-full rounded-md border border-ink-300 bg-white px-3 py-2 font-mono text-base text-ink-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-200"
+          className="mt-2 w-full rounded-md bg-white px-3 py-2 font-mono-tech text-base text-zinc-900 ring-1 ring-zinc-300 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-mentora-600/30"
         />
       </div>
 
@@ -122,7 +130,7 @@ function FundAccountStep({ run, submitting, onSubmit }: StepProps) {
           onClick={() => onSubmit({ amountMinor: minor })}
           data-clicky-target="submit, next, continue, confirm, fund"
           data-clicky-hint="Submits the deposit amount for validation."
-          className="rounded bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-md bg-mentora-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mentora-700 focus:outline-none focus:ring-2 focus:ring-mentora-600/30 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting ? '…' : 'Submit deposit'}
         </button>
@@ -138,35 +146,37 @@ function ConfirmStep({ submitting, onSubmit }: StepProps) {
 
   return (
     <div className="p-6">
-      <h2 className="text-lg font-semibold text-ink-900">Confirm</h2>
-      <p className="mt-2 max-w-2xl text-sm text-ink-600">
+      <h2 className="text-base font-semibold tracking-tight text-zinc-900">Confirm</h2>
+      <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-zinc-600">
         Final step: link this opening to a completed KYC and acknowledge the terms.
         Opening an account without ticking the T&C box is a hard mistake — it would
         be a compliance breach in production.
       </p>
 
-      <div className="mt-6 max-w-md space-y-4">
+      <div className="mt-5 max-w-md space-y-4">
         <label className="block">
-          <span className="text-xs uppercase tracking-wide text-ink-500">KYC reference</span>
+          <span className="font-mono-tech text-[11px] uppercase tracking-wider text-zinc-500">
+            KYC reference
+          </span>
           <input
             type="text"
             value={kycRef}
             onChange={(e) => setKycRef(e.target.value)}
             data-clicky-target="kyc, reference, ref"
             data-clicky-hint="Paste the KYC reference for the customer."
-            className="mt-2 w-full rounded-md border border-ink-300 bg-white px-3 py-2 font-mono text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-200"
+            className="mt-2 w-full rounded-md bg-white px-3 py-2 font-mono-tech text-sm ring-1 ring-zinc-300 focus:outline-none focus:ring-2 focus:ring-mentora-600/30"
           />
         </label>
-        <label className="flex items-start gap-3 rounded-md border border-ink-200 bg-ink-50 p-3">
+        <label className="flex items-start gap-3 rounded-md bg-zinc-50 p-3 ring-1 ring-zinc-200">
           <input
             type="checkbox"
             checked={agreed}
             onChange={(e) => setAgreed(e.target.checked)}
             data-clicky-target="agree, terms, checkbox, confirm"
             data-clicky-hint="Tick this to confirm the customer agreed to the T&C."
-            className="mt-0.5 h-4 w-4 rounded border-ink-300 text-brand-600 focus:ring-brand-300"
+            className="mt-0.5 h-4 w-4 rounded text-mentora-600 focus:ring-mentora-600/30"
           />
-          <span className="text-sm text-ink-700">
+          <span className="text-sm text-zinc-700">
             The customer has signed the account opening terms and conditions.
           </span>
         </label>
@@ -179,7 +189,7 @@ function ConfirmStep({ submitting, onSubmit }: StepProps) {
           onClick={() => onSubmit({ agreedToTerms: agreed, kycReference: kycRef })}
           data-clicky-target="open, account, finish, confirm, submit"
           data-clicky-hint="Opens the account and scores your run."
-          className="rounded bg-success-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-success-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-md bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting ? '…' : 'Open account'}
         </button>
@@ -208,8 +218,10 @@ export function OpenAccountRunPage() {
 // ── Shared mini-controls ────────────────────────────────────────────────
 function FieldCard({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-md border border-ink-200 bg-white p-4">
-      <p className="mb-3 text-xs uppercase tracking-wide text-ink-500">{label}</p>
+    <div className="rounded-md bg-white p-4 ring-1 ring-zinc-200">
+      <p className="mb-3 font-mono-tech text-[11px] uppercase tracking-wider text-zinc-500">
+        {label}
+      </p>
       <div className="space-y-2">{children}</div>
     </div>
   );
@@ -222,6 +234,7 @@ function Radio({
   onChange,
   label,
   hint,
+  clickyTarget,
 }: {
   name: string;
   value: string;
@@ -229,11 +242,16 @@ function Radio({
   onChange: () => void;
   label: string;
   hint: string;
+  clickyTarget?: string;
 }) {
   return (
     <label
-      className={`flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors ${
-        checked ? 'border-brand-400 bg-brand-50' : 'border-ink-200 bg-white hover:bg-ink-50'
+      data-clicky-target={clickyTarget}
+      data-clicky-hint={`Pick "${label}" — ${hint.toLowerCase()}.`}
+      className={`flex cursor-pointer items-start gap-3 rounded-md p-3 transition ${
+        checked
+          ? 'bg-mentora-50 ring-1 ring-inset ring-mentora-600/30'
+          : 'bg-white ring-1 ring-zinc-200 hover:bg-zinc-50'
       }`}
     >
       <input
@@ -242,11 +260,11 @@ function Radio({
         value={value}
         checked={checked}
         onChange={onChange}
-        className="mt-0.5 h-4 w-4 border-ink-300 text-brand-600 focus:ring-brand-300"
+        className="mt-0.5 h-4 w-4 text-mentora-600 focus:ring-mentora-600/30"
       />
       <span className="min-w-0 flex-1">
-        <span className="block text-sm font-semibold text-ink-900">{label}</span>
-        <span className="block text-xs text-ink-600">{hint}</span>
+        <span className="block text-sm font-semibold text-zinc-900">{label}</span>
+        <span className="block text-xs text-zinc-600">{hint}</span>
       </span>
     </label>
   );

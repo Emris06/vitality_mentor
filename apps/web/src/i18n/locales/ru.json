@@ -412,102 +412,6 @@
       "load_leaderboard": "Не удалось загрузить лидерборд."
     }
   },
-  "skills": {
-    "title": "Аналитика навыков",
-    "subtitle": "Карта навыков сотрудников, разрывы и план развития.",
-    "back": "На главную",
-    "tabs": {
-      "team": "Команда",
-      "matrix": "Матрица",
-      "analytics": "Аналитика"
-    },
-    "department": {
-      "label": "Отдел",
-      "all": "Все"
-    },
-    "employee": {
-      "title": "Навыки сотрудника",
-      "skill_map": "Карта навыков",
-      "gaps": "Разрывы навыков",
-      "recommendations": "Рекомендации по обучению",
-      "readiness": "Готовность к повышению",
-      "forecast": "Прогноз навыка",
-      "back": "К аналитике"
-    },
-    "target": {
-      "label": "Целевая роль",
-      "senior_compliance": "Старший комплаенс",
-      "senior_operations": "Старший операционист"
-    },
-    "severity": {
-      "low": "Низкий",
-      "medium": "Средний",
-      "high": "Высокий"
-    },
-    "readiness": {
-      "ready": "Готов",
-      "not_ready": "Не готов",
-      "confidence": "Уверенность",
-      "met": "Выполнено",
-      "missing": "Не выполнено",
-      "empty": "Выберите целевую роль для оценки готовности."
-    },
-    "recommendations": {
-      "impact": "Эффект",
-      "minutes": "{{count}} мин",
-      "empty": "Рекомендаций по обучению пока нет.",
-      "loading": "Подбираем лучшие модули…"
-    },
-    "forecast": {
-      "title": "Прогноз навыка",
-      "horizon": "Горизонт",
-      "skill_label": "Навык",
-      "expected": "Ожидаемо",
-      "band": "Диапазон",
-      "empty": "Нажмите на разрыв навыка выше, чтобы построить прогноз.",
-      "close": "Закрыть"
-    },
-    "matrix": {
-      "empty": "Нет данных.",
-      "hint": "Прокрутите, чтобы увидеть все навыки",
-      "legend": {
-        "high_gap": "Большой разрыв",
-        "medium_gap": "Средний разрыв",
-        "low_gap": "Малый разрыв",
-        "met": "Закрыто"
-      },
-      "tooltip": {
-        "xp": "XP {{xp}} / {{target}}"
-      }
-    },
-    "analytics": {
-      "skill_distribution": "Медиана XP по навыкам в команде",
-      "completion_velocity": "Оценено за последние 30 дней",
-      "mentor_effectiveness": "Эффективность наставников (средний балл новичков)"
-    },
-    "team": {
-      "empty": "Сотрудников пока нет.",
-      "open": "Открыть"
-    },
-    "errors": {
-      "load_team": "Не удалось загрузить данные команды.",
-      "load_employee": "Не удалось загрузить сотрудника.",
-      "load_forecast": "Не удалось загрузить прогноз."
-    },
-    "names": {
-      "kyc": "KYC",
-      "aml": "AML",
-      "accounts": "Счета",
-      "deposits": "Депозиты",
-      "transfers": "Переводы",
-      "customer_service": "Клиентский сервис",
-      "risk": "Риск",
-      "compliance": "Комплаенс",
-      "products": "Продукты",
-      "fx": "Валютные операции"
-    },
-    "modules": {}
-  },
   "auth": {
     "app_name": "AI-Mentor",
     "app_tagline": "Онбординг для финансов — заново.",
@@ -556,5 +460,151 @@
     "error_confirmation_email": "Не удалось отправить письмо подтверждения. В Supabase проверьте Auth → Email или отключите «Confirm email» для локальной разработки.",
     "error_signup_disabled": "Регистрация отключена в Supabase. Включите её в Auth → Providers → Email.",
     "success_signup": "Аккаунт создан — переходим…"
+  },
+  "nav": {
+    "home": "Главная",
+    "scenarios": "Сценарии",
+    "quests": "Квесты",
+    "chat": "Спросить",
+    "messages": "Сообщения",
+    "resources": "Материалы",
+    "profile": "Профиль",
+    "coming_soon": "Скоро"
+  },
+  "clicky": {
+    "hint": {
+      "nav": {
+        "home": "Ваша панель — активный сценарий, задачи на сегодня и когорта.",
+        "scenarios": "Все сценарии симулятора, назначенные вам.",
+        "chat": "Спросите AI-ментора банка на узбекском, русском или английском.",
+        "profile": "Ваш XP, бейджи и профиль прогресса."
+      },
+      "topbar": {
+        "search": "Поиск сценариев, СОП и людей в базе знаний банка.",
+        "locale": "Сменить язык интерфейса между узбекским, русским и английским.",
+        "notifications": "Недавняя активность ментора, HR и когорты.",
+        "account": "Ваш профиль, уровень и кнопка выхода."
+      },
+      "stats": {
+        "level": "Ваш текущий уровень. Растёт по мере прохождения сценариев и квестов.",
+        "streak": "Дни подряд, когда вы открывали Mentora и продвигались.",
+        "badges": "Достижения, полученные за пройденные сценарии.",
+        "onboarding": "Сколько дней до закрытия окна онбординга."
+      },
+      "kyc": {
+        "scenario": "Сценарий KYC — полный процесс онбординга клиента на синтетических данных.",
+        "sanctions": "Проверка санкций — сверка клиента со списками UN, OFAC и ЦБУ.",
+        "sanctions_cbu": "Локальный список ЦБУ — место местных совпадений. Сверьте имя и дату рождения в строке.",
+        "risk_score": "Выберите уровень риска на основе уже проверенных документов и санкций.",
+        "decision": "Финальное решение по KYC: одобрить, отправить на ручную проверку или отклонить."
+      },
+      "scenario_row": "Открыть этот сценарий.",
+      "task": "Задача на сегодня. Нажмите на чекбокс, чтобы отметить выполненной."
+    }
+  },
+  "intern": {
+    "shell": {
+      "greeting": "С возвращением, {{name}} ✦",
+      "page_title": "Ваша панель",
+      "search_placeholder": "Поиск сценариев, СОП, людей…",
+      "account_label": "Аккаунт"
+    },
+    "dashboard": {
+      "continue_cta": "Продолжить: {{title}}",
+      "starting": "Запуск…",
+      "stats": {
+        "level_label": "Уровень",
+        "level_progress": "{{xp}} / {{next}} XP",
+        "streak_label": "Серия",
+        "streak_days": "{{count}} дн.",
+        "streak_subline_next": "Ещё {{count}} до «Стабильный»",
+        "streak_subline_great": "Отличная стабильность!",
+        "streak_subline_none": "Откройте симулятор, чтобы начать серию",
+        "badges_label": "Бейджи",
+        "badges_earned": "{{count}} получено",
+        "badges_recent": "+ «{{name}}» недавно",
+        "badges_none": "Получите первый бейдж",
+        "onboarding_label": "Онбординг",
+        "onboarding_days_left": "Осталось {{count}} дн.",
+        "onboarding_deadline": "дедлайн · {{date}}",
+        "onboarding_overdue": "срок истёк"
+      },
+      "hero": {
+        "today_quest_label": "Квест дня · Активный сценарий",
+        "step_of": "{{title}} · Шаг {{current}} из {{total}}",
+        "all_done": "Все шаги пройдены — ждите назначения от ментора",
+        "xp_pill": "+{{xp}} XP за завершение",
+        "continue_short": "Продолжить →",
+        "synthetic_badge": "Синтетический двойник — сгенерировано"
+      },
+      "scenarios": {
+        "section_label": "Ваши сценарии",
+        "section_title": "Назначены вам",
+        "view_all": "Все →",
+        "col_scenario": "Сценарий",
+        "col_module": "Модуль",
+        "col_progress": "Прогресс",
+        "col_status": "Статус",
+        "steps_progress": "{{done}} / {{total}} шагов",
+        "locked_reason": "Заблокирован — завершите предыдущий шаг",
+        "status": {
+          "in_progress": "В работе",
+          "mastered": "Освоено",
+          "not_started": "Не начат",
+          "locked": "Заблокирован"
+        },
+        "module": {
+          "retail_ops": "Розница",
+          "payments": "Платежи",
+          "compliance": "Комплаенс",
+          "orientation": "Ориентация"
+        },
+        "item": {
+          "orientation": "Знакомство с банком",
+          "kyc": "Полный KYC",
+          "open_account": "Открытие счёта",
+          "transfer": "Внутренний перевод"
+        }
+      },
+      "tasks": {
+        "section_label": "Задачи на сегодня",
+        "section_title_count": "Осталось {{count}}",
+        "due_pill": "{{count}} срочных",
+        "kyc_step_2": "Завершите сценарий KYC",
+        "kyc_step_2_sub": "Проверка санкций · 8 мин",
+        "aml_intro": "Прочитайте введение в СОП AML",
+        "aml_intro_sub": "12 мин чтения",
+        "reply_mentor": "Ответьте ментору",
+        "reply_mentor_sub": "Он(а) спросил(а) про последний прогон"
+      },
+      "activity": {
+        "section_label": "Активность",
+        "section_title": "Ментор и когорта",
+        "view_all": "Все",
+        "mentor_comment_lead": "{{name}} оставил(а) комментарий к",
+        "mentor_comment_object": "KYC шагу 1",
+        "mentor_comment_excerpt": "«Хорошо, что внимательно проверил паспорт.»",
+        "clicky_tip_lead": "Clicky открыл подсказку:",
+        "clicky_tip_name": "«Чтение списка ЦБУ»",
+        "peer_finished_lead": "{{name}} завершил(а)",
+        "peer_finished_object": "Открытие депозита",
+        "hr_assigned_lead": "{{name}} назначил(а)",
+        "hr_assigned_object": "AML триаж",
+        "hr_assigned_tail": "вашей когорте",
+        "minutes_ago": "{{count}} мин. назад",
+        "hour_ago": "час назад",
+        "hours_ago": "{{count}} ч. назад"
+      },
+      "cohort": {
+        "section_label": "Ваша когорта",
+        "section_count": "{{count}} стажёров",
+        "lv": "Ур. {{n}}",
+        "invite": "+ Пригласить",
+        "view_all": "Все"
+      },
+      "errors": {
+        "game_load_failed": "Не удалось загрузить ваш прогресс — показываем стандартные значения"
+      }
+    }
   }
 }

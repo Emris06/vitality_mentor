@@ -402,102 +402,6 @@
       "load_leaderboard": "Lider jadvalini yuklab bo‘lmadi."
     }
   },
-  "skills": {
-    "title": "Malaka tahlili",
-    "subtitle": "Xodimlarning malaka xaritasi, kamchiliklar va o‘sish rejasi.",
-    "back": "Bosh sahifaga",
-    "tabs": {
-      "team": "Jamoa",
-      "matrix": "Matritsa",
-      "analytics": "Tahlil"
-    },
-    "department": {
-      "label": "Bo‘lim",
-      "all": "Barchasi"
-    },
-    "employee": {
-      "title": "Xodim malakalari",
-      "skill_map": "Malaka xaritasi",
-      "gaps": "Malaka bo‘shliqlari",
-      "recommendations": "O‘qish tavsiyalari",
-      "readiness": "Lavozim oshishga tayyorlik",
-      "forecast": "Malaka prognozi",
-      "back": "Tahlilga qaytish"
-    },
-    "target": {
-      "label": "Maqsad lavozim",
-      "senior_compliance": "Katta komplayens",
-      "senior_operations": "Katta operatsionist"
-    },
-    "severity": {
-      "low": "Past",
-      "medium": "O‘rta",
-      "high": "Yuqori"
-    },
-    "readiness": {
-      "ready": "Tayyor",
-      "not_ready": "Tayyor emas",
-      "confidence": "Ishonch",
-      "met": "Bajarilgan",
-      "missing": "Bajarilmagan",
-      "empty": "Tayyorlikni baholash uchun maqsad lavozimni tanlang."
-    },
-    "recommendations": {
-      "impact": "Samara",
-      "minutes": "{{count}} daq",
-      "empty": "Hozircha tavsiyalar yo‘q.",
-      "loading": "Eng mos modullar tanlanmoqda…"
-    },
-    "forecast": {
-      "title": "Malaka prognozi",
-      "horizon": "Muddat",
-      "skill_label": "Malaka",
-      "expected": "Kutilgan",
-      "band": "Oraliq",
-      "empty": "Prognozni ko‘rish uchun yuqoridagi bo‘shliqni bosing.",
-      "close": "Yopish"
-    },
-    "matrix": {
-      "empty": "Ma’lumot yo‘q.",
-      "hint": "Barchasini ko‘rish uchun suring",
-      "legend": {
-        "high_gap": "Katta bo‘shliq",
-        "medium_gap": "O‘rta bo‘shliq",
-        "low_gap": "Kichik bo‘shliq",
-        "met": "Bajarilgan"
-      },
-      "tooltip": {
-        "xp": "XP {{xp}} / {{target}}"
-      }
-    },
-    "analytics": {
-      "skill_distribution": "Jamoa bo‘yicha malaka XP medianasi",
-      "completion_velocity": "So‘nggi 30 kun ichida baholangan sessiyalar",
-      "mentor_effectiveness": "Mentor samaradorligi (yangi xodimlar o‘rtacha bali)"
-    },
-    "team": {
-      "empty": "Xodimlar yo‘q.",
-      "open": "Ochish"
-    },
-    "errors": {
-      "load_team": "Jamoa ma’lumotlarini yuklab bo‘lmadi.",
-      "load_employee": "Xodimni yuklab bo‘lmadi.",
-      "load_forecast": "Prognozni yuklab bo‘lmadi."
-    },
-    "names": {
-      "kyc": "KYC",
-      "aml": "AML",
-      "accounts": "Hisoblar",
-      "deposits": "Depozitlar",
-      "transfers": "O‘tkazmalar",
-      "customer_service": "Mijoz xizmati",
-      "risk": "Risk",
-      "compliance": "Komplayens",
-      "products": "Mahsulotlar",
-      "fx": "Valyuta operatsiyalari"
-    },
-    "modules": {}
-  },
   "auth": {
     "app_name": "AI-Mentor",
     "app_tagline": "Moliya uchun onbording — yangicha qaraladi.",
@@ -546,5 +450,151 @@
     "error_confirmation_email": "Tasdiqlash xati yuborilmadi. Supabase’da Auth → Email ni tekshiring yoki mahalliy dev uchun “Confirm email” ni o‘chiring.",
     "error_signup_disabled": "Ro‘yxatdan o‘tish Supabase’da o‘chirilgan. Auth → Providers → Email orqali yoqing.",
     "success_signup": "Hisob yaratildi — kiritilmoqda…"
+  },
+  "nav": {
+    "home": "Bosh",
+    "scenarios": "Stsenariylar",
+    "quests": "Vazifalar",
+    "chat": "So‘rang",
+    "messages": "Xabarlar",
+    "resources": "Materiallar",
+    "profile": "Profil",
+    "coming_soon": "Tez orada"
+  },
+  "clicky": {
+    "hint": {
+      "nav": {
+        "home": "Sizning panelingiz — faol stsenariy, bugungi vazifalar va guruh.",
+        "scenarios": "Sizga biriktirilgan barcha simulyator stsenariylari.",
+        "chat": "Bank AI-mentoridan o‘zbek, rus yoki ingliz tilida so‘rang.",
+        "profile": "XP, bayjlar va jarayon profilingiz."
+      },
+      "topbar": {
+        "search": "Bank bilim bazasidan stsenariy, SOP yoki odamni qidirish.",
+        "locale": "Interfeys tilini o‘zbek, rus va ingliz tillari orasida almashtirish.",
+        "notifications": "Mentor, HR va guruhning so‘nggi faolligi.",
+        "account": "Profilingiz, darajangiz va chiqish tugmasi."
+      },
+      "stats": {
+        "level": "Sizning joriy darajangiz. Stsenariy va vazifalarni tugatish bilan ortadi.",
+        "streak": "Mentora ni ochib ish bajargan kunlar ketma-ketligi.",
+        "badges": "Tugatilgan stsenariylar uchun olingan bayjlar.",
+        "onboarding": "Onbording oynasi yopilishigacha qancha kun."
+      },
+      "kyc": {
+        "scenario": "KYC stsenariysi — sintetik ma’lumotlar bilan to‘liq mijoz onbording jarayoni.",
+        "sanctions": "Sanksiyalarni tekshirish — mijozni UN, OFAC va CBU ro‘yxatlari bilan solishtirish.",
+        "sanctions_cbu": "Mahalliy CBU ro‘yxati — bu yerda mahalliy mosliklar paydo bo‘ladi. Ism va tug‘ilgan kunni tekshiring.",
+        "risk_score": "Tekshirilgan hujjat va sanksiyalar asosida xavf darajasini tanlang.",
+        "decision": "Yakuniy KYC qarori: tasdiqlash, qo‘lda tekshirishga yuborish yoki rad etish."
+      },
+      "scenario_row": "Ushbu stsenariyni ochish.",
+      "task": "Bugungi vazifa. Bajarilganini belgilash uchun katakchani bosing."
+    }
+  },
+  "intern": {
+    "shell": {
+      "greeting": "Qaytib kelganingiz bilan, {{name}} ✦",
+      "page_title": "Sizning panelingiz",
+      "search_placeholder": "Stsenariy, SOP yoki odamni qidiring…",
+      "account_label": "Hisob"
+    },
+    "dashboard": {
+      "continue_cta": "Davom etish: {{title}}",
+      "starting": "Boshlanmoqda…",
+      "stats": {
+        "level_label": "Daraja",
+        "level_progress": "{{xp}} / {{next}} XP",
+        "streak_label": "Davom",
+        "streak_days": "{{count}} kun",
+        "streak_subline_next": "“Barqaror” uchun yana {{count}}",
+        "streak_subline_great": "A’lo izchillik!",
+        "streak_subline_none": "Davom etish uchun simulyatorni oching",
+        "badges_label": "Bayjlar",
+        "badges_earned": "{{count}} olindi",
+        "badges_recent": "+ “{{name}}” yaqinda",
+        "badges_none": "Birinchi bayjingizni oling",
+        "onboarding_label": "Onbording",
+        "onboarding_days_left": "{{count}} kun qoldi",
+        "onboarding_deadline": "muddat · {{date}}",
+        "onboarding_overdue": "muddat o‘tdi"
+      },
+      "hero": {
+        "today_quest_label": "Bugungi vazifa · Faol stsenariy",
+        "step_of": "{{title}} · {{total}} dan {{current}}-bosqich",
+        "all_done": "Barcha bosqichlar tugallandi — mentordan keyingisini kuting",
+        "xp_pill": "Tugaganda +{{xp}} XP",
+        "continue_short": "Davom etish →",
+        "synthetic_badge": "Sintetik nusxa — generatsiya qilingan"
+      },
+      "scenarios": {
+        "section_label": "Sizning stsenariylaringiz",
+        "section_title": "Sizga biriktirilgan",
+        "view_all": "Hammasi →",
+        "col_scenario": "Stsenariy",
+        "col_module": "Modul",
+        "col_progress": "Jarayon",
+        "col_status": "Holat",
+        "steps_progress": "{{done}} / {{total}} bosqich",
+        "locked_reason": "Yopiq — avvalgi bosqichni tugating",
+        "status": {
+          "in_progress": "Jarayonda",
+          "mastered": "O‘zlashtirildi",
+          "not_started": "Boshlanmagan",
+          "locked": "Yopiq"
+        },
+        "module": {
+          "retail_ops": "Riteyl operatsiyalar",
+          "payments": "To‘lovlar",
+          "compliance": "Komplayens",
+          "orientation": "Tanishuv"
+        },
+        "item": {
+          "orientation": "Bank zali bilan tanishuv",
+          "kyc": "To‘liq KYC",
+          "open_account": "Hisob ochish",
+          "transfer": "Ichki o‘tkazma"
+        }
+      },
+      "tasks": {
+        "section_label": "Bugungi vazifalar",
+        "section_title_count": "{{count}} bajarilishi kerak",
+        "due_pill": "{{count}} muddatli",
+        "kyc_step_2": "KYC stsenariyini tugating",
+        "kyc_step_2_sub": "Sanksiyalarni tekshirish · 8 daq",
+        "aml_intro": "AML SOP kirish qismini o‘qing",
+        "aml_intro_sub": "12 daq o‘qish",
+        "reply_mentor": "Mentorga javob bering",
+        "reply_mentor_sub": "Oxirgi mashqingiz haqida so‘radi"
+      },
+      "activity": {
+        "section_label": "Faollik",
+        "section_title": "Mentor va guruh",
+        "view_all": "Hammasi",
+        "mentor_comment_lead": "{{name}} izoh qoldirdi:",
+        "mentor_comment_object": "KYC 1-bosqich",
+        "mentor_comment_excerpt": "“Pasport tekshiruvida diqqat-e’tiboringiz uchun rahmat.”",
+        "clicky_tip_lead": "Clicky yangi maslahat ochdi:",
+        "clicky_tip_name": "“CBU ro‘yxatini o‘qish”",
+        "peer_finished_lead": "{{name}} tugatdi:",
+        "peer_finished_object": "Depozit ochish",
+        "hr_assigned_lead": "{{name}} tayinladi:",
+        "hr_assigned_object": "AML tahlili",
+        "hr_assigned_tail": "guruhingizga",
+        "minutes_ago": "{{count}} daq oldin",
+        "hour_ago": "1 soat oldin",
+        "hours_ago": "{{count}} soat oldin"
+      },
+      "cohort": {
+        "section_label": "Sizning guruhingiz",
+        "section_count": "{{count}} stajyor",
+        "lv": "Dar. {{n}}",
+        "invite": "+ Taklif qilish",
+        "view_all": "Hammasi"
+      },
+      "errors": {
+        "game_load_failed": "Jarayoningizni yuklab bo‘lmadi — standart qiymatlar ko‘rsatilmoqda"
+      }
+    }
   }
 }

@@ -1,7 +1,6 @@
 import type { ErpNavSection } from './ErpShell';
 import {
   IconBook,
-  IconChart,
   IconChat,
   IconGrid,
   IconPeople,
@@ -15,12 +14,12 @@ interface WorkspaceNavOptions {
 }
 
 // Role-pure navigation. Each role sees only the surfaces it owns; shared
-// feature pages (chat, simulator, skills) are exposed per role only where
-// they're genuinely part of that role's job.
+// feature pages (chat, simulator) are exposed per role only where they're
+// genuinely part of that role's job.
 //
 //   Intern  → LEARN: learning path, simulator, AI mentor, my progress
 //   Mentor  → MENTOR: my interns, ask-queue, availability
-//   HR      → RUN: cohort, skills analytics, LMS sync
+//   HR      → RUN: cohort, LMS sync
 //   Admin   → all three, plus role switcher
 
 function internSections(): ErpNavSection[] {
@@ -60,10 +59,7 @@ function hrSections(): ErpNavSection[] {
   return [
     {
       label: 'Run',
-      items: [
-        { to: '/hr', label: 'Cohort', icon: <IconGrid /> },
-        { to: '/skills', label: 'Skills Analytics', icon: <IconChart /> },
-      ],
+      items: [{ to: '/hr', label: 'Cohort', icon: <IconGrid /> }],
     },
   ];
 }

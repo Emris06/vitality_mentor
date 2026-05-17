@@ -61,11 +61,55 @@ const config: Config = {
           800: '#263449',
           900: '#1E293B',
         },
+        // Mentora warm theme (v3) — additive, used by InternShell + warm
+        // primitives. Cool palettes above remain authoritative for ErpShell.
+        mentora: {
+          50: '#f1f4ff',
+          100: '#e0e7ff',
+          200: '#c2cdff',
+          300: '#99a8ff',
+          400: '#6079ff',
+          500: '#3656ff',
+          600: '#2046ff', // brand pivot — matches reference/logo_name.jpg
+          700: '#1a3cd8',
+          800: '#1832ad',
+          900: '#16297b',
+        },
+        coral: {
+          50: '#fff5f1',
+          100: '#ffe5dd',
+          200: '#ffc8b8',
+          300: '#ffa088',
+          400: '#ff8163',
+          500: '#ff7150',
+          600: '#ff6b4a', // accent pivot
+          700: '#e8553a',
+          800: '#b3402a',
+          900: '#7d2b1c',
+        },
+        cream: {
+          50: '#fbfaf7',
+        },
       },
       fontFamily: {
         sans: ['"DM Sans"', 'system-ui', '-apple-system', 'sans-serif'],
         display: ['"Sora"', '"DM Sans"', 'system-ui', 'sans-serif'],
         mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+        // Mentora warm theme (v3) — additive.
+        // `jakarta` (not `display`) so the existing Sora binding stays intact.
+        jakarta: [
+          '"Plus Jakarta Sans"',
+          'system-ui',
+          '-apple-system',
+          'sans-serif',
+        ],
+        tech: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        'mono-tech': [
+          '"JetBrains Mono"',
+          'ui-monospace',
+          'SFMono-Regular',
+          'monospace',
+        ],
       },
       borderRadius: {
         md: '8px',
@@ -78,6 +122,13 @@ const config: Config = {
         'card-hover': '0 8px 24px rgba(15,23,42,0.08)',
         pop: '0 24px 64px rgba(15,23,42,0.18)',
         focus: '0 0 0 3px rgba(59, 130, 246, 0.24)',
+        // Mentora warm theme (v3) — multi-layer compositions from mockup 06.
+        'card-warm':
+          '0 1px 0 rgba(14, 17, 48, 0.04), 0 8px 24px -8px rgba(14, 17, 48, 0.10), 0 24px 48px -24px rgba(14, 17, 48, 0.12)',
+        'card-warm-sm':
+          '0 1px 0 rgba(14, 17, 48, 0.04), 0 4px 16px -6px rgba(14, 17, 48, 0.08)',
+        chip:
+          '0 1px 0 rgba(14, 17, 48, 0.04), 0 2px 8px -2px rgba(14, 17, 48, 0.06)',
       },
       letterSpacing: {
         tightest: '-0.045em',
@@ -85,6 +136,8 @@ const config: Config = {
       animation: {
         'fade-in': 'fade-in 0.4s ease-out',
         'slide-up': 'slide-up 0.35s cubic-bezier(0.2, 0.65, 0.3, 0.95)',
+        // Mentora warm theme (v3).
+        'bounce-soft': 'bounce-soft 2.6s ease-in-out infinite',
       },
       keyframes: {
         'fade-in': {
@@ -94,6 +147,11 @@ const config: Config = {
         'slide-up': {
           '0%': { opacity: '0', transform: 'translateY(8px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        // Mentora warm theme (v3).
+        'bounce-soft': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-3px)' },
         },
       },
     },
