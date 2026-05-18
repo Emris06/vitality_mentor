@@ -2,7 +2,6 @@ import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { type Locale, SUPPORTED_LOCALES } from '@vitality/shared';
-import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { StatusPill } from '../../components/ui/StatusPill';
 import { isSupabaseConfigured } from '../../lib/supabase';
@@ -13,7 +12,9 @@ import { RolePicker } from './RolePicker';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const INPUT_CLASS =
-  'w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-brand-300 focus:bg-white focus:outline-none focus-visible:shadow-focus';
+  'w-full rounded-2xl bg-white px-3.5 py-2.5 text-sm text-[var(--ink-warm)] ring-1 ring-zinc-200 placeholder:text-zinc-400 transition-colors focus:outline-none focus:ring-2 focus:ring-mentora-600/30 disabled:bg-zinc-50 disabled:text-zinc-400';
+const PRIMARY_BUTTON =
+  'inline-flex w-full items-center justify-center gap-2 rounded-full bg-mentora-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-mentora-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mentora-600/30 disabled:cursor-not-allowed disabled:bg-zinc-300';
 
 type FieldKey = 'fullName' | 'email' | 'password' | 'role';
 type FieldErrors = Partial<Record<FieldKey, string>>;
@@ -93,7 +94,7 @@ export function SignUpPage() {
     return (
       <AuthLayout>
         <Header />
-        <div className="mt-8 rounded-2xl border border-slate-200 bg-white shadow-card">
+        <div className="mt-8 rounded-3xl bg-white shadow-card-warm-sm ring-1 ring-zinc-100">
           <EmptyState
             title={t('auth.signup_title')}
             description={t('auth.error_supabase_not_configured')}
@@ -168,7 +169,7 @@ export function SignUpPage() {
           <div
             role="group"
             aria-label={t('auth.field_language')}
-            className="inline-flex items-center gap-0.5 rounded-lg border border-slate-200 bg-white p-0.5"
+            className="inline-flex items-center gap-0.5 rounded-full bg-white p-1 ring-1 ring-zinc-200"
           >
             {SUPPORTED_LOCALES.map((code) => {
               const isActive = language === code;
@@ -180,10 +181,10 @@ export function SignUpPage() {
                   onClick={() => setLanguage(code)}
                   disabled={submitting}
                   className={[
-                    'rounded-md px-3 py-1.5 text-xs font-medium uppercase tracking-wide transition-colors',
+                    'rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition-colors',
                     isActive
-                      ? 'bg-brand-600 text-white shadow-sm'
-                      : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700',
+                      ? 'bg-[var(--ink-warm)] text-white shadow-sm'
+                      : 'text-zinc-500 hover:bg-zinc-50 hover:text-[var(--ink-warm)]',
                   ].join(' ')}
                 >
                   {code}
@@ -205,21 +206,24 @@ export function SignUpPage() {
           </StatusPill>
         )}
 
-        <Button
-          type="submit"
-          variant="primary"
-          size="lg"
-          loading={submitting}
-          className="w-full"
-        >
-          {submitting ? t('auth.signup_submitting') : t('auth.signup_submit')}
-        </Button>
+        <button type="submit" disabled={submitting} className={PRIMARY_BUTTON}>
+          {submitting && (
+            <span
+              aria-hidden
+              className="inline-flex h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-r-transparent"
+            />
+          )}
+          <span>{submitting ? t('auth.signup_submitting') : t('auth.signup_submit')}</span>
+        </button>
 
-        <p className="text-xs text-slate-500">{t('auth.signup_terms')}</p>
+        <p className="text-xs text-[var(--muted-warm)]">{t('auth.signup_terms')}</p>
 
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-[var(--ink-warm-2)]">
           {t('auth.signup_have_account')}{' '}
-          <Link to="/signin" className="font-medium text-brand-600 hover:text-brand-700">
+          <Link
+            to="/signin"
+            className="font-semibold text-mentora-700 transition hover:text-mentora-800"
+          >
             {t('auth.signup_signin_link')}
           </Link>
         </p>
@@ -232,10 +236,10 @@ function Header() {
   const { t } = useTranslation();
   return (
     <div>
-      <h1 className="font-display text-3xl font-semibold tracking-tight text-slate-900">
+      <h1 className="text-3xl font-extrabold tracking-tight text-[var(--ink-warm)]">
         {t('auth.signup_title')}
       </h1>
-      <p className="mt-2 text-sm text-slate-500">{t('auth.signup_subtitle')}</p>
+      <p className="mt-2 text-sm text-[var(--ink-warm-2)]">{t('auth.signup_subtitle')}</p>
     </div>
   );
 }
@@ -251,12 +255,15 @@ interface FieldsetProps {
 function Fieldset({ label, htmlFor, hint, error, children }: FieldsetProps) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className="block text-sm font-medium text-slate-700">
+      <label
+        htmlFor={htmlFor}
+        className="block text-sm font-semibold text-[var(--ink-warm)]"
+      >
         {label}
       </label>
       {children}
-      {hint && !error && <p className="text-xs text-slate-500">{hint}</p>}
-      {error && <p className="text-xs font-medium text-danger-600">{error}</p>}
+      {hint && !error && <p className="text-xs text-[var(--muted-warm)]">{hint}</p>}
+      {error && <p className="text-xs font-semibold text-rose-600">{error}</p>}
     </div>
   );
 }

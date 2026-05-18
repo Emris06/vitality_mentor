@@ -118,6 +118,14 @@
       "error_permission": "Mikrofonga ruxsat berilmagan. Ovozdan foydalanish uchun brauzer sozlamalarida ruxsat bering.",
       "error_generic": "Ovozli kiritish ishlamadi — iltimos, savolni klaviatura orqali yozing.",
       "truncated": "Javob uzun — men birinchi qismini o‘qidim. To‘liq javobni ekranda ko‘ring."
+    },
+    "helper": {
+      "voice_title": "Ovoz rejimi",
+      "voice_body": "Javoblarni ovozda eshiting va savollarni mikrofon orqali ayting. O‘chirsangiz, sahifa jim qoladi.",
+      "tips_title": "Maslahatlar",
+      "tip_citations": "Javoblar SOP va ichki hujjatlarga ishora qiladi — manbani ko‘rish uchun chipni bosing.",
+      "tip_languages": "O‘zbek, rus yoki ingliz tilida so‘rang — model sizning tilingizda javob beradi.",
+      "tip_synthetic": "Mentora orqali o‘tadigan barcha narsa faqat sintetik ma’lumotlarda ishlaydi — haqiqiy mijozlar yo‘q."
     }
   },
   "sim": {

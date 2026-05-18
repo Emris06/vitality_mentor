@@ -23,11 +23,19 @@ export function CallbackPage() {
   }, [ready, profile, session, navigate]);
 
   return (
-    <main className="grid min-h-screen place-items-center bg-slate-50">
-      <div className="flex flex-col items-center gap-3 text-sm text-slate-500">
+    <main
+      className="grid min-h-screen place-items-center font-jakarta text-[var(--ink-warm-2)]"
+      style={{
+        background:
+          'radial-gradient(900px 500px at 88% -200px, rgba(32, 70, 255, 0.10), transparent 60%), ' +
+          'radial-gradient(700px 400px at -10% 280px, rgba(255, 107, 74, 0.08), transparent 60%), ' +
+          '#fbfaf7',
+      }}
+    >
+      <div className="flex flex-col items-center gap-3 text-sm">
         <span
           aria-hidden
-          className="inline-flex h-6 w-6 animate-spin rounded-full border-2 border-brand-400 border-r-transparent"
+          className="inline-flex h-6 w-6 animate-spin rounded-full border-2 border-mentora-500 border-r-transparent"
         />
         <span>{t('auth.signin_submitting')}</span>
       </div>

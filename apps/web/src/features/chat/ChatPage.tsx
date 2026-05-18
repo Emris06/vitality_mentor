@@ -10,8 +10,9 @@ import { VoiceModeToggle } from './voice/VoiceModeToggle';
 import { useAutoSpeakAssistant } from './voice/useAutoSpeakAssistant';
 import { isTtsSupported } from './voice/speechCapabilities';
 import { useAuth } from '../auth/AuthProvider';
-import { ErpShell } from '../workspace/ErpShell';
-import { buildWorkspaceSections } from '../workspace/navigation';
+import { InternShell } from '../workspace/InternShell';
+import { buildMentoraNav } from '../workspace/mentoraNav';
+import { WarmCard } from '../../components/warm/WarmCard';
 
 const SESSION_KEY = 'vitality.chatSessionId';
 const VOICE_MODE_KEY = 'vitality.voice.autoSpeak';
@@ -40,6 +41,17 @@ function readOrCreateSessionId(): string {
     return `sess-${Date.now()}`;
   }
 }
+
+// ──────────────────────────────────────────────────────────────────────────
+// `/chat` page — warm theme (Phase F).
+//
+// Behavior preserved bit-identical from the prior ErpShell version:
+//   - useChatStream(sessionId, locale) — every SSE event type intact
+//   - localStorage keys `vitality.chatSessionId` + `vitality.voice.autoSpeak`
+//   - useAutoSpeakAssistant TTS cancellation on send + on unmount
+//   - useSpeechRecognition wiring through ChatInput
+// Only the visual shell + bubble + input styling change.
+// ──────────────────────────────────────────────────────────────────────────
 
 export function ChatPage() {
   const { t, i18n } = useTranslation();
@@ -112,7 +124,7 @@ export function ChatPage() {
     setVoiceMode(false);
   }, []);
 
-  const handleSample = useCallback(
+  const handleSampleClick = useCallback(
     (q: string) => {
       setDraft('');
       autoSpeak.cancelAll();
@@ -122,36 +134,27 @@ export function ChatPage() {
   );
 
   const empty = messages.length === 0;
-  const sections = useMemo(
-    () => buildWorkspaceSections(profile?.role ?? null),
-    [profile?.role],
-  );
   const roleLabel =
     profile?.role === 'hr'
       ? t('auth.role_hr_name')
       : profile?.role === 'intern'
         ? t('auth.role_intern_name')
         : t('auth.role_employee_name');
+  const userName = profile?.fullName ?? 'Team Member';
+  const firstName = userName.split(/\s+/)[0] ?? userName;
 
   return (
-    <ErpShell
-      title={t('chat.title')}
-      subtitle={t('app.name')}
-      userName={profile?.fullName ?? 'Team Member'}
+    <InternShell
+      userName={userName}
       userRole={roleLabel}
-      sections={sections}
-      searchPlaceholder="Search messages, procedures, and prompts"
-      topActions={
-        <VoiceModeToggle
-          enabled={voiceMode}
-          supported={ttsSupported}
-          onToggle={() => setVoiceMode((v) => !v)}
-        />
-      }
+      greeting={t('intern.shell.greeting', { name: firstName })}
+      pageTitle={t('chat.title')}
+      navItems={buildMentoraNav(profile?.role ?? null)}
+      rightPanel={<ChatHelperRail t={t} voiceMode={voiceMode} ttsSupported={ttsSupported} onToggleVoice={() => setVoiceMode((v) => !v)} />}
     >
-      <div className="flex min-h-[720px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <WarmCard className="flex min-h-[720px] flex-col overflow-hidden p-0">
         {empty ? (
-          <EmptyState onPick={handleSample} />
+          <EmptyState onPick={handleSampleClick} />
         ) : (
           <MessageList messages={messages} streaming={streaming} />
         )}
@@ -163,7 +166,7 @@ export function ChatPage() {
             className="mx-auto w-full max-w-3xl px-4 md:px-6"
             role="alert"
           >
-            <div className="mb-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+            <div className="mb-2 rounded-2xl bg-rose-50 px-3 py-2 text-xs text-rose-700 ring-1 ring-rose-200">
               {error === 'rate_limited' ? t('chat.error_rate_limited') : t('chat.error_generic')}
             </div>
           </motion.div>
@@ -179,7 +182,60 @@ export function ChatPage() {
           onSendVoiceText={handleVoiceSend}
           onSttPermissionDenied={handleSttPermissionDenied}
         />
-      </div>
-    </ErpShell>
+      </WarmCard>
+    </InternShell>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// Right rail
+// ──────────────────────────────────────────────────────────────────────────
+
+interface HelperProps {
+  t: (key: string) => string;
+  voiceMode: boolean;
+  ttsSupported: boolean;
+  onToggleVoice: () => void;
+}
+
+function ChatHelperRail({ t, voiceMode, ttsSupported, onToggleVoice }: HelperProps) {
+  return (
+    <div className="space-y-5">
+      <WarmCard className="p-5">
+        <h3 className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted-warm)]">
+          {t('chat.helper.voice_title')}
+        </h3>
+        <p className="mt-2 text-xs leading-relaxed text-[var(--ink-warm-2)]">
+          {t('chat.helper.voice_body')}
+        </p>
+        <div className="mt-3">
+          <VoiceModeToggle
+            enabled={voiceMode}
+            supported={ttsSupported}
+            onToggle={onToggleVoice}
+          />
+        </div>
+      </WarmCard>
+
+      <WarmCard className="p-5">
+        <h3 className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted-warm)]">
+          {t('chat.helper.tips_title')}
+        </h3>
+        <ul className="mt-3 space-y-2 text-xs leading-relaxed text-[var(--ink-warm-2)]">
+          <li className="flex gap-2">
+            <span className="mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-mentora-600" />
+            {t('chat.helper.tip_citations')}
+          </li>
+          <li className="flex gap-2">
+            <span className="mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-coral-600" />
+            {t('chat.helper.tip_languages')}
+          </li>
+          <li className="flex gap-2">
+            <span className="mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+            {t('chat.helper.tip_synthetic')}
+          </li>
+        </ul>
+      </WarmCard>
+    </div>
   );
 }

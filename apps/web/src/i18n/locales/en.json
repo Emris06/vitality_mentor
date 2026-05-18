@@ -118,6 +118,14 @@
       "error_permission": "Microphone permission denied. Enable it in the browser to use voice.",
       "error_generic": "Voice failed — please type instead.",
       "truncated": "Answer is long — I read the first part. See the full response on screen."
+    },
+    "helper": {
+      "voice_title": "Voice mode",
+      "voice_body": "Read answers aloud and dictate questions with the mic. Toggle off to keep the page silent.",
+      "tips_title": "Tips",
+      "tip_citations": "Answers cite SOPs and internal docs — open a chip to read the source.",
+      "tip_languages": "Ask in Uzbek, Russian, or English — the model replies in your language.",
+      "tip_synthetic": "Everything routed through Mentora stays on synthetic data — no real client info."
     }
   },
   "sim": {

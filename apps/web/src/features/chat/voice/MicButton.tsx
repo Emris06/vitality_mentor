@@ -19,10 +19,10 @@ export function MicButton({ listening, supported, disabled, onToggle }: Props) {
 
   // Styles per state.
   const stateClass = !supported
-    ? 'bg-ink-200 text-ink-400 cursor-not-allowed'
+    ? 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
     : listening
-      ? 'bg-brand-600 text-white shadow'
-      : 'bg-brand-50 text-brand-600 hover:bg-brand-100';
+      ? 'bg-mentora-600 text-white shadow'
+      : 'bg-mentora-50 text-mentora-600 hover:bg-mentora-100';
 
   return (
     <button
@@ -32,12 +32,14 @@ export function MicButton({ listening, supported, disabled, onToggle }: Props) {
       title={!supported ? t('chat.voice.unsupported') : label}
       disabled={isDisabled}
       onClick={onToggle}
-      className={`relative grid h-10 w-10 shrink-0 place-items-center rounded-full transition-colors outline-none focus:ring-2 focus:ring-brand-100 ${stateClass}`}
+      data-clicky-target="mic, voice, speak, push to talk, microphone"
+      data-clicky-hint={!supported ? t('chat.voice.unsupported') : label}
+      className={`relative grid h-10 w-10 shrink-0 place-items-center rounded-full transition-colors outline-none focus:ring-2 focus:ring-mentora-600/30 ${stateClass}`}
     >
       {listening && !reduceMotion && (
         <motion.span
           aria-hidden="true"
-          className="absolute inset-0 rounded-full bg-brand-600"
+          className="absolute inset-0 rounded-full bg-mentora-600"
           initial={{ opacity: 0.35, scale: 1 }}
           animate={{ opacity: 0, scale: 1.6 }}
           transition={{ duration: 1.2, repeat: Infinity, ease: 'easeOut' }}

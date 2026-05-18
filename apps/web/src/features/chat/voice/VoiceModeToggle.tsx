@@ -19,12 +19,14 @@ export function VoiceModeToggle({ enabled, supported, onToggle }: Props) {
       disabled={!supported}
       aria-pressed={enabled}
       title={tooltip}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors outline-none focus:ring-2 focus:ring-brand-100 ${
+      data-clicky-target="voice, mode, read, tts, speak, autoSpeak"
+      data-clicky-hint={tooltip}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors outline-none focus:ring-2 focus:ring-mentora-600/30 ring-1 ${
         !supported
-          ? 'cursor-not-allowed border-ink-200 bg-ink-50 text-ink-400'
+          ? 'cursor-not-allowed bg-zinc-50 text-zinc-400 ring-zinc-200'
           : enabled
-            ? 'border-brand-600 bg-brand-600 text-white hover:bg-brand-700'
-            : 'border-ink-200 bg-white text-ink-700 hover:bg-ink-50'
+            ? 'bg-mentora-600 text-white ring-mentora-600 hover:bg-mentora-700'
+            : 'bg-white text-[var(--ink-warm-2)] ring-zinc-200 hover:bg-mentora-50 hover:text-mentora-700'
       }`}
     >
       <svg

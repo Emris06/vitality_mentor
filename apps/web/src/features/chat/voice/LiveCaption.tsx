@@ -34,16 +34,16 @@ export function LiveCaption({ listening, transcript }: Props) {
           aria-live="polite"
           aria-atomic="true"
         >
-          <div className="mb-1 flex items-center gap-2 rounded-xl border border-brand-100 bg-brand-50/70 px-3 py-1.5 text-xs text-brand-700">
+          <div className="mb-1 flex items-center gap-2 rounded-2xl bg-mentora-50/80 px-3 py-1.5 text-xs text-mentora-700 ring-1 ring-mentora-100">
             <span className="relative inline-flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-500 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-600" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-mentora-500 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-mentora-600" />
             </span>
-            <span className="font-medium">
+            <span className="font-semibold">
               {t('chat.voice.listening_prefix')}
             </span>
             {transcript && (
-              <span className="truncate italic text-brand-900">
+              <span className="truncate italic text-mentora-900">
                 {transcript}
               </span>
             )}

@@ -152,7 +152,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput(
 
   return (
     <form
-      className="border-t border-ink-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"
+      className="border-t border-zinc-100 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"
       onSubmit={(e) => {
         e.preventDefault();
         submit();
@@ -165,7 +165,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput(
           role="status"
           aria-live="polite"
         >
-          <div className="mb-1 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs text-amber-800">
+          <div className="mb-1 rounded-2xl bg-amber-50 px-3 py-1.5 text-xs text-amber-800 ring-1 ring-amber-200">
             {voiceError}
           </div>
         </div>
@@ -183,7 +183,9 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput(
           placeholder={t('chat.placeholder')}
           rows={1}
           disabled={streaming}
-          className="flex-1 resize-none rounded-2xl border border-ink-200 bg-white px-4 py-3 text-sm text-ink-900 shadow-sm outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 disabled:bg-ink-50 disabled:text-ink-500"
+          data-clicky-target="chat, input, message, ask, type, question"
+          data-clicky-hint="Type your question here. Press Enter to send, Shift+Enter for a new line."
+          className="flex-1 resize-none rounded-2xl bg-white px-4 py-3 text-sm text-[var(--ink-warm)] shadow-card-warm-sm ring-1 ring-zinc-200 outline-none transition-colors placeholder:text-zinc-400 focus:ring-2 focus:ring-mentora-600/30 disabled:bg-zinc-50 disabled:text-zinc-500"
           aria-describedby="chat-input-hint"
         />
         <MicButton
@@ -196,7 +198,9 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput(
           <button
             type="button"
             onClick={onStop}
-            className="rounded-full border border-ink-300 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 shadow-sm transition-colors hover:bg-ink-50"
+            data-clicky-target="stop, halt, cancel, streaming"
+            data-clicky-hint="Stop the assistant mid-response."
+            className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[var(--ink-warm-2)] shadow-sm ring-1 ring-zinc-300 transition-colors hover:bg-zinc-50"
           >
             {t('chat.stop')}
           </button>
@@ -204,7 +208,9 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput(
           <button
             type="submit"
             disabled={value.trim().length === 0}
-            className="rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-ink-300"
+            data-clicky-target="send, submit, ask, message"
+            data-clicky-hint="Send your message to the AI mentor."
+            className="rounded-full bg-mentora-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-mentora-700 disabled:cursor-not-allowed disabled:bg-zinc-300"
           >
             {t('chat.send')}
           </button>
@@ -212,7 +218,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput(
       </div>
       <p
         id="chat-input-hint"
-        className="mx-auto -mt-1 hidden w-full max-w-3xl px-6 pb-2 text-[11px] text-ink-500 md:block"
+        className="mx-auto -mt-1 hidden w-full max-w-3xl px-6 pb-2 text-[11px] text-[var(--muted-warm)] md:block"
       >
         {t('chat.input_hint')}
       </p>

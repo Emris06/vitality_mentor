@@ -1,7 +1,6 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { StatusPill } from '../../components/ui/StatusPill';
 import { getSupabase, isSupabaseConfigured } from '../../lib/supabase';
@@ -11,7 +10,11 @@ import { homeRouteFor, roleFromUser } from './types';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const INPUT_CLASS =
-  'w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-brand-300 focus:bg-white focus:outline-none focus-visible:shadow-focus';
+  'w-full rounded-2xl bg-white px-3.5 py-2.5 text-sm text-[var(--ink-warm)] ring-1 ring-zinc-200 placeholder:text-zinc-400 transition-colors focus:outline-none focus:ring-2 focus:ring-mentora-600/30 disabled:bg-zinc-50 disabled:text-zinc-400';
+const PRIMARY_BUTTON =
+  'inline-flex w-full items-center justify-center gap-2 rounded-full bg-mentora-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-mentora-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mentora-600/30 disabled:cursor-not-allowed disabled:bg-zinc-300';
+const SECONDARY_BUTTON =
+  'inline-flex items-center justify-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[var(--ink-warm-2)] shadow-sm ring-1 ring-zinc-200 transition-colors hover:bg-zinc-50';
 
 type Mode = 'password' | 'magic';
 type FieldKey = 'email' | 'password';
@@ -84,7 +87,7 @@ export function SignInPage() {
     return (
       <AuthLayout>
         <Header />
-        <div className="mt-8 rounded-2xl border border-slate-200 bg-white shadow-card">
+        <div className="mt-8 rounded-3xl bg-white shadow-card-warm-sm ring-1 ring-zinc-100">
           <EmptyState
             title={t('auth.signin_title')}
             description={t('auth.error_supabase_not_configured')}
@@ -99,20 +102,21 @@ export function SignInPage() {
       <Header />
 
       {magicSent ? (
-        <div className="mt-8 rounded-2xl border border-slate-200 bg-white shadow-card">
+        <div className="mt-8 rounded-3xl bg-white shadow-card-warm-sm ring-1 ring-zinc-100">
           <EmptyState
             title={t('auth.signin_title')}
             description={t('auth.signin_magic_link_sent', { email: magicSent })}
             action={
-              <Button
-                variant="secondary"
+              <button
+                type="button"
                 onClick={() => {
                   setMagicSent(null);
                   setMode('password');
                 }}
+                className={SECONDARY_BUTTON}
               >
                 {t('auth.signin_password_toggle')}
-              </Button>
+              </button>
             }
           />
         </div>
@@ -150,7 +154,7 @@ export function SignInPage() {
                 disabled={submitting}
               />
               <div className="pt-1">
-                <span className="cursor-not-allowed text-xs text-slate-400">
+                <span className="cursor-not-allowed text-xs text-zinc-400">
                   {t('auth.signin_forgot')}
                 </span>
               </div>
@@ -163,23 +167,25 @@ export function SignInPage() {
             </StatusPill>
           )}
 
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            loading={submitting}
-            className="w-full"
-          >
-            {mode === 'password'
-              ? submitting
-                ? t('auth.signin_submitting')
-                : t('auth.signin_submit')
-              : submitting
-                ? t('auth.signin_submitting')
-                : t('auth.signin_magic_link_submit')}
-          </Button>
+          <button type="submit" disabled={submitting} className={PRIMARY_BUTTON}>
+            {submitting && (
+              <span
+                aria-hidden
+                className="inline-flex h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-r-transparent"
+              />
+            )}
+            <span>
+              {mode === 'password'
+                ? submitting
+                  ? t('auth.signin_submitting')
+                  : t('auth.signin_submit')
+                : submitting
+                  ? t('auth.signin_submitting')
+                  : t('auth.signin_magic_link_submit')}
+            </span>
+          </button>
 
-          <div className="flex flex-col items-start gap-2 text-sm text-slate-600">
+          <div className="flex flex-col items-start gap-2 text-sm text-[var(--ink-warm-2)]">
             <button
               type="button"
               onClick={() => {
@@ -187,7 +193,7 @@ export function SignInPage() {
                 setErrors({});
                 setFormError(null);
               }}
-              className="font-medium text-brand-600 hover:text-brand-700"
+              className="font-semibold text-mentora-700 transition hover:text-mentora-800"
             >
               {mode === 'password'
                 ? t('auth.signin_magic_link_toggle')
@@ -197,7 +203,7 @@ export function SignInPage() {
               {t('auth.signin_no_account')}{' '}
               <Link
                 to="/signup"
-                className="font-medium text-brand-600 hover:text-brand-700"
+                className="font-semibold text-mentora-700 transition hover:text-mentora-800"
               >
                 {t('auth.signin_signup_link')}
               </Link>
@@ -213,10 +219,10 @@ function Header() {
   const { t } = useTranslation();
   return (
     <div>
-      <h1 className="font-display text-3xl font-semibold tracking-tight text-slate-900">
+      <h1 className="text-3xl font-extrabold tracking-tight text-[var(--ink-warm)]">
         {t('auth.signin_title')}
       </h1>
-      <p className="mt-2 text-sm text-slate-500">{t('auth.signin_subtitle')}</p>
+      <p className="mt-2 text-sm text-[var(--ink-warm-2)]">{t('auth.signin_subtitle')}</p>
     </div>
   );
 }
@@ -231,11 +237,14 @@ interface FieldsetProps {
 function Fieldset({ label, htmlFor, error, children }: FieldsetProps) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className="block text-sm font-medium text-slate-700">
+      <label
+        htmlFor={htmlFor}
+        className="block text-sm font-semibold text-[var(--ink-warm)]"
+      >
         {label}
       </label>
       {children}
-      {error && <p className="text-xs font-medium text-danger-600">{error}</p>}
+      {error && <p className="text-xs font-semibold text-rose-600">{error}</p>}
     </div>
   );
 }

@@ -22,7 +22,7 @@ interface RoleSpec {
 const ROLE_SPECS: RoleSpec[] = [
   {
     role: 'hr',
-    iconTint: { backgroundColor: 'rgba(45, 107, 254, 0.10)', color: '#1F4FB8' },
+    iconTint: { backgroundColor: 'rgba(32, 70, 255, 0.10)', color: '#2046FF' },
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path
@@ -52,7 +52,7 @@ const ROLE_SPECS: RoleSpec[] = [
   },
   {
     role: 'employee',
-    iconTint: { backgroundColor: 'rgba(124, 58, 237, 0.12)', color: '#5B21B6' },
+    iconTint: { backgroundColor: 'rgba(180, 83, 9, 0.12)', color: '#92400e' },
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <rect
@@ -80,7 +80,7 @@ const ROLE_SPECS: RoleSpec[] = [
   },
   {
     role: 'intern',
-    iconTint: { backgroundColor: 'rgba(20, 184, 166, 0.14)', color: '#0F766E' },
+    iconTint: { backgroundColor: 'rgba(255, 107, 74, 0.14)', color: '#c2410c' },
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path
@@ -130,25 +130,25 @@ export function RolePicker({ value, onChange, disabled, className }: RolePickerP
             disabled={disabled}
             onClick={() => onChange(role)}
             className={[
-              'group relative flex flex-col items-start gap-2 rounded-xl border p-4 text-left transition-all',
-              'focus-visible:shadow-focus focus-visible:outline-none',
+              'group relative flex flex-col items-start gap-2 rounded-2xl p-4 text-left transition-all',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mentora-600/30',
               isActive
-                ? 'border-brand-300 bg-brand-50/50 ring-2 ring-brand-500 ring-offset-1 ring-offset-white'
-                : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60',
+                ? 'bg-mentora-50 ring-2 ring-mentora-600 shadow-card-warm-sm'
+                : 'bg-white ring-1 ring-zinc-200 hover:ring-mentora-300 hover:bg-mentora-50/40',
               disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
             ].join(' ')}
           >
             <span
               aria-hidden
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-2xl transition-colors"
               style={iconTint}
             >
               {icon}
             </span>
-            <span className="font-display text-sm font-semibold text-slate-900">
+            <span className="text-sm font-bold text-[var(--ink-warm)]">
               {t(`auth.role_${role}_name`)}
             </span>
-            <span className="text-xs leading-snug text-slate-500">
+            <span className="text-xs leading-snug text-[var(--muted-warm)]">
               {t(`auth.role_${role}_desc`)}
             </span>
           </button>

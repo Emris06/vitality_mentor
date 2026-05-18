@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { LocalePicker } from '../../components/LocalePicker';
 import { BankIllustration } from '../../components/ui/IllustrationGreeting';
+import { MentoraMark } from '../../components/warm/MentoraMark';
 
 const HeroScene3D = lazy(() => import('../landing/HeroScene3D'));
 
@@ -11,24 +12,34 @@ interface AuthLayoutProps {
   children: ReactNode;
 }
 
-/**
- * Two-column shell used by SignUp and SignIn. The right panel is a quiet
- * brand-gradient billboard with a lazy-loaded 3D credential scene so the auth
- * pages feel like part of the product, not a stark login modal. Collapses to a
- * single column under `md`. The 3D scene self-fallbacks to BankIllustration
- * when reduced-motion is set or on narrow viewports.
- */
+// ──────────────────────────────────────────────────────────────────────────
+// AuthLayout — warm theme (Phase G).
+//
+// Two-column shell shared by SignIn and SignUp. Left = form, right = lazy 3D
+// hero with a soft mentora/coral wash on a cream canvas. Collapses to single
+// column under `md`. 3D scene self-fallbacks to BankIllustration via its own
+// reduced-motion + viewport checks.
+// ──────────────────────────────────────────────────────────────────────────
+
 export function AuthLayout({ children }: AuthLayoutProps) {
   const { t } = useTranslation();
 
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main
+      className="min-h-screen font-jakarta text-[var(--ink-warm)]"
+      style={{
+        background:
+          'radial-gradient(900px 500px at 88% -200px, rgba(32, 70, 255, 0.10), transparent 60%), ' +
+          'radial-gradient(700px 400px at -10% 280px, rgba(255, 107, 74, 0.08), transparent 60%), ' +
+          '#fbfaf7',
+      }}
+    >
       <div className="grid min-h-screen md:grid-cols-[1.05fr_1fr]">
         <section className="flex flex-col px-6 py-8 md:px-12 md:py-10">
           <header className="flex items-center justify-between">
             <Link
               to="/"
-              className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-[var(--ink-warm-2)] shadow-chip transition-colors hover:text-[var(--ink-warm)]"
             >
               <span aria-hidden>←</span>
               <span>{t('auth.back_home')}</span>
@@ -46,18 +57,23 @@ export function AuthLayout({ children }: AuthLayoutProps) {
           </motion.div>
         </section>
 
-        <aside className="relative hidden overflow-hidden border-l border-slate-200 bg-gradient-to-br from-brand-50 via-white to-brand-50/40 md:flex md:flex-col md:items-center md:justify-center md:px-10">
-          <div className="absolute inset-0 -z-0 opacity-70">
-            <div className="absolute -left-24 top-12 h-72 w-72 rounded-full bg-brand-100 blur-3xl" />
-            <div className="absolute -right-16 bottom-10 h-64 w-64 rounded-full bg-brand-200/60 blur-3xl" />
-          </div>
+        <aside className="relative hidden overflow-hidden border-l border-zinc-100 md:flex md:flex-col md:items-center md:justify-center md:px-10">
+          <div
+            className="absolute inset-0"
+            aria-hidden
+            style={{
+              background:
+                'radial-gradient(600px 400px at 70% 20%, rgba(32, 70, 255, 0.16), transparent 60%), ' +
+                'radial-gradient(500px 350px at 20% 80%, rgba(255, 107, 74, 0.12), transparent 60%)',
+            }}
+          />
           <div className="relative z-10 flex w-full flex-col items-center text-center">
             <div className="flex items-center gap-2.5">
-              <span className="grid h-10 w-10 place-items-center rounded-lg bg-brand-600 font-display text-base font-semibold text-white shadow-card">
-                A
+              <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[var(--ink-warm)] shadow-card-warm-sm">
+                <MentoraMark className="h-6 w-6 text-white" />
               </span>
-              <span className="font-display text-xl font-semibold tracking-tight text-slate-900">
-                {t('auth.app_name')}
+              <span className="text-xl font-extrabold tracking-tight text-[var(--ink-warm)]">
+                mentora
               </span>
             </div>
             <div className="mt-6 w-full max-w-[420px]">
@@ -71,7 +87,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                 <HeroScene3D />
               </Suspense>
             </div>
-            <p className="mt-6 max-w-xs font-display text-lg leading-snug text-slate-700">
+            <p className="mt-6 max-w-xs text-lg font-semibold leading-snug text-[var(--ink-warm-2)]">
               {t('auth.app_tagline')}
             </p>
           </div>
