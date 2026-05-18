@@ -9,23 +9,27 @@ import {
   useTransform,
 } from 'framer-motion';
 import { LocalePicker } from '../../components/LocalePicker';
-import { Button } from '../../components/ui/Button';
-import { Card } from '../../components/ui/Card';
 import { BankIllustration } from '../../components/ui/IllustrationGreeting';
+import { MentoraMark } from '../../components/warm/MentoraMark';
+import { WarmCard } from '../../components/warm/WarmCard';
 import { useAuth } from '../auth/AuthProvider';
 import { homeRouteFor } from '../auth/types';
 
 const HeroScene3D = lazy(() => import('./HeroScene3D'));
 
-/**
- * Public marketing landing for AI-Mentor.
- *
- * Sections (top→bottom): sticky top bar, hero (copy left + 3D scene right),
- * three-role tilt-card strip, six-tile feature grid, dark constraints strip,
- * footer. Mirrors the SaaS-CRM aesthetic of the four reference dashboards in
- * `reference/` — white cards on slate-50, generous whitespace, subtle shadows,
- * Sora + DM Sans typography, no glassmorphism.
- */
+// ──────────────────────────────────────────────────────────────────────────
+// Public landing — warm theme (Phase H).
+//
+// Bespoke chrome (NOT the authenticated InternShell) but in the same warm
+// brand vocabulary: cream canvas with mentora/coral radial wash, navy CTAs,
+// `WarmCard` tiles. The dark constraints strip is kept as an intentional
+// contrast moment, recolored from cool slate-900 to warm `--ink-warm`.
+//
+// Behavioral preserved bit-identical: tilt-card 3D pointer transforms,
+// section anchor nav, CTA routing, prefers-reduced-motion + viewport
+// fallbacks in HeroScene3D, Suspense around the 3D scene.
+// ──────────────────────────────────────────────────────────────────────────
+
 export function Landing() {
   const { t } = useTranslation();
   const { session, profile } = useAuth();
@@ -33,7 +37,15 @@ export function Landing() {
   const homeRoute = homeRouteFor(profile?.role ?? null);
 
   return (
-    <main className="min-h-full bg-[var(--bg)]">
+    <main
+      className="min-h-full font-jakarta text-[var(--ink-warm)]"
+      style={{
+        background:
+          'radial-gradient(900px 500px at 88% -200px, rgba(32, 70, 255, 0.10), transparent 60%), ' +
+          'radial-gradient(700px 400px at -10% 280px, rgba(255, 107, 74, 0.08), transparent 60%), ' +
+          '#fbfaf7',
+      }}
+    >
       <TopBar signedIn={signedIn} homeRoute={homeRoute} />
 
       <section className="mx-auto max-w-7xl px-6 py-14 md:px-10 md:py-20">
@@ -43,25 +55,28 @@ export function Landing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: 'easeOut' }}
           >
-            <p className="font-mono text-xs uppercase tracking-[0.22em] text-sky-600">
+            <p className="font-mono-tech text-xs font-bold uppercase tracking-[0.22em] text-mentora-700">
               {t('landing.hero_eyebrow')}
             </p>
-            <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink-900 md:text-5xl lg:text-6xl">
+            <h1 className="mt-4 text-4xl font-extrabold leading-[1.05] tracking-tight text-[var(--ink-warm)] md:text-5xl lg:text-6xl">
               {t('landing.hero_title')}
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-ink-600 md:text-lg">
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-[var(--ink-warm-2)] md:text-lg">
               {t('landing.hero_subtitle')}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/signup" className="cursor-pointer">
-                <Button variant="primary" size="lg" rightIcon={<ArrowRightIcon />}>
-                  {t('landing.hero_cta_primary')}
-                </Button>
+              <Link
+                to="/signup"
+                className="inline-flex items-center gap-2 rounded-full bg-[var(--ink-warm)] px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:brightness-110"
+              >
+                {t('landing.hero_cta_primary')}
+                <ArrowRightIcon />
               </Link>
-              <Link to="/signin" className="cursor-pointer">
-                <Button variant="secondary" size="lg">
-                  {t('landing.hero_cta_secondary')}
-                </Button>
+              <Link
+                to="/signin"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[var(--ink-warm-2)] shadow-sm ring-1 ring-zinc-200 transition-colors hover:bg-zinc-50"
+              >
+                {t('landing.hero_cta_secondary')}
               </Link>
             </div>
           </motion.div>
@@ -98,41 +113,53 @@ export function Landing() {
 function TopBar({ signedIn, homeRoute }: { signedIn: boolean; homeRoute: string }) {
   const { t } = useTranslation();
   return (
-    <header className="sticky top-0 z-30 border-b border-ink-200 bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-zinc-100 bg-cream-50/80 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-10">
         <Link to="/" className="flex cursor-pointer items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-500 font-display text-base font-semibold text-white">
-            A
+          <span className="grid h-9 w-9 place-items-center rounded-2xl bg-[var(--ink-warm)] shadow-card-warm-sm">
+            <MentoraMark className="h-5 w-5 text-white" />
           </span>
-          <span className="font-display text-lg font-semibold tracking-tight text-ink-900">
-            {t('landing.brand')}
+          <span className="text-lg font-extrabold tracking-tight text-[var(--ink-warm)]">
+            mentora
           </span>
         </Link>
-        <nav className="hidden items-center gap-6 text-sm font-medium text-ink-600 md:flex">
-          <a href="#features" className="hover:text-brand-700">Features</a>
-          <a href="#roles" className="hover:text-brand-700">How It Works</a>
-          <a href="#constraints" className="hover:text-brand-700">Pricing</a>
-          <a href="#contact" className="hover:text-brand-700">Contact</a>
+        <nav className="hidden items-center gap-6 text-sm font-semibold text-[var(--ink-warm-2)] md:flex">
+          <a href="#features" className="transition hover:text-mentora-700">
+            Features
+          </a>
+          <a href="#roles" className="transition hover:text-mentora-700">
+            How It Works
+          </a>
+          <a href="#constraints" className="transition hover:text-mentora-700">
+            Pricing
+          </a>
+          <a href="#contact" className="transition hover:text-mentora-700">
+            Contact
+          </a>
         </nav>
         <div className="flex items-center gap-3">
           <LocalePicker />
           {signedIn ? (
-            <Link to={homeRoute} className="cursor-pointer">
-              <Button variant="secondary" size="sm" rightIcon={<ArrowRightIcon />}>
-                {t('landing.nav_continue')}
-              </Button>
+            <Link
+              to={homeRoute}
+              className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-[var(--ink-warm-2)] shadow-sm ring-1 ring-zinc-200 transition-colors hover:bg-zinc-50"
+            >
+              {t('landing.nav_continue')}
+              <ArrowRightIcon />
             </Link>
           ) : (
             <>
-              <Link to="/signin" className="hidden cursor-pointer sm:inline-flex">
-                <Button variant="ghost" size="sm">
-                  {t('landing.nav_signin')}
-                </Button>
+              <Link
+                to="/signin"
+                className="hidden cursor-pointer text-sm font-semibold text-[var(--ink-warm-2)] transition hover:text-mentora-700 sm:inline-flex"
+              >
+                {t('landing.nav_signin')}
               </Link>
-              <Link to="/signup" className="cursor-pointer">
-                <Button variant="primary" size="sm">
-                  {t('landing.nav_signup')}
-                </Button>
+              <Link
+                to="/signup"
+                className="inline-flex items-center rounded-full bg-mentora-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-mentora-700"
+              >
+                {t('landing.nav_signup')}
               </Link>
             </>
           )}
@@ -160,21 +187,21 @@ const ROLES: RoleDef[] = [
     nameKey: 'landing.role_hr_name',
     blurbKey: 'landing.role_hr_blurb',
     icon: <PeopleIcon />,
-    iconStyle: { backgroundColor: '#EFF4FF', color: '#2D6BFE' },
+    iconStyle: { backgroundColor: 'rgba(32, 70, 255, 0.10)', color: '#2046FF' },
   },
   {
     slug: 'employee',
     nameKey: 'landing.role_employee_name',
     blurbKey: 'landing.role_employee_blurb',
     icon: <SparkIcon />,
-    iconStyle: { backgroundColor: 'rgba(124, 58, 237, 0.10)', color: '#7C3AED' },
+    iconStyle: { backgroundColor: 'rgba(180, 83, 9, 0.12)', color: '#92400e' },
   },
   {
     slug: 'intern',
     nameKey: 'landing.role_intern_name',
     blurbKey: 'landing.role_intern_blurb',
     icon: <CompassIcon />,
-    iconStyle: { backgroundColor: 'rgba(20, 184, 166, 0.10)', color: '#14B8A6' },
+    iconStyle: { backgroundColor: 'rgba(255, 107, 74, 0.14)', color: '#c2410c' },
   },
 ];
 
@@ -204,27 +231,27 @@ function RolesStrip() {
             <TiltCard>
               <Link
                 to={`/signup?role=${role.slug}`}
-                className="block h-full cursor-pointer rounded-2xl focus-visible:outline-none focus-visible:shadow-focus"
+                className="group block h-full cursor-pointer rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mentora-600/30"
               >
-                <Card variant="hoverable" padding="lg" className="flex h-full flex-col">
+                <WarmCard className="flex h-full flex-col p-6 transition-transform group-hover:-translate-y-0.5">
                   <span
-                    className="grid h-10 w-10 place-items-center rounded-lg"
+                    className="grid h-10 w-10 place-items-center rounded-2xl"
                     style={role.iconStyle}
                   >
                     {role.icon}
                   </span>
-                  <h3 className="mt-4 font-display text-xl font-semibold tracking-tight text-slate-900">
+                  <h3 className="mt-4 text-xl font-extrabold tracking-tight text-[var(--ink-warm)]">
                     {t(role.nameKey)}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-500">
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--ink-warm-2)]">
                     {t(role.blurbKey)}
                   </p>
                   <div className="mt-6 flex-1" />
-                  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-600 transition-colors group-hover:text-brand-700">
+                  <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-mentora-700 transition-colors group-hover:text-mentora-800">
                     {t('landing.role_card_cta', { role: t(role.nameKey) })}
                     <ArrowRightIcon />
                   </span>
-                </Card>
+                </WarmCard>
               </Link>
             </TiltCard>
           </motion.div>
@@ -290,42 +317,42 @@ const FEATURES: FeatureDef[] = [
     nameKey: 'landing.feature_kb_name',
     descKey: 'landing.feature_kb_desc',
     icon: <BookIcon />,
-    iconStyle: { backgroundColor: '#EFF4FF', color: '#2D6BFE' },
+    iconStyle: { backgroundColor: 'rgba(32, 70, 255, 0.10)', color: '#2046FF' },
   },
   {
     key: 'simulator',
     nameKey: 'landing.feature_simulator_name',
     descKey: 'landing.feature_simulator_desc',
     icon: <MonitorIcon />,
-    iconStyle: { backgroundColor: 'rgba(124, 58, 237, 0.10)', color: '#7C3AED' },
+    iconStyle: { backgroundColor: 'rgba(255, 107, 74, 0.12)', color: '#c2410c' },
   },
   {
     key: 'skills',
     nameKey: 'landing.feature_skills_name',
     descKey: 'landing.feature_skills_desc',
     icon: <BarsIcon />,
-    iconStyle: { backgroundColor: 'rgba(249, 115, 22, 0.10)', color: '#F97316' },
+    iconStyle: { backgroundColor: 'rgba(245, 158, 11, 0.14)', color: '#b45309' },
   },
   {
     key: 'matching',
     nameKey: 'landing.feature_matching_name',
     descKey: 'landing.feature_matching_desc',
     icon: <LinkIcon />,
-    iconStyle: { backgroundColor: 'rgba(236, 72, 153, 0.10)', color: '#EC4899' },
+    iconStyle: { backgroundColor: 'rgba(236, 72, 153, 0.10)', color: '#be185d' },
   },
   {
     key: 'gamification',
     nameKey: 'landing.feature_gamification_name',
     descKey: 'landing.feature_gamification_desc',
     icon: <StarIcon />,
-    iconStyle: { backgroundColor: 'rgba(16, 185, 129, 0.10)', color: '#059669' },
+    iconStyle: { backgroundColor: 'rgba(16, 185, 129, 0.12)', color: '#047857' },
   },
   {
     key: 'lms',
     nameKey: 'landing.feature_lms_name',
     descKey: 'landing.feature_lms_desc',
     icon: <UploadCloudIcon />,
-    iconStyle: { backgroundColor: 'rgba(20, 184, 166, 0.10)', color: '#14B8A6' },
+    iconStyle: { backgroundColor: 'rgba(99, 102, 241, 0.12)', color: '#4338ca' },
   },
 ];
 
@@ -343,18 +370,20 @@ function FeatureGrid() {
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.4, ease: 'easeOut', delay: (idx % 3) * 0.05 }}
           >
-            <Card variant="hoverable" padding="lg" className="h-full">
+            <WarmCard className="h-full p-6">
               <span
-                className="grid h-9 w-9 place-items-center rounded-lg"
+                className="grid h-9 w-9 place-items-center rounded-2xl"
                 style={feature.iconStyle}
               >
                 {feature.icon}
               </span>
-              <h3 className="mt-4 font-display text-base font-semibold tracking-tight text-slate-900">
+              <h3 className="mt-4 text-base font-extrabold tracking-tight text-[var(--ink-warm)]">
                 {t(feature.nameKey)}
               </h3>
-              <p className="mt-1 text-sm leading-relaxed text-slate-500">{t(feature.descKey)}</p>
-            </Card>
+              <p className="mt-1 text-sm leading-relaxed text-[var(--ink-warm-2)]">
+                {t(feature.descKey)}
+              </p>
+            </WarmCard>
           </motion.div>
         ))}
       </div>
@@ -363,7 +392,7 @@ function FeatureGrid() {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Constraints strip                                                          */
+/* Constraints strip — intentional dark moment, warm-toned                    */
 /* -------------------------------------------------------------------------- */
 
 function ConstraintsStrip() {
@@ -380,17 +409,18 @@ function ConstraintsStrip() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-80px' }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="rounded-2xl bg-slate-900 px-6 py-8 text-slate-50 shadow-pop md:px-10 md:py-10"
+        className="rounded-3xl px-6 py-8 text-white shadow-card-warm md:px-10 md:py-10"
+        style={{ backgroundColor: 'var(--ink-warm)' }}
       >
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:gap-10">
-          <span className="font-mono text-xs uppercase tracking-[0.18em] text-brand-300">
+          <span className="font-mono-tech text-xs font-bold uppercase tracking-[0.18em] text-mentora-300">
             {t('landing.constraints_title')}
           </span>
           <div className="flex flex-1 flex-col gap-4 md:flex-row md:flex-wrap md:gap-x-10 md:gap-y-4">
             {constraints.map((line) => (
               <div key={line} className="flex items-start gap-3">
-                <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-brand-300" />
-                <p className="text-sm leading-relaxed text-slate-200">{line}</p>
+                <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-coral-400" />
+                <p className="text-sm leading-relaxed text-zinc-200">{line}</p>
               </div>
             ))}
           </div>
@@ -407,24 +437,30 @@ function ConstraintsStrip() {
 function Footer() {
   const { t } = useTranslation();
   return (
-    <footer id="contact" className="border-t border-ink-200 bg-white">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-6 text-sm text-slate-500 md:flex-row md:items-center md:justify-between md:px-10">
+    <footer id="contact" className="border-t border-zinc-100 bg-white/60 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-6 text-sm text-[var(--ink-warm-2)] md:flex-row md:items-center md:justify-between md:px-10">
         <div className="flex items-center gap-2.5">
-          <span className="grid h-7 w-7 place-items-center rounded-md bg-brand-600 font-display text-xs font-semibold text-white">
-            A
+          <span className="grid h-7 w-7 place-items-center rounded-xl bg-[var(--ink-warm)]">
+            <MentoraMark className="h-4 w-4 text-white" />
           </span>
-          <span className="font-display text-sm font-semibold tracking-tight text-slate-900">
-            {t('landing.brand')}
+          <span className="text-sm font-extrabold tracking-tight text-[var(--ink-warm)]">
+            mentora
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-4">
-          <Link to="/signin" className="cursor-pointer transition-colors hover:text-slate-900">
+          <Link
+            to="/signin"
+            className="cursor-pointer font-semibold transition-colors hover:text-mentora-700"
+          >
             {t('landing.footer_signin')}
           </Link>
-          <Link to="/signup" className="cursor-pointer transition-colors hover:text-slate-900">
+          <Link
+            to="/signup"
+            className="cursor-pointer font-semibold transition-colors hover:text-mentora-700"
+          >
             {t('landing.footer_signup')}
           </Link>
-          <span className="text-slate-500">© 2026</span>
+          <span className="font-mono-tech text-[var(--muted-warm)]">© 2026</span>
         </div>
       </div>
     </footer>
@@ -438,10 +474,10 @@ function Footer() {
 function SectionHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="max-w-2xl">
-      <h2 className="font-display text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl">
+      <h2 className="text-3xl font-extrabold tracking-tight text-[var(--ink-warm)] md:text-4xl">
         {title}
       </h2>
-      <p className="mt-2 text-base text-slate-500">{subtitle}</p>
+      <p className="mt-2 text-base text-[var(--ink-warm-2)]">{subtitle}</p>
     </div>
   );
 }

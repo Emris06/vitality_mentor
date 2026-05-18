@@ -35,8 +35,10 @@ export function HealthBadge() {
   }, []);
 
   return (
-    <div className="inline-flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-600 shadow-card">
-      <span className="uppercase tracking-wider text-slate-400">{t('landing.health_title')}</span>
+    <div className="inline-flex items-center gap-3 rounded-2xl bg-white px-3 py-2 font-mono-tech text-xs text-[var(--ink-warm-2)] shadow-card-warm-sm ring-1 ring-zinc-100">
+      <span className="font-bold uppercase tracking-wider text-[var(--muted-warm)]">
+        {t('landing.health_title')}
+      </span>
       {state.kind === 'loading' && <span>{t('landing.health_loading')}</span>}
       {state.kind === 'error' && (
         <StatusPill tone="danger" dot>
@@ -48,7 +50,7 @@ export function HealthBadge() {
           <StatusPill tone={STATUS_TONE[state.data.status]} dot>
             {t(`health.${state.data.status}`)}
           </StatusPill>
-          <span className="hidden tabular text-slate-400 md:inline">
+          <span className="hidden tabular-nums text-zinc-400 md:inline">
             {state.data.checks.map((c) => c.name).join(' · ')}
           </span>
         </>
