@@ -318,6 +318,52 @@
       "back": "Panelga qaytish"
     }
   },
+  "employee": {
+    "title": "Mentor stoli",
+    "subtitle": "Sizga biriktirilgan amaliyotchilar",
+    "stats": {
+      "active": "Faol",
+      "stalled": "To‘xtagan",
+      "near_done": "Yakuniga yaqin",
+      "total_mentees": "Jami amaliyotchilar",
+      "avg_progress": "O‘rtacha progress",
+      "stalled_low": "To‘xtagan <25%",
+      "near_done_high": "Yakuniga yaqin ≥80%"
+    },
+    "availability": {
+      "accepting": "Yangilarni qabul qilyapman",
+      "paused": "To‘xtatildi — qabul qilinmaydi"
+    },
+    "mentees": {
+      "title": "Mening amaliyotchilarim",
+      "subtitle": "HR biriktirgan ro‘yxat. Tafsilotni ochish uchun ismini bosing.",
+      "open_chat": "Chatni ochish",
+      "empty": "Hozircha sizga hech kim biriktirilmagan. HR mos nomzodlarni shu yerga yo‘naltiradi.",
+      "knowledge_cta": "Bilimlar bazasini ochish ›"
+    },
+    "error": {
+      "load": "Amaliyotchilar ro‘yxatini yuklashda xato."
+    },
+    "week": {
+      "title": "Shu hafta",
+      "active_mentees": "Faol amaliyotchilar",
+      "avg_progress": "O‘rtacha progress",
+      "need_attention": "E’tibor talab"
+    },
+    "shortcuts": {
+      "title": "Mentor yorliqlari",
+      "chat": "Bilimlar bazasi",
+      "chat_hint": "Savolga tez javob bering",
+      "scenarios": "Stsenariy katalogi",
+      "scenarios_hint": "Amaliyotchilar nima qilayotganini ko‘ring",
+      "profile": "Mening profilim",
+      "profile_hint": "Tillar, ko‘nikmalar, yuk"
+    },
+    "role": {
+      "title": "Sizning rolingiz",
+      "body": "Amaliyotchilaringizdan kelgan eskalatsiyalarga javob bering. Oddiy savollarni AI hal qiladi — sizga faqat qiyinlari yetib keladi."
+    }
+  },
   "game": {
     "profile_title": "Mening profilim",
     "subtitle": "Sizning ko‘nikmalaringiz, nishonlar, faollik seriyasi va onboarding jarayoni.",

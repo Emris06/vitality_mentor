@@ -318,6 +318,52 @@
       "back": "Back to dashboard"
     }
   },
+  "employee": {
+    "title": "Mentor desk",
+    "subtitle": "Your assigned interns",
+    "stats": {
+      "active": "Active",
+      "stalled": "Stalled",
+      "near_done": "Near done",
+      "total_mentees": "Total mentees",
+      "avg_progress": "Avg progress",
+      "stalled_low": "Stalled <25%",
+      "near_done_high": "Near done ≥80%"
+    },
+    "availability": {
+      "accepting": "Accepting new mentees",
+      "paused": "Paused — not accepting"
+    },
+    "mentees": {
+      "title": "My interns",
+      "subtitle": "Pulled from HR assignments. Click a name to open the newcomer detail.",
+      "open_chat": "Open chat",
+      "empty": "No interns assigned to you yet. HR will route candidates here when matched.",
+      "knowledge_cta": "Open knowledge lookup ›"
+    },
+    "error": {
+      "load": "Could not load mentees."
+    },
+    "week": {
+      "title": "This week",
+      "active_mentees": "Active mentees",
+      "avg_progress": "Avg progress",
+      "need_attention": "Need attention"
+    },
+    "shortcuts": {
+      "title": "Mentor shortcuts",
+      "chat": "Knowledge lookup",
+      "chat_hint": "Answer a question fast",
+      "scenarios": "Scenario catalog",
+      "scenarios_hint": "Review what interns face",
+      "profile": "My profile",
+      "profile_hint": "Languages, skills, load"
+    },
+    "role": {
+      "title": "Your role here",
+      "body": "Answer escalations from your assigned interns. The AI handles routine questions — only the hard ones reach you."
+    }
+  },
   "game": {
     "profile_title": "My profile",
     "subtitle": "Your skills, badges, streak, and onboarding progress.",

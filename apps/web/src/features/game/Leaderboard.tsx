@@ -49,12 +49,13 @@ export function Leaderboard({ currentUserId }: LeaderboardProps) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
-      className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-sm font-semibold text-ink-900">{t('game.leaderboard.title')}</h3>
+        <h3 className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted-warm)]">
+          {t('game.leaderboard.title')}
+        </h3>
         <div className="flex flex-wrap items-center gap-1">
-          <span className="mr-1 text-[11px] uppercase tracking-wide text-ink-500">
+          <span className="mr-1 font-mono-tech text-[11px] uppercase tracking-wider text-[var(--muted-warm)]">
             {t('game.leaderboard.skill_filter')}
           </span>
           <SkillPill active={skill === 'all'} onClick={() => setSkill('all')}>
@@ -69,18 +70,22 @@ export function Leaderboard({ currentUserId }: LeaderboardProps) {
       </div>
 
       {error && (
-        <p className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+        <p className="mt-4 rounded-2xl bg-rose-50 px-3 py-2 text-xs text-rose-700 ring-1 ring-rose-200">
           {t('game.errors.load_leaderboard')}
         </p>
       )}
 
-      <div className="mt-4 overflow-hidden rounded-xl border border-ink-200">
+      <div className="mt-4 overflow-hidden rounded-2xl ring-1 ring-zinc-100">
         <table className="min-w-full text-sm">
-          <thead className="bg-ink-50 text-left text-[11px] uppercase tracking-wide text-ink-500">
+          <thead className="bg-cream-50 text-left font-mono-tech text-[11px] uppercase tracking-wider text-[var(--muted-warm)]">
             <tr>
-              <th className="w-12 px-3 py-2 text-center">{t('game.leaderboard.headers.rank')}</th>
-              <th className="px-3 py-2">{t('game.leaderboard.headers.name')}</th>
-              <th className="px-3 py-2 text-right">{t('game.leaderboard.headers.xp')}</th>
+              <th className="w-12 px-3 py-2 text-center font-semibold">
+                {t('game.leaderboard.headers.rank')}
+              </th>
+              <th className="px-3 py-2 font-semibold">{t('game.leaderboard.headers.name')}</th>
+              <th className="px-3 py-2 text-right font-semibold">
+                {t('game.leaderboard.headers.xp')}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -90,20 +95,28 @@ export function Leaderboard({ currentUserId }: LeaderboardProps) {
                 <tr
                   key={row.userId}
                   className={
-                    'border-t border-ink-100 ' +
-                    (isSelf ? 'bg-brand-50/60' : idx % 2 === 1 ? 'bg-ink-50/40' : '')
+                    'border-t border-zinc-100 ' +
+                    (isSelf ? 'bg-mentora-50/60' : idx % 2 === 1 ? 'bg-cream-50' : '')
                   }
                 >
-                  <td className="px-3 py-2 text-center tabular-nums">
+                  <td className="px-3 py-2 text-center font-mono-tech tabular-nums">
                     <RankBadge rank={idx + 1} />
                   </td>
                   <td className="px-3 py-2">
-                    <span className={isSelf ? 'font-semibold text-brand-700' : 'text-ink-900'}>
+                    <span
+                      className={
+                        isSelf
+                          ? 'font-bold text-mentora-700'
+                          : 'font-semibold text-[var(--ink-warm)]'
+                      }
+                    >
                       {row.fullName}
                     </span>
                   </td>
-                  <td className="px-3 py-2 text-right tabular-nums">
-                    <span className="font-medium text-ink-900">{row.xp.toLocaleString()}</span>
+                  <td className="px-3 py-2 text-right font-mono-tech tabular-nums">
+                    <span className="font-bold text-[var(--ink-warm)]">
+                      {row.xp.toLocaleString()}
+                    </span>
                     {row.xp >= 500 && (
                       <span className="ml-1" aria-label="hot">
                         🔥
@@ -115,14 +128,17 @@ export function Leaderboard({ currentUserId }: LeaderboardProps) {
             })}
             {!loading && rows.length === 0 && (
               <tr>
-                <td colSpan={3} className="px-3 py-6 text-center text-sm text-ink-500">
+                <td
+                  colSpan={3}
+                  className="px-3 py-6 text-center text-sm text-[var(--muted-warm)]"
+                >
                   {t('game.leaderboard.empty')}
                 </td>
               </tr>
             )}
             {loading && rows.length === 0 && (
               <tr>
-                <td colSpan={3} className="px-3 py-6 text-center text-xs text-ink-400">
+                <td colSpan={3} className="px-3 py-6 text-center text-xs text-zinc-400">
                   …
                 </td>
               </tr>
@@ -138,7 +154,7 @@ function RankBadge({ rank }: { rank: number }) {
   if (rank === 1) return <span aria-label="rank 1">🥇</span>;
   if (rank === 2) return <span aria-label="rank 2">🥈</span>;
   if (rank === 3) return <span aria-label="rank 3">🥉</span>;
-  return <span className="text-ink-600">{rank}</span>;
+  return <span className="text-[var(--ink-warm-2)]">{rank}</span>;
 }
 
 interface SkillPillProps {
@@ -153,10 +169,10 @@ function SkillPill({ active, onClick, children }: SkillPillProps) {
       type="button"
       onClick={onClick}
       className={
-        'rounded-full px-3 py-1 text-[11px] font-medium transition-colors ' +
+        'rounded-full px-3 py-1 text-[11px] font-bold transition-colors ' +
         (active
-          ? 'bg-brand-600 text-white shadow-sm'
-          : 'border border-ink-200 bg-white text-ink-700 hover:bg-ink-50')
+          ? 'bg-mentora-600 text-white shadow-sm'
+          : 'bg-white text-[var(--ink-warm-2)] ring-1 ring-zinc-200 hover:bg-mentora-50 hover:text-mentora-700')
       }
       aria-pressed={active}
     >

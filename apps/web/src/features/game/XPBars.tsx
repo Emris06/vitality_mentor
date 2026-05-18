@@ -29,28 +29,34 @@ export function XPBars({ xpBySkill }: XPBarsProps) {
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
-        <h3 className="text-sm font-semibold text-ink-900">{t('game.xp_bars.title')}</h3>
-        <p className="mt-3 text-sm text-ink-500">{t('game.xp_bars.empty')}</p>
-      </div>
+      <>
+        <h3 className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted-warm)]">
+          {t('game.xp_bars.title')}
+        </h3>
+        <p className="mt-3 text-sm text-[var(--muted-warm)]">{t('game.xp_bars.empty')}</p>
+      </>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
-      <h3 className="text-sm font-semibold text-ink-900">{t('game.xp_bars.title')}</h3>
+    <>
+      <h3 className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted-warm)]">
+        {t('game.xp_bars.title')}
+      </h3>
       <ul className="mt-4 space-y-3">
         {rows.map((row, idx) => (
           <li key={row.skill}>
             <div className="flex items-center justify-between text-xs">
-              <span className="font-medium uppercase tracking-wide text-ink-700">
+              <span className="font-mono-tech font-bold uppercase tracking-wider text-[var(--ink-warm-2)]">
                 {row.skill}
               </span>
-              <span className="tabular-nums text-ink-500">{row.xp.toLocaleString()} XP</span>
+              <span className="font-mono-tech tabular-nums text-[var(--muted-warm)]">
+                {row.xp.toLocaleString()} XP
+              </span>
             </div>
-            <div className="mt-1 h-2.5 w-full overflow-hidden rounded-full bg-ink-100">
+            <div className="mt-1 h-2.5 w-full overflow-hidden rounded-full bg-zinc-100">
               <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-700"
+                className="h-full rounded-full bg-gradient-to-r from-mentora-600 to-mentora-400"
                 initial={{ width: 0 }}
                 animate={{ width: `${row.pct}%` }}
                 transition={{ duration: 0.7, delay: 0.05 * idx, ease: 'easeOut' }}
@@ -60,6 +66,6 @@ export function XPBars({ xpBySkill }: XPBarsProps) {
           </li>
         ))}
       </ul>
-    </div>
+    </>
   );
 }

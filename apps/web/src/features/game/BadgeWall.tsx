@@ -48,9 +48,11 @@ export function BadgeWall({ badges }: BadgeWallProps) {
   };
 
   return (
-    <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
-      <h3 className="text-sm font-semibold text-ink-900">{t('game.badges.title')}</h3>
-      <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-5">
+    <>
+      <h3 className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted-warm)]">
+        {t('game.badges.title')}
+      </h3>
+      <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
         {tiles.map((tile, idx) => (
           <motion.button
             key={tile.id}
@@ -60,10 +62,10 @@ export function BadgeWall({ badges }: BadgeWallProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.04 * idx }}
             className={
-              'group relative flex flex-col items-center gap-2 rounded-xl border p-3 text-center transition-all ' +
+              'group relative flex flex-col items-center gap-2 rounded-2xl p-3 text-center transition-all ' +
               (tile.earned
-                ? 'border-brand-200 bg-gradient-to-b from-brand-50 to-white shadow-sm hover:-translate-y-0.5 hover:shadow-md'
-                : 'border-ink-200 bg-ink-50/60 opacity-60 grayscale hover:opacity-80')
+                ? 'bg-gradient-to-b from-mentora-50 to-white ring-1 ring-mentora-200 shadow-card-warm-sm hover:-translate-y-0.5'
+                : 'bg-zinc-50 opacity-60 ring-1 ring-zinc-100 grayscale hover:opacity-80')
             }
             aria-label={labelFor(tile.id, 'name')}
             title={
@@ -81,7 +83,7 @@ export function BadgeWall({ badges }: BadgeWallProps) {
             >
               {tile.icon}
             </span>
-            <span className="line-clamp-2 text-[11px] font-semibold text-ink-800">
+            <span className="line-clamp-2 text-[11px] font-bold text-[var(--ink-warm)]">
               {labelFor(tile.id, 'name')}
             </span>
             {!tile.earned && (
@@ -100,7 +102,7 @@ export function BadgeWall({ badges }: BadgeWallProps) {
         {open && (
           <motion.div
             key="overlay"
-            className="fixed inset-0 z-40 flex items-center justify-center bg-ink-900/40 p-4"
+            className="fixed inset-0 z-40 flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -108,7 +110,7 @@ export function BadgeWall({ badges }: BadgeWallProps) {
           >
             <motion.div
               key="modal"
-              className="w-full max-w-sm rounded-2xl border border-ink-200 bg-white p-6 shadow-xl"
+              className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-card-warm"
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
@@ -125,13 +127,13 @@ export function BadgeWall({ badges }: BadgeWallProps) {
                   {open.icon}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-base font-semibold text-ink-900">
+                  <h4 className="text-base font-extrabold text-[var(--ink-warm)]">
                     {labelFor(open.id, 'name')}
                   </h4>
-                  <p className="mt-1 text-sm text-ink-600">
+                  <p className="mt-1 text-sm text-[var(--ink-warm-2)]">
                     {labelFor(open.id, 'description')}
                   </p>
-                  <p className="mt-3 text-xs text-ink-500">
+                  <p className="mt-3 font-mono-tech text-xs text-[var(--muted-warm)]">
                     {open.earned && open.earnedAt
                       ? t('game.badges.earned_on', { date: formatDate(open.earnedAt, i18n.resolvedLanguage) })
                       : t('game.badges.locked')}
@@ -142,7 +144,7 @@ export function BadgeWall({ badges }: BadgeWallProps) {
                 <button
                   type="button"
                   onClick={() => setOpenId(null)}
-                  className="rounded-full border border-ink-200 bg-white px-4 py-1.5 text-xs font-semibold text-ink-700 hover:bg-ink-50"
+                  className="rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-zinc-700 ring-1 ring-zinc-200 transition hover:bg-zinc-50"
                 >
                   ×
                 </button>
@@ -151,7 +153,7 @@ export function BadgeWall({ badges }: BadgeWallProps) {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 }
 

@@ -65,20 +65,20 @@ export function MessageBubble({ message }: Props) {
       className={'flex w-full ' + (isUser ? 'justify-end' : 'justify-start')}
     >
       <div className={'flex max-w-[85%] flex-col gap-1 md:max-w-[75%] ' + (isUser ? 'items-end' : 'items-start')}>
-        <span className="px-1 text-[11px] font-semibold uppercase tracking-wide text-ink-500">
+        <span className="px-1 font-mono-tech text-[11px] font-bold uppercase tracking-wider text-[var(--muted-warm)]">
           {isUser ? t('chat.you') : t('chat.assistant')}
         </span>
         <div
           className={
-            'rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ' +
+            'rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-card-warm-sm ' +
             (isUser
-              ? 'bg-brand-600 text-white'
-              : 'border border-ink-200 bg-white text-ink-900')
+              ? 'bg-mentora-50 text-mentora-900 ring-1 ring-mentora-100'
+              : 'bg-white text-[var(--ink-warm)] ring-1 ring-zinc-100')
           }
         >
           <p className="whitespace-pre-wrap break-words">
             {parts.length === 0 ? (
-              <span className="text-ink-400">&nbsp;</span>
+              <span className="text-zinc-400">&nbsp;</span>
             ) : (
               parts.map((p, i) =>
                 p.kind === 'text' ? (
@@ -89,10 +89,10 @@ export function MessageBubble({ message }: Props) {
                     type="button"
                     onClick={() => focusCitation(p.n)}
                     className={
-                      'mx-0.5 inline-flex h-5 w-5 -translate-y-px items-center justify-center rounded-full text-[10px] font-bold transition-colors ' +
+                      'mx-0.5 inline-flex h-5 w-5 -translate-y-px items-center justify-center rounded-full font-mono-tech text-[10px] font-bold transition-colors ' +
                       (isUser
-                        ? 'bg-white/25 text-white hover:bg-white/40'
-                        : 'bg-brand-100 text-brand-700 hover:bg-brand-200')
+                        ? 'bg-mentora-600/15 text-mentora-700 hover:bg-mentora-600/25'
+                        : 'bg-mentora-50 text-mentora-700 hover:bg-mentora-100')
                     }
                     aria-label={`${t('chat.citations')} ${p.n}`}
                   >

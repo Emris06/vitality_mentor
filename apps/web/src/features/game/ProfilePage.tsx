@@ -12,8 +12,9 @@ import { Leaderboard } from './Leaderboard';
 import type { GameProfile } from './types';
 import { useAuth } from '../auth/AuthProvider';
 import { homeRouteFor } from '../auth/types';
-import { ErpShell } from '../workspace/ErpShell';
-import { buildWorkspaceSections } from '../workspace/navigation';
+import { InternShell } from '../workspace/InternShell';
+import { buildMentoraNav } from '../workspace/mentoraNav';
+import { WarmCard } from '../../components/warm/WarmCard';
 
 const FALLBACK_PROFILE: GameProfile = {
   xpBySkill: {},
@@ -22,11 +23,15 @@ const FALLBACK_PROFILE: GameProfile = {
   todayQuest: null,
 };
 
-/**
- * `/me` profile page. Loads the gamification snapshot on mount and renders a
- * single-column-on-mobile, two-column-on-desktop layout: XP + quest on the
- * left, badges on the right, leaderboard at the bottom.
- */
+// ──────────────────────────────────────────────────────────────────────────
+// `/me` profile page — warm theme (Phase E).
+//
+// Behavior preserved bit-identical:
+//   - gameApi.me<GameProfile>() on mount with cancel-on-unmount guard
+//   - Non-intern roles redirect to their role's home (intern-only by design)
+//   - Leaderboard loads its own data; we just pass currentUserId for highlight
+// ──────────────────────────────────────────────────────────────────────────
+
 export function ProfilePage() {
   const { t } = useTranslation();
   const { profile: authProfile } = useAuth();
@@ -61,75 +66,95 @@ export function ProfilePage() {
     [view.xpBySkill],
   );
 
-  const roleLabel =
-    authProfile?.role === 'hr'
-      ? t('auth.role_hr_name')
-      : authProfile?.role === 'intern'
-        ? t('auth.role_intern_name')
-        : t('auth.role_employee_name');
-
+  // Role-gated: profile is intern-only by design. Non-interns get redirected
+  // to their role home so the sidebar's "Profile" slot still has a destination.
   if (authProfile?.role !== 'intern') {
     return <Navigate to={homeRouteFor(authProfile?.role ?? null)} replace />;
   }
 
+  const userName = authProfile?.fullName ?? 'Team Member';
+  const firstName = userName.split(/\s+/)[0] ?? userName;
+
   return (
-    <ErpShell
-      title={t('game.profile_title')}
-      subtitle={t('game.subtitle')}
-      userName={authProfile?.fullName ?? 'Team Member'}
-      userRole={roleLabel}
-      sections={buildWorkspaceSections(authProfile?.role ?? null)}
-      searchPlaceholder="Search badges, quests, and scores"
+    <InternShell
+      userName={userName}
+      userRole={t('auth.role_intern_name')}
+      greeting={t('intern.shell.greeting', { name: firstName })}
+      pageTitle={t('game.profile_title')}
+      navItems={buildMentoraNav(authProfile?.role ?? null)}
+      rightPanel={
+        <WarmCard className="p-5">
+          <BadgeWall badges={view.badges} />
+        </WarmCard>
+      }
     >
-      <section className="space-y-4">
-        {error && (
-          <div
-            className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
-            role="alert"
-          >
-            {t('game.errors.load_profile')}
-          </div>
-        )}
-
-        {/* Hero strip: total XP + streak ring + deadline ring */}
-        <motion.div
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="grid items-center gap-6 rounded-2xl border border-ink-200 bg-white p-6 shadow-sm md:grid-cols-[1.4fr_1fr_1fr]"
+      {error && (
+        <div
+          className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700 ring-1 ring-rose-200"
+          role="alert"
         >
-          <div>
-            <p className="text-xs uppercase tracking-wide text-ink-500">{t('game.total_xp')}</p>
-            <p className="mt-1 text-5xl font-bold tabular-nums text-ink-900">
-              {totalXp.toLocaleString()}
-            </p>
-            <p className="mt-2 text-sm text-ink-500">
-              {loading ? '…' : Object.keys(view.xpBySkill).length + ' skills'}
-            </p>
-          </div>
-          <div className="flex justify-center">
-            <StreakRing current={view.streak.current} longest={view.streak.longest} />
-          </div>
-          <div className="flex justify-center">
-            <DeadlineRing deadline={view.onboardingDeadline} />
-          </div>
-        </motion.div>
-
-        {/* Two-column grid: stacks on mobile */}
-        <div className="mt-6 grid gap-6 md:grid-cols-2">
-          <div className="space-y-6">
-            <XPBars xpBySkill={view.xpBySkill} />
-            <QuestCard quest={view.todayQuest} />
-          </div>
-          <div className="space-y-6">
-            <BadgeWall badges={view.badges} />
-          </div>
+          {t('game.errors.load_profile')}
         </div>
+      )}
 
-        <div className="mt-6">
+      {/* Hero row: total XP + streak ring + deadline ring */}
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <WarmCard className="p-6">
+          <div className="grid items-center gap-6 md:grid-cols-[1.4fr_1fr_1fr]">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted-warm)]">
+                {t('game.total_xp')}
+              </p>
+              <p className="mt-1 text-5xl font-extrabold tabular-nums text-[var(--ink-warm)]">
+                {totalXp.toLocaleString()}
+              </p>
+              <p className="mt-2 font-mono-tech text-xs text-[var(--muted-warm)]">
+                {loading ? '…' : `${Object.keys(view.xpBySkill).length} skills`}
+              </p>
+            </div>
+            <div className="flex justify-center">
+              <StreakRing current={view.streak.current} longest={view.streak.longest} />
+            </div>
+            <div className="flex justify-center">
+              <DeadlineRing deadline={view.onboardingDeadline} />
+            </div>
+          </div>
+        </WarmCard>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.05 }}
+      >
+        <WarmCard className="p-5">
+          <XPBars xpBySkill={view.xpBySkill} />
+        </WarmCard>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+      >
+        <WarmCard className="p-5">
+          <QuestCard quest={view.todayQuest} />
+        </WarmCard>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.15 }}
+      >
+        <WarmCard className="p-5">
           <Leaderboard currentUserId={authProfile?.id} />
-        </div>
-      </section>
-    </ErpShell>
+        </WarmCard>
+      </motion.div>
+    </InternShell>
   );
 }
