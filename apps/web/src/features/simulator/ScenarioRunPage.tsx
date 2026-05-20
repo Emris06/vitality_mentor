@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ComponentType } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -10,9 +10,13 @@ import {
   type ScenarioMistake,
   type ScenarioRun,
 } from '@vitality/shared';
-import { simApi, SimHttpError } from '../../lib/api';
+import { gameApi, simApi, SimHttpError } from '../../lib/api';
+import { ScenarioCelebrationModal } from '../game/ScenarioCelebrationModal';
+import type { GameProfile } from '../game/types';
+import { ClickyVoiceOverlay } from '../clicky/ClickyVoiceOverlay';
 import { ChromeShell, type StepDef } from './ChromeShell';
 import { HintPanel } from './HintPanel';
+import { useScenarioClicky } from './useScenarioClicky';
 import type { StepProps } from './kyc/steps/stepTypes';
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -30,6 +34,8 @@ export interface ScenarioRunPageProps {
   lastRunKey: string;
   /** Where the "back" arrow points (the simulator dashboard, usually). */
   backRoute?: string;
+  /** When set, enables Clicky voice + step-success TTS. */
+  stepHints?: Record<string, string>;
 }
 
 interface ToastItem {
@@ -43,6 +49,7 @@ export function ScenarioRunPage({
   stepComponents,
   lastRunKey,
   backRoute = '/simulator',
+  stepHints,
 }: ScenarioRunPageProps) {
   const { t, i18n } = useTranslation();
   const { runId } = useParams<{ runId: string }>();
@@ -59,6 +66,14 @@ export function ScenarioRunPage({
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const [hintOpen, setHintOpen] = useState(false);
   const [completedStepIds, setCompletedStepIds] = useState<string[]>([]);
+  const [celebrationOpen, setCelebrationOpen] = useState(false);
+  const [celebrationXp, setCelebrationXp] = useState(0);
+  const scoredHandledRef = useRef(false);
+
+  const clicky = useScenarioClicky({
+    stepHints: stepHints ?? {},
+    enabled: !!stepHints,
+  });
 
   useEffect(() => {
     if (!runId) return;
@@ -98,6 +113,22 @@ export function ScenarioRunPage({
     }, 4500);
   }, []);
 
+  const showCelebration = useCallback(async (score: number) => {
+    let xp = 0;
+    try {
+      const before = await gameApi.me<GameProfile>();
+      const beforeXp = Object.values(before.xpBySkill).reduce((a, b) => a + b, 0);
+      await new Promise((r) => setTimeout(r, 400));
+      const after = await gameApi.me<GameProfile>();
+      const afterXp = Object.values(after.xpBySkill).reduce((a, b) => a + b, 0);
+      xp = Math.max(0, afterXp - beforeXp);
+    } catch {
+      xp = score >= 85 ? 25 : score >= 60 ? 12 : 4;
+    }
+    setCelebrationXp(xp);
+    setCelebrationOpen(true);
+  }, []);
+
   const handleSubmit = useCallback(
     async (payload: Record<string, unknown>) => {
       if (!run || !runId || !run.currentStepId) return;
@@ -110,12 +141,20 @@ export function ScenarioRunPage({
           setCompletedStepIds((curr) =>
             curr.includes(stepId) ? curr : [...curr, stepId],
           );
+          if (stepHints) {
+            clicky.onStepSuccess(result.nextStepId);
+          }
+          if (result.run.status === 'scored' && !scoredHandledRef.current) {
+            scoredHandledRef.current = true;
+            void showCelebration(result.run.score ?? 0);
+          }
         } else if (result.mistake) {
           const m = result.mistake;
           const translated = i18n.exists(m.messageKey)
             ? t(m.messageKey)
             : m.messageKey || m.code;
           pushToast(translated);
+          if (stepHints) clicky.onStepMistake(translated);
         }
       } catch (err) {
         const message =
@@ -125,7 +164,7 @@ export function ScenarioRunPage({
         setSubmitting(false);
       }
     },
-    [i18n, pushToast, run, runId, t],
+    [clicky, i18n, pushToast, run, runId, showCelebration, stepHints, t],
   );
 
   const handleRetry = useCallback(async () => {
@@ -216,6 +255,15 @@ export function ScenarioRunPage({
           ))}
         </AnimatePresence>
       </div>
+
+      {stepHints && <ClickyVoiceOverlay agent={clicky.agent} />}
+
+      <ScenarioCelebrationModal
+        open={celebrationOpen}
+        score={run.score ?? 0}
+        rewardXp={celebrationXp}
+        onClose={() => setCelebrationOpen(false)}
+      />
     </>
   );
 }
@@ -248,7 +296,7 @@ function ResultsView({ run, onRetry, backRoute }: ResultsViewProps) {
           {t('sim.run.finished')}
         </p>
         <p className={`font-mono-tech text-6xl font-bold ${scoreClass}`}>{score}</p>
-        <p className="text-sm text-zinc-600">{t('sim.run.score_of_100')}</p>
+        <p className="text-sm text-zinc-600">{t('sim.run.finished')}</p>
       </div>
 
       {mistakes.length > 0 && (

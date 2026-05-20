@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@vitality/shared';
 import { useClickyEnabled } from '../clicky/ClickyProvider';
 import { useClickyAgent } from '../clicky/useClickyAgent';
+import { ClickyMobileFab } from '../clicky/ClickyMobileFab';
 import { ClickyVoiceOverlay } from '../clicky/ClickyVoiceOverlay';
 import { MentoraMark } from '../../components/warm/MentoraMark';
 
@@ -110,6 +111,8 @@ const DEFAULT_INTERN_NAV: MentoraNavItem[] = [
 ];
 
 interface Props {
+  /** When false, Clicky voice/cursor are not mounted (HR/mentor surfaces). */
+  enableClicky?: boolean;
   userName: string;
   /** Localized role label (e.g. "Intern", "Стажёр", "Stajyor"). */
   userRole: string;
@@ -126,6 +129,7 @@ interface Props {
 }
 
 export function InternShell({
+  enableClicky = false,
   userName,
   userRole,
   greeting,
@@ -139,10 +143,8 @@ export function InternShell({
 }: Props) {
   const { t } = useTranslation();
   const placeholder = searchPlaceholder ?? t('intern.shell.search_placeholder');
-  // Clicky is on for the duration of the intern surface. The cleanup on
-  // unmount is wired by `useClickyEnabled`.
-  useClickyEnabled();
-  const agent = useClickyAgent();
+  useClickyEnabled(enableClicky);
+  const agent = useClickyAgent({ enabled: enableClicky });
 
   const initials = computeInitials(userName);
 
@@ -209,7 +211,12 @@ export function InternShell({
         </main>
       </div>
 
-      <ClickyVoiceOverlay agent={agent} />
+      {enableClicky && (
+        <>
+          <ClickyVoiceOverlay agent={agent} />
+          <ClickyMobileFab agent={agent} />
+        </>
+      )}
     </div>
   );
 }

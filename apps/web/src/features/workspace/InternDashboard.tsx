@@ -45,13 +45,12 @@ interface PathStep {
   estMins: number;
 }
 
-const LEARNING_PATH: readonly PathStep[] = [
+const PATH_TEMPLATE: readonly Omit<PathStep, 'state'>[] = [
   {
     id: 'orientation',
     scenarioId: null,
     titleKey: 'intern.dashboard.scenarios.item.orientation',
     moduleKey: 'intern.dashboard.scenarios.module.orientation',
-    state: 'done',
     estMins: 10,
   },
   {
@@ -59,7 +58,6 @@ const LEARNING_PATH: readonly PathStep[] = [
     scenarioId: 'kyc',
     titleKey: 'intern.dashboard.scenarios.item.kyc',
     moduleKey: 'intern.dashboard.scenarios.module.retail_ops',
-    state: 'current',
     estMins: 25,
   },
   {
@@ -67,7 +65,13 @@ const LEARNING_PATH: readonly PathStep[] = [
     scenarioId: 'open-account',
     titleKey: 'intern.dashboard.scenarios.item.open_account',
     moduleKey: 'intern.dashboard.scenarios.module.retail_ops',
-    state: 'locked',
+    estMins: 20,
+  },
+  {
+    id: 'deposit',
+    scenarioId: 'deposit',
+    titleKey: 'intern.dashboard.scenarios.item.deposit',
+    moduleKey: 'intern.dashboard.scenarios.module.cash_ops',
     estMins: 20,
   },
   {
@@ -75,16 +79,41 @@ const LEARNING_PATH: readonly PathStep[] = [
     scenarioId: 'transfer',
     titleKey: 'intern.dashboard.scenarios.item.transfer',
     moduleKey: 'intern.dashboard.scenarios.module.payments',
-    state: 'locked',
     estMins: 30,
   },
 ];
+
+const SCENARIO_PATH: Record<ScenarioId, string> = {
+  kyc: 'kyc',
+  'open-account': 'open-account',
+  deposit: 'deposit',
+  transfer: 'transfer',
+};
+
+function deriveLearningPath(completedScenarios: string[]): PathStep[] {
+  const done = new Set(completedScenarios);
+  let assignedCurrent = false;
+  return PATH_TEMPLATE.map((step) => {
+    if (!step.scenarioId) {
+      return { ...step, state: 'done' as const };
+    }
+    if (done.has(step.scenarioId)) {
+      return { ...step, state: 'done' as const };
+    }
+    if (!assignedCurrent) {
+      assignedCurrent = true;
+      return { ...step, state: 'current' as const };
+    }
+    return { ...step, state: 'locked' as const };
+  });
+}
 
 // Visual mapping per scenario id → icon + tone for the scenarios list.
 const SCENARIO_VISUAL: Record<string, { icon: string; tone: ScenarioIconTone }> = {
   orientation: { icon: '🧭', tone: 'emerald' },
   kyc: { icon: '📋', tone: 'mentora' },
   'open-account': { icon: '💳', tone: 'violet' },
+  deposit: { icon: '💰', tone: 'emerald' },
   transfer: { icon: '↔', tone: 'rose' },
 };
 
@@ -114,9 +143,14 @@ export function InternDashboard() {
 
   const internName = profile?.fullName ?? 'Intern';
   const firstName = internName.split(/\s+/)[0] ?? internName;
-  const current = LEARNING_PATH.find((s) => s.state === 'current') ?? null;
-  const doneCount = LEARNING_PATH.filter((s) => s.state === 'done').length;
-  const totalSteps = LEARNING_PATH.length;
+
+  const learningPath = useMemo(
+    () => deriveLearningPath(game?.completedScenarios ?? []),
+    [game?.completedScenarios],
+  );
+  const current = learningPath.find((s) => s.state === 'current') ?? null;
+  const doneCount = learningPath.filter((s) => s.state === 'done').length;
+  const totalSteps = learningPath.length;
 
   // Load gamification profile. Single shot on mount — there's no realtime
   // signal yet that XP changed underneath us; revisiting the route refetches.
@@ -148,7 +182,7 @@ export function InternDashboard() {
     setStartError(null);
     try {
       const run = await simApi.startRun(scenarioId, locale);
-      navigate(scenarioId === 'kyc' ? `/simulator/kyc/${run.id}` : '/simulator');
+      navigate(`/simulator/${SCENARIO_PATH[scenarioId]}/${run.id}`);
     } catch (err) {
       setStartError(
         err instanceof SimHttpError ? err.message : t('sim.run.load_error'),
@@ -163,6 +197,7 @@ export function InternDashboard() {
 
   return (
     <InternShell
+      enableClicky
       userName={internName}
       userRole={t('auth.role_intern_name')}
       greeting={t('intern.shell.greeting', { name: firstName })}
@@ -182,7 +217,7 @@ export function InternDashboard() {
             }
           : undefined
       }
-      rightPanel={<RightRail t={t} />}
+      rightPanel={<RightRail t={t} game={game} />}
     >
       {(startError || gameLoadFailed) && (
         <ErrorBanner
@@ -201,10 +236,11 @@ export function InternDashboard() {
         doneCount={doneCount}
         totalSteps={totalSteps}
         onContinue={() => void startScenario(current?.scenarioId ?? null)}
+        rewardXp={game?.todayQuest?.rewardXp}
         t={t}
       />
 
-      <ScenariosCard path={LEARNING_PATH} t={t} />
+      <ScenariosCard path={learningPath} t={t} />
     </InternShell>
   );
 }
@@ -384,6 +420,7 @@ interface HeroProps {
   doneCount: number;
   totalSteps: number;
   onContinue: () => void;
+  rewardXp?: number;
   t: (key: string, opts?: Record<string, unknown>) => string;
 }
 
@@ -394,12 +431,11 @@ function ActiveScenarioHero({
   doneCount,
   totalSteps,
   onContinue,
+  rewardXp,
   t,
 }: HeroProps) {
-  const currentIndex = current
-    ? LEARNING_PATH.findIndex((s) => s.id === current.id) + 1
-    : doneCount;
-  const rewardXp = 50; // TODO: derive from quest config when backend exposes it
+  const currentIndex = current ? doneCount + 1 : doneCount;
+  const xpPill = rewardXp ?? 50;
   return (
     <WarmCard className="overflow-hidden p-0">
       <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-5">
@@ -420,7 +456,7 @@ function ActiveScenarioHero({
         {current?.scenarioId && (
           <div className="flex items-center gap-3">
             <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-bold text-amber-700">
-              {t('intern.dashboard.hero.xp_pill', { xp: rewardXp })}
+              {t('intern.dashboard.hero.xp_pill', { xp: xpPill })}
             </span>
             <button
               type="button"
@@ -629,10 +665,16 @@ function progressFor(status: ScenarioStatus): number {
 // Right rail — tasks, activity, cohort
 // ───────────────────────────────────────────────────────────────────────
 
-function RightRail({ t }: { t: (k: string, o?: Record<string, unknown>) => string }) {
+function RightRail({
+  t,
+  game,
+}: {
+  t: (k: string, o?: Record<string, unknown>) => string;
+  game: GameProfile | null;
+}) {
   return (
     <>
-      <TasksCard t={t} />
+      <TasksCard t={t} quest={game?.todayQuest ?? null} />
       <ActivityCard t={t} />
       <CohortCard t={t} />
     </>
@@ -674,10 +716,22 @@ const SEED_TASKS: readonly SeedTask[] = [
   },
 ];
 
-function TasksCard({ t }: { t: (k: string, o?: Record<string, unknown>) => string }) {
+function TasksCard({
+  t,
+  quest,
+}: {
+  t: (k: string, o?: Record<string, unknown>) => string;
+  quest: GameProfile['todayQuest'];
+}) {
   const [done, setDone] = useState<Record<string, boolean>>({});
-  const remaining = SEED_TASKS.filter((task) => !done[task.key]).length;
-  const dueCount = 2;
+  const questOpen = quest && !quest.completedAt;
+  const questProgress = quest
+    ? Object.values(quest.progress).reduce((a, b) => a + b, 0)
+    : 0;
+  const questGoal = quest ? Object.values(quest.goal).reduce((a, b) => a + b, 0) : 0;
+  const remaining =
+    SEED_TASKS.filter((task) => !done[task.key]).length + (questOpen ? 1 : 0);
+  const dueCount = questOpen ? 1 : 0;
   return (
     <WarmCard small className="p-5">
       <div className="flex items-center justify-between">
@@ -696,6 +750,18 @@ function TasksCard({ t }: { t: (k: string, o?: Record<string, unknown>) => strin
         )}
       </div>
       <ul className="mt-4 space-y-2">
+        {questOpen && quest && (
+          <TaskRow
+            title={t(quest.nameKey, { defaultValue: quest.id })}
+            subline={t(quest.descriptionKey, {
+              defaultValue: `${questProgress}/${questGoal}`,
+            })}
+            xpAmount={quest.rewardXp}
+            xpTone="mentora"
+            done={false}
+            onToggle={() => undefined}
+          />
+        )}
         {SEED_TASKS.map((task) => {
           const title = t(task.titleKey);
           return (

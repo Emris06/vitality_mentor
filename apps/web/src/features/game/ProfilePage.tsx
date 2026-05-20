@@ -77,6 +77,7 @@ export function ProfilePage() {
 
   return (
     <InternShell
+      enableClicky
       userName={userName}
       userRole={t('auth.role_intern_name')}
       greeting={t('intern.shell.greeting', { name: firstName })}
@@ -120,7 +121,7 @@ export function ProfilePage() {
               <StreakRing current={view.streak.current} longest={view.streak.longest} />
             </div>
             <div className="flex justify-center">
-              <DeadlineRing deadline={view.onboardingDeadline} />
+              <DeadlineRing deadline={view.onboardingDeadline ?? undefined} />
             </div>
           </div>
         </WarmCard>

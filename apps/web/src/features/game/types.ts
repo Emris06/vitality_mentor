@@ -60,11 +60,8 @@ export interface GameProfile {
   badges: Badge[];
   streak: Streak;
   todayQuest: Quest | null;
-  /**
-   * Optional — not in the documented `/me` response. When the HR endpoint
-   * exposes it we can wire it through; for now `DeadlineRing` uses a stub.
-   */
-  onboardingDeadline?: string;
+  completedScenarios?: string[];
+  onboardingDeadline?: string | null;
 }
 
 export interface LeaderboardEntry {

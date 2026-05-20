@@ -7,6 +7,7 @@ import { config } from '../config';
 import { asJson, sql } from '../plugins/db';
 import { getOrCreateUserId } from '../lib/session';
 import { checkChatRateLimit } from '../lib/rate-limit';
+import { publishGameEvent } from '../gamification/events';
 
 // Mirror of ChatRequest from @vitality/shared/types/chat.ts. Keep in sync.
 const chatRequestSchema = z.object({
@@ -302,6 +303,13 @@ export async function chatRoutes(app: FastifyInstance): Promise<void> {
     if (!acc.errored && acc.text.length > 0) {
       try {
         await insertMessage(session.id, 'assistant', acc.text, acc.citations);
+        if (acc.citations.length > 0) {
+          void publishGameEvent({
+            type: 'chat.solved',
+            userId,
+            sessionId: session.id,
+          });
+        }
       } catch (err) {
         req.log.error({ err }, 'failed to persist assistant message');
       }

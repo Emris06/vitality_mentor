@@ -4,6 +4,10 @@ import { ChatPage } from './features/chat/ChatPage';
 import { SimDashboard } from './features/simulator/SimDashboard';
 import { KycRunPage } from './features/simulator/kyc/KycRunPage';
 import { KycRunBootstrap } from './features/simulator/kyc/KycRunBootstrap';
+import { ScenarioRunBootstrap } from './features/simulator/ScenarioRunBootstrap';
+import { OpenAccountRunPage } from './features/simulator/open-account/OpenAccountRunPage';
+import { DepositRunPage } from './features/simulator/deposit/DepositRunPage';
+import { TransferRunPage } from './features/simulator/transfer/TransferRunPage';
 import { HrDashboard } from './features/hr/HrDashboard';
 import { NewcomerDetail } from './features/hr/NewcomerDetail';
 import { ProfilePage } from './features/game/ProfilePage';
@@ -24,6 +28,39 @@ export function App() {
       <Route path="/simulator" element={<SimDashboard />} />
       <Route path="/simulator/kyc" element={<KycRunBootstrap />} />
       <Route path="/simulator/kyc/:runId" element={<KycRunPage />} />
+      <Route
+        path="/simulator/open-account"
+        element={
+          <ScenarioRunBootstrap
+            scenarioId="open-account"
+            pathSegment="open-account"
+            lastRunKey="vitality.lastOpenAccountRunId"
+          />
+        }
+      />
+      <Route path="/simulator/open-account/:runId" element={<OpenAccountRunPage />} />
+      <Route
+        path="/simulator/deposit"
+        element={
+          <ScenarioRunBootstrap
+            scenarioId="deposit"
+            pathSegment="deposit"
+            lastRunKey="vitality.lastDepositRunId"
+          />
+        }
+      />
+      <Route path="/simulator/deposit/:runId" element={<DepositRunPage />} />
+      <Route
+        path="/simulator/transfer"
+        element={
+          <ScenarioRunBootstrap
+            scenarioId="transfer"
+            pathSegment="transfer"
+            lastRunKey="vitality.lastTransferRunId"
+          />
+        }
+      />
+      <Route path="/simulator/transfer/:runId" element={<TransferRunPage />} />
       <Route path="/intern" element={<InternDashboard />} />
       <Route path="/employee" element={<EmployeeDashboard />} />
       <Route path="/hr" element={<HrDashboard />} />

@@ -76,6 +76,42 @@ STEP_QUERY_HINTS: dict[tuple[str, str], str] = {
         "KYC decision approve reject escalate compliance officer sign-off "
         "reshenie po klientu odobrenie otkaz qaror qabul qilish"
     ),
+    ("open-account", "choose_product"): (
+        "open account product type currency current savings retail "
+        "ochish scheta valyuta"
+    ),
+    ("open-account", "fund_account"): (
+        "initial deposit minimum funding account opening "
+        "pervonachalny vznos depozit"
+    ),
+    ("open-account", "confirm"): (
+        "account opening terms KYC reference confirm compliance "
+        "podtverzhdenie otkrytiya scheta"
+    ),
+    ("deposit", "select_account"): (
+        "cash deposit teller select customer account "
+        "vnescenie nalichnyh schet klienta"
+    ),
+    ("deposit", "count_cash"): (
+        "count cash denominations reconcile declared amount "
+        "perechet kupyur summa"
+    ),
+    ("deposit", "verify_receipt"): (
+        "deposit receipt number DEP format verify "
+        "kvitansiya depozit"
+    ),
+    ("transfer", "select_source"): (
+        "transfer source account debit customer "
+        "istochnik perevod schet"
+    ),
+    ("transfer", "enter_recipient"): (
+        "transfer beneficiary IBAN amount sanctions screening "
+        "poluchatel perevod summa"
+    ),
+    ("transfer", "screen_and_confirm"): (
+        "transfer approve block high risk sanctions decision "
+        "odobrit blokirovat perevod risk"
+    ),
 }
 
 

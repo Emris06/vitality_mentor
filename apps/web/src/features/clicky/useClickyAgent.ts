@@ -28,11 +28,44 @@ interface ServerAction {
  * Ask the API's Clicky brain. Falls back to the local keyword matcher on
  * any error or timeout so the UI always gets a usable action.
  */
+function parseScenarioContext():
+  | { scenarioId: string; stepId?: string }
+  | Record<string, never> {
+  const parts = window.location.pathname.split('/').filter(Boolean);
+  const simIdx = parts.indexOf('simulator');
+  if (simIdx === -1 || parts.length <= simIdx + 1) return {};
+  const scenarioId = parts[simIdx + 1];
+  if (!scenarioId || scenarioId.length > 32) return {};
+  return { scenarioId, stepId: undefined };
+}
+
+async function fetchGroundedExplain(
+  transcript: string,
+  locale: Locale,
+  scenarioId?: string,
+  stepId?: string,
+): Promise<string | null> {
+  try {
+    const res = await fetch('/api/clicky/explain', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcript, locale, scenarioId, stepId }),
+      signal: AbortSignal.timeout(INTENT_TIMEOUT_MS),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { spoken?: string };
+    return typeof data.spoken === 'string' && data.spoken.trim() ? data.spoken.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
 async function askAgent(
   transcript: string,
   locale: Locale,
   targets: PageTarget[],
 ): Promise<AgentAction> {
+  const scenarioCtx = parseScenarioContext();
   try {
     const res = await fetch('/api/clicky/intent', {
       method: 'POST',
@@ -41,6 +74,7 @@ async function askAgent(
         transcript,
         locale,
         page: window.location.pathname,
+        ...scenarioCtx,
         targets: targets.map((t) => ({
           uid: t.uid,
           label: t.label,
@@ -55,11 +89,28 @@ async function askAgent(
     if (data.action === 'point' && data.uid) {
       return { type: 'point', uid: data.uid, hint: data.spoken, spoken: data.spoken };
     }
-    return { type: 'noop', spoken: data.spoken };
+    const grounded =
+      data.action === 'explain'
+        ? await fetchGroundedExplain(
+            transcript,
+            locale,
+            scenarioCtx.scenarioId,
+            scenarioCtx.stepId,
+          )
+        : null;
+    return { type: 'noop', spoken: grounded ?? data.spoken };
   } catch {
-    // Local fallback — same shape, deterministic. The user gets *some*
-    // answer; the bubble doesn't hang.
-    return runLocalAgent({ transcript, targets });
+    const local = runLocalAgent({ transcript, targets });
+    if (local.type === 'noop') {
+      const grounded = await fetchGroundedExplain(
+        transcript,
+        locale,
+        scenarioCtx.scenarioId,
+        scenarioCtx.stepId,
+      );
+      if (grounded) return { type: 'noop', spoken: grounded };
+    }
+    return local;
   }
 }
 

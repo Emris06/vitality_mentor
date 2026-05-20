@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import Anthropic from '@anthropic-ai/sdk';
+import { request as undiciRequest } from 'undici';
 import { config } from '../config';
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -31,7 +32,16 @@ const intentRequestSchema = z.object({
   transcript: z.string().min(1).max(500),
   locale: z.enum(['uz', 'ru', 'en']).default('en'),
   page: z.string().max(120).optional(),
+  scenarioId: z.string().max(32).optional(),
+  stepId: z.string().max(64).optional(),
   targets: z.array(targetSchema).min(0).max(60),
+});
+
+const explainRequestSchema = z.object({
+  transcript: z.string().min(1).max(500),
+  locale: z.enum(['uz', 'ru', 'en']).default('en'),
+  scenarioId: z.string().max(32).optional(),
+  stepId: z.string().max(64).optional(),
 });
 
 type IntentRequest = z.infer<typeof intentRequestSchema>;
@@ -83,6 +93,32 @@ function getClient(): Anthropic | null {
 }
 
 export async function clickyRoutes(app: FastifyInstance): Promise<void> {
+  app.post('/clicky/explain', async (req, reply) => {
+    const parsed = explainRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      reply.code(400);
+      return { error: 'invalid_request', detail: parsed.error.flatten() };
+    }
+    try {
+      const upstream = await undiciRequest(`${config.AI_SERVICE_URL}/clicky/explain`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(parsed.data),
+        bodyTimeout: 8_000,
+        headersTimeout: 8_000,
+      });
+      if (upstream.statusCode >= 400) {
+        reply.code(502);
+        return { error: 'ai_error' };
+      }
+      return JSON.parse(await upstream.body.text());
+    } catch (err) {
+      req.log.warn({ err }, 'clicky explain proxy failed');
+      reply.code(502);
+      return { error: 'ai_unreachable' };
+    }
+  });
+
   app.post('/clicky/intent', async (req, reply) => {
     const parsed = intentRequestSchema.safeParse(req.body);
     if (!parsed.success) {

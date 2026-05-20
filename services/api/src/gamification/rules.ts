@@ -29,39 +29,71 @@ export interface SimMistake {
   penalty: number;
 }
 
+type ScenarioXpProfile = {
+  primary: string;
+  secondary?: string;
+  high: [number, number];
+  mid: number;
+  low: number;
+};
+
+const SCENARIO_XP: Record<string, ScenarioXpProfile> = {
+  kyc: { primary: 'KYC', secondary: 'Compliance', high: [25, 10], mid: 12, low: 4 },
+  'open-account': { primary: 'RetailOps', high: [22, 8], mid: 12, low: 5 },
+  deposit: { primary: 'CashOps', high: [20, 0], mid: 10, low: 4 },
+  transfer: { primary: 'Payments', secondary: 'Compliance', high: [24, 8], mid: 14, low: 5 },
+};
+
+const DEFAULT_XP = SCENARIO_XP.kyc!;
+
 /**
- * KYC-scenario-shaped reward curve:
- *   score ≥ 85 → +25 KYC, +10 Compliance
- *   60..84    → +12 KYC
- *   < 60      → +4 KYC
- * Mistakes subtract sum(penalty)/2, clamped to ≤ 8, from the KYC delta.
- *
- * The catalog of "skill per scenario" is a TODO — for now we treat every
- * sim run as a KYC-skill run because that's the only implemented scenario.
+ * Per-scenario reward curve (score bands mirror KYC shape).
+ * Mistakes subtract from the primary skill delta only.
  */
-export function xpForSimScored(score: number, mistakes: SimMistake[] = []): XpDelta[] {
+export function xpForSimScored(
+  score: number,
+  scenarioId: string,
+  mistakes: SimMistake[] = [],
+): XpDelta[] {
+  const profile = SCENARIO_XP[scenarioId] ?? DEFAULT_XP;
   const out: XpDelta[] = [];
   if (score >= 85) {
-    out.push({ skill: 'KYC', delta: 25, reason: `sim.scored:${score}` });
-    out.push({ skill: 'Compliance', delta: 10, reason: `sim.scored:${score}` });
+    out.push({
+      skill: profile.primary,
+      delta: profile.high[0],
+      reason: `sim.scored:${scenarioId}:${score}`,
+    });
+    if (profile.secondary && profile.high[1] > 0) {
+      out.push({
+        skill: profile.secondary,
+        delta: profile.high[1],
+        reason: `sim.scored:${scenarioId}:${score}`,
+      });
+    }
   } else if (score >= 60) {
-    out.push({ skill: 'KYC', delta: 12, reason: `sim.scored:${score}` });
+    out.push({
+      skill: profile.primary,
+      delta: profile.mid,
+      reason: `sim.scored:${scenarioId}:${score}`,
+    });
   } else {
-    out.push({ skill: 'KYC', delta: 4, reason: `sim.scored:${score}` });
+    out.push({
+      skill: profile.primary,
+      delta: profile.low,
+      reason: `sim.scored:${scenarioId}:${score}`,
+    });
   }
 
   const rawPenalty = mistakes.reduce((acc, m) => acc + (Number(m.penalty) || 0), 0);
   const penalty = Math.min(8, Math.floor(rawPenalty / 2));
   if (penalty > 0) {
-    // Apply to KYC only — Compliance bonus survives if any.
-    const kyc = out.find((d) => d.skill === 'KYC');
-    if (kyc) {
-      kyc.delta = Math.max(0, kyc.delta - penalty);
-      kyc.reason = `${kyc.reason}|penalty:${penalty}`;
+    const primary = out.find((d) => d.skill === profile.primary);
+    if (primary) {
+      primary.delta = Math.max(0, primary.delta - penalty);
+      primary.reason = `${primary.reason}|penalty:${penalty}`;
     }
   }
 
-  // Drop zero/negative entries — no point cluttering the ledger.
   return out.filter((d) => d.delta > 0);
 }
 

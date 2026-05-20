@@ -54,6 +54,8 @@ interface ProfilePayload {
     goal: Record<string, number>; progress: Record<string, number>;
     rewardXp: number; completedAt: string | null;
   } | null;
+  completedScenarios: string[];
+  onboardingDeadline: string | null;
 }
 
 async function loadProfile(userId: string): Promise<ProfilePayload> {
@@ -109,6 +111,21 @@ async function loadProfile(userId: string): Promise<ProfilePayload> {
       }
     : null;
 
+  const completedRows = await sql<{ scenario_id: string }[]>`
+    SELECT DISTINCT scenario_id
+    FROM scenario_runs
+    WHERE user_id = ${userId} AND status = 'scored'
+  `;
+  const completedScenarios = completedRows.map((r) => r.scenario_id);
+
+  const deadlineRows = await sql<{ onboarding_deadline: string }[]>`
+    SELECT n.onboarding_deadline::text AS onboarding_deadline
+    FROM newcomers n
+    WHERE n.employee_id = ${userId}
+    LIMIT 1
+  `;
+  const onboardingDeadline = deadlineRows[0]?.onboarding_deadline ?? null;
+
   return {
     userId,
     xpBySkill,
@@ -125,6 +142,8 @@ async function loadProfile(userId: string): Promise<ProfilePayload> {
       lastActiveDate: streak.last_active_date,
     },
     todayQuest,
+    completedScenarios,
+    onboardingDeadline,
   };
 }
 

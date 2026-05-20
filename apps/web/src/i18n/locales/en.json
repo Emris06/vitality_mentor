@@ -146,22 +146,38 @@
       },
       "open_account": {
         "name": "Open a current account",
-        "tagline": "Full account opening flow for an individual or legal entity.",
-        "disabled": "Coming soon"
+        "tagline": "Product pick, initial funding, and compliance confirmation.",
+        "duration": "~15 min"
       },
       "deposit": {
-        "name": "Term deposit",
-        "tagline": "Open a deposit, set terms, capture client consent.",
-        "disabled": "Coming soon"
+        "name": "Cash deposit",
+        "tagline": "Select account, count denominations, verify receipt.",
+        "duration": "~12 min"
       },
       "transfer": {
-        "name": "Domestic / international transfer",
-        "tagline": "Validate beneficiary, run AML, confirm transfer.",
-        "disabled": "Coming soon"
+        "name": "Domestic transfer",
+        "tagline": "Source account, beneficiary screening, approve or block.",
+        "duration": "~15 min"
       }
+    },
+    "open_account": {
+      "choose_product": { "title": "1. Choose product" },
+      "fund_account": { "title": "2. Fund account" },
+      "confirm": { "title": "3. Confirm" }
+    },
+    "deposit": {
+      "select_account": { "title": "1. Select account" },
+      "count_cash": { "title": "2. Count cash" },
+      "verify_receipt": { "title": "3. Verify receipt" }
+    },
+    "transfer": {
+      "select_source": { "title": "1. Select source" },
+      "enter_recipient": { "title": "2. Enter recipient" },
+      "screen_and_confirm": { "title": "3. Screen & confirm" }
     },
     "run": {
       "step_of": "Step {{current}} of {{total}}",
+      "score_of_100": "out of 100",
       "score": "Score",
       "hint": "Hint",
       "hint_loading": "Asking the mentor…",
@@ -426,6 +442,11 @@
         "description": "Complete one full KYC scenario from intake to decision."
       }
     },
+    "celebration": {
+      "title": "Scenario complete",
+      "xp_earned": "+{{xp}} XP earned",
+      "continue": "Continue"
+    },
     "streak": {
       "title": "Streak",
       "current_one": "{{count}}-day streak",
@@ -520,6 +541,11 @@
     "coming_soon": "Coming soon"
   },
   "clicky": {
+    "mobile": {
+      "hold_to_talk": "Hold to talk",
+      "listening": "Listening…",
+      "thinking": "Thinking…"
+    },
     "hint": {
       "nav": {
         "home": "Your dashboard — current scenario, today's tasks, and cohort.",
@@ -603,6 +629,7 @@
         },
         "module": {
           "retail_ops": "Retail Ops",
+          "cash_ops": "Cash Operations",
           "payments": "Payments",
           "compliance": "Compliance",
           "orientation": "Orientation"
@@ -611,6 +638,7 @@
           "orientation": "Bank floor orientation",
           "kyc": "Run a full KYC",
           "open_account": "Open an account",
+          "deposit": "Process a cash deposit",
           "transfer": "Domestic transfer"
         }
       },

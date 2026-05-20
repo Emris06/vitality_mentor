@@ -173,14 +173,15 @@ export function useClickyState(): ClickyState {
 }
 
 /** Convenience: enable Clicky on mount, disable on unmount. */
-export function useClickyEnabled(): void {
+export function useClickyEnabled(active = true): void {
   const ctx = useContext(ClickyContext);
   if (!ctx) {
     throw new Error('useClickyEnabled() must be used inside <ClickyProvider>');
   }
   const { enable, disable } = ctx;
   useEffect(() => {
+    if (!active) return;
     enable();
     return () => disable();
-  }, [enable, disable]);
+  }, [active, enable, disable]);
 }

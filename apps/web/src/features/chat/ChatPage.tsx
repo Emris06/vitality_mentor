@@ -145,6 +145,7 @@ export function ChatPage() {
 
   return (
     <InternShell
+      enableClicky
       userName={userName}
       userRole={roleLabel}
       greeting={t('intern.shell.greeting', { name: firstName })}

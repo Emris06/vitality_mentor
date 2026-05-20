@@ -146,22 +146,38 @@
       },
       "open_account": {
         "name": "Joriy hisob ochish",
-        "tagline": "Jismoniy yoki yuridik shaxs uchun to‘liq hisob ochish jarayoni.",
-        "disabled": "Tez orada"
+        "tagline": "Mahsulot tanlash, boshlang‘ich mablag‘, tasdiqlash.",
+        "duration": "~15 daq"
       },
       "deposit": {
-        "name": "Muddatli depozit",
-        "tagline": "Depozit ochish, shartlar, mijoz roziligi.",
-        "disabled": "Tez orada"
+        "name": "Naqd depozit",
+        "tagline": "Hisob, kupyuralarni sanash, kvitansiya.",
+        "duration": "~12 daq"
       },
       "transfer": {
-        "name": "Ichki / xalqaro pul o‘tkazma",
-        "tagline": "Oluvchini tekshirish, AML, o‘tkazmani tasdiqlash.",
-        "disabled": "Tez orada"
+        "name": "Ichki o‘tkazma",
+        "tagline": "Manba hisob, skrining, qaror.",
+        "duration": "~15 daq"
       }
+    },
+    "open_account": {
+      "choose_product": { "title": "1. Mahsulot tanlash" },
+      "fund_account": { "title": "2. Mablag‘ kiritish" },
+      "confirm": { "title": "3. Tasdiqlash" }
+    },
+    "deposit": {
+      "select_account": { "title": "1. Hisob tanlash" },
+      "count_cash": { "title": "2. Naqdni sanash" },
+      "verify_receipt": { "title": "3. Kvitansiya" }
+    },
+    "transfer": {
+      "select_source": { "title": "1. Manba hisob" },
+      "enter_recipient": { "title": "2. Oluvchi" },
+      "screen_and_confirm": { "title": "3. Skrining va qaror" }
     },
     "run": {
       "step_of": "{{total}} dan {{current}}-bosqich",
+      "score_of_100": "100 dan",
       "score": "Ball",
       "hint": "Maslahat",
       "hint_loading": "Mentordan so‘ralmoqda…",
@@ -426,6 +442,11 @@
         "description": "KYC-stsenariyni qabuldan qarorgacha to‘liq bajaring."
       }
     },
+    "celebration": {
+      "title": "Stsenariy tugadi",
+      "xp_earned": "+{{xp}} XP qo‘shildi",
+      "continue": "Davom etish"
+    },
     "streak": {
       "title": "Seriya",
       "current_one": "{{count}} kunlik seriya",
@@ -520,6 +541,11 @@
     "coming_soon": "Tez orada"
   },
   "clicky": {
+    "mobile": {
+      "hold_to_talk": "Gapirish uchun ushlab turing",
+      "listening": "Tinglayapman…",
+      "thinking": "O‘ylayapman…"
+    },
     "hint": {
       "nav": {
         "home": "Sizning panelingiz — faol stsenariy, bugungi vazifalar va guruh.",
@@ -603,6 +629,7 @@
         },
         "module": {
           "retail_ops": "Riteyl operatsiyalar",
+          "cash_ops": "Naqd operatsiyalar",
           "payments": "To‘lovlar",
           "compliance": "Komplayens",
           "orientation": "Tanishuv"
@@ -611,6 +638,7 @@
           "orientation": "Bank zali bilan tanishuv",
           "kyc": "To‘liq KYC",
           "open_account": "Hisob ochish",
+          "deposit": "Naqd depozit",
           "transfer": "Ichki o‘tkazma"
         }
       },

@@ -1,5 +1,6 @@
 import { useState, type ComponentType } from 'react';
 import { ScenarioRunPage } from '../ScenarioRunPage';
+import { OPEN_ACCOUNT_STEP_HINTS } from '../scenarioStepHints';
 import type { StepDef } from '../ChromeShell';
 import type { StepProps } from '../kyc/steps/stepTypes';
 
@@ -211,6 +212,7 @@ export function OpenAccountRunPage() {
       steps={STEPS}
       stepComponents={STEP_COMPONENTS}
       lastRunKey="vitality.lastOpenAccountRunId"
+      stepHints={OPEN_ACCOUNT_STEP_HINTS}
     />
   );
 }

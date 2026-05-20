@@ -40,7 +40,7 @@ export async function applyGameEvent(event: GameEvent): Promise<void> {
     case 'sim.scored':
       sourceKind = 'sim';
       sourceId = event.runId;
-      deltas = xpForSimScored(event.score, event.mistakes ?? []);
+      deltas = xpForSimScored(event.score, event.scenarioId, event.mistakes ?? []);
       break;
     case 'chat.solved':
       sourceKind = 'chat';
