@@ -182,7 +182,12 @@ export function ScenarioRunPage({
         onOpenHint={scored ? undefined : () => setHintOpen(true)}
       >
         {scored ? (
-          <ResultsView run={run} onRetry={() => void handleRetry()} backRoute={backRoute} />
+          <ResultsView
+            run={run}
+            steps={steps}
+            onRetry={() => void handleRetry()}
+            backRoute={backRoute}
+          />
         ) : StepComponent ? (
           <StepComponent run={run} submitting={submitting} onSubmit={(p) => void handleSubmit(p)} />
         ) : (
@@ -228,18 +233,31 @@ function shortenRunId(id: string): string {
 
 interface ResultsViewProps {
   run: ScenarioRun;
+  steps: StepDef[];
   onRetry: () => void;
   backRoute: string;
 }
 
-function ResultsView({ run, onRetry, backRoute }: ResultsViewProps) {
-  const { t } = useTranslation();
+function ResultsView({ run, steps, onRetry, backRoute }: ResultsViewProps) {
+  const { t, i18n } = useTranslation();
   const score = run.score ?? 0;
   const mistakes: ScenarioMistake[] = run.mistakes ?? [];
+
+  const critical = mistakes.filter((m) => m.penalty >= 20);
+  const minor = mistakes.filter((m) => m.penalty < 20);
 
   let scoreClass = 'text-emerald-600';
   if (score < 60) scoreClass = 'text-rose-600';
   else if (score < 85) scoreClass = 'text-amber-600';
+
+  function stepTitle(stepId: string): string {
+    const def = steps.find((s) => s.id === stepId);
+    return def ? t(def.titleKey) : stepId;
+  }
+
+  function translateMistake(m: ScenarioMistake): string {
+    return i18n.exists(m.messageKey) ? t(m.messageKey) : (m.messageKey || m.code);
+  }
 
   return (
     <div className="p-6">
@@ -247,43 +265,93 @@ function ResultsView({ run, onRetry, backRoute }: ResultsViewProps) {
         <p className="font-mono-tech text-[11px] uppercase tracking-wider text-zinc-500">
           {t('sim.run.finished')}
         </p>
-        <p className={`font-mono-tech text-6xl font-bold ${scoreClass}`}>{score}</p>
-        <p className="text-sm text-zinc-600">{t('sim.run.score_of_100')}</p>
+        <p className={'font-mono-tech text-6xl font-bold ' + scoreClass}>{score}</p>
+        <p className="text-sm text-zinc-600">
+          {mistakes.length === 0
+            ? t('sim.run.no_mistakes')
+            : t('sim.run.mistake_count', { count: mistakes.length })}
+        </p>
       </div>
 
-      {mistakes.length > 0 && (
-        <div className="mt-6">
-          <h3 className="mb-3 font-mono-tech text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-            {t('sim.run.mistakes')}
+      {critical.length > 0 && (
+        <section className="mt-5">
+          <h3 className="mb-2 font-mono-tech text-[11px] font-semibold uppercase tracking-wider text-rose-600">
+            {t('sim.run.critical_mistakes', { count: critical.length })}
           </h3>
           <ul className="space-y-2">
-            {mistakes.map((m, i) => (
+            {critical.map((m, idx) => (
               <li
-                key={`${m.stepId}-${i}`}
-                className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900 ring-1 ring-amber-200"
+                key={`${m.stepId}-${m.code}-${idx}`}
+                className="rounded-md bg-rose-50 px-3 py-3 ring-1 ring-rose-200"
               >
-                <span className="font-mono-tech text-xs text-amber-700">{m.stepId}</span>
-                <span className="ml-2">{m.messageKey || m.code}</span>
-                <span className="ml-2 font-mono-tech text-xs text-amber-600">−{m.penalty}</span>
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-rose-600 font-mono-tech text-[10px] font-bold text-white">
+                    !
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-rose-900">{translateMistake(m)}</p>
+                    <p className="mt-0.5 text-xs text-rose-600">
+                      <span className="font-medium">{stepTitle(m.stepId)}</span>
+                      <span className="mx-1.5 text-rose-400">·</span>
+                      <span className="font-mono-tech">-{m.penalty} pts</span>
+                    </p>
+                  </div>
+                </div>
               </li>
             ))}
           </ul>
-        </div>
+        </section>
       )}
 
-      <div className="mt-8 flex flex-wrap justify-center gap-3">
+      {minor.length > 0 && (
+        <section className="mt-4">
+          <h3 className="mb-2 font-mono-tech text-[11px] font-semibold uppercase tracking-wider text-amber-600">
+            {t('sim.run.minor_mistakes', { count: minor.length })}
+          </h3>
+          <ul className="space-y-2">
+            {minor.map((m, idx) => (
+              <li
+                key={`${m.stepId}-${m.code}-${idx}`}
+                className="rounded-md bg-amber-50 px-3 py-3 ring-1 ring-amber-200"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-500 font-mono-tech text-[10px] font-bold text-white">
+                    ·
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-amber-900">{translateMistake(m)}</p>
+                    <p className="mt-0.5 text-xs text-amber-600">
+                      <span className="font-medium">{stepTitle(m.stepId)}</span>
+                      <span className="mx-1.5 text-amber-400">·</span>
+                      <span className="font-mono-tech">-{m.penalty} pts</span>
+                    </p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {mistakes.length > 0 && (
+        <p className="mt-4 text-center text-xs text-zinc-500">
+          {t('sim.run.review_with_mentor')}
+        </p>
+      )}
+
+      <div className="mt-6 flex flex-wrap justify-center gap-2">
         <button
           type="button"
           onClick={onRetry}
           data-clicky-target="retry, again, restart, run"
           data-clicky-hint="Start a fresh run with new synthetic data."
-          className="rounded-md bg-mentora-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mentora-700 focus:outline-none focus:ring-2 focus:ring-mentora-600/30"
+          className="inline-flex items-center gap-2 rounded-md bg-mentora-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mentora-700 focus:outline-none focus:ring-2 focus:ring-mentora-600/30"
         >
-          {t('sim.run.try_again')}
+          {t('sim.run.retry')}
         </button>
         <Link
           to={backRoute}
-          className="rounded-md bg-white px-5 py-2 text-sm font-semibold text-zinc-700 ring-1 ring-zinc-300 transition hover:bg-zinc-50"
+          className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-2 text-sm font-semibold text-zinc-700 ring-1 ring-zinc-300 transition hover:bg-zinc-50"
         >
           {t('sim.back')}
         </Link>

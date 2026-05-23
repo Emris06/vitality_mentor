@@ -1,4 +1,4 @@
-import { Suspense, lazy, useRef, type ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import {
@@ -9,13 +9,11 @@ import {
   useTransform,
 } from 'framer-motion';
 import { LocalePicker } from '../../components/LocalePicker';
-import { BankIllustration } from '../../components/ui/IllustrationGreeting';
 import { MentoraMark } from '../../components/warm/MentoraMark';
 import { WarmCard } from '../../components/warm/WarmCard';
 import { useAuth } from '../auth/AuthProvider';
 import { homeRouteFor } from '../auth/types';
-
-const HeroScene3D = lazy(() => import('./HeroScene3D'));
+import HeroAppMockup from './HeroAppMockup';
 
 // ──────────────────────────────────────────────────────────────────────────
 // Public landing — warm theme (Phase H).
@@ -82,15 +80,7 @@ export function Landing() {
           </motion.div>
 
           <div className="relative">
-            <Suspense
-              fallback={
-                <div className="flex items-center justify-center">
-                  <BankIllustration />
-                </div>
-              }
-            >
-              <HeroScene3D />
-            </Suspense>
+            <HeroAppMockup />
           </div>
         </div>
       </section>

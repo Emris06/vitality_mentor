@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Guidance for Claude Code when working in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## What this is
 
@@ -51,15 +51,20 @@ simulator. It:
 
 Current code state (read `apps/web/src/features/clicky/` before acting):
 
-- Visual + interaction layer is built: `Clicky.tsx`, `ClickyProvider.tsx`,
+- Visual + interaction layer: `Clicky.tsx`, `ClickyProvider.tsx`,
   `ClickyVoiceOverlay.tsx`, `tts.ts`, `useClickyAgent.ts`.
-- The "brain" (`agent.ts`) is a **deterministic keyword matcher**, not an LLM.
-  It scans the DOM for `data-clicky-target="…"` keyword annotations and picks
-  the highest-overlap target. The file is pre-shaped for a future
-  `/clicky/intent` backend endpoint that runs an LLM — that upgrade is a
-  priority.
-- "Sees the screen" today = "reads `data-clicky-target` annotations." Densely
-  annotate every interactive element in the simulator.
+- **The backend `/clicky/intent` endpoint is wired** (`services/api/src/routes/clicky.ts`).
+  It calls Claude Haiku 4.5 (override via `CLICKY_MODEL` env var) with a
+  JSON-schema-constrained output. Falls back to an in-process keyword matcher
+  when `ANTHROPIC_API_KEY` is absent or the LLM times out — the frontend
+  cannot tell the difference. The client-side `agent.ts` now bypasses the local
+  matcher and calls `/clicky/intent` via `useClickyAgent.ts`.
+- "Sees the screen" = reads `data-clicky-target` annotations. Annotate every
+  interactive element in the simulator with both attributes:
+  - `data-clicky-target="keyword1, keyword2, …"` — comma-separated synonyms
+    the agent scores against the transcript.
+  - `data-clicky-hint="One sentence Clicky speaks on arrival."` — optional
+    arrival narration; falls back to the element's label if omitted.
 - TTS fires on arrival only. A future "narrate-while-moving" mode (speak the
   en-route sentence on movement start, the arrival sentence on arrival) is on
   the roadmap.
@@ -143,6 +148,7 @@ Node ≥ 20.11, pnpm 9, Python ≥ 3.11, Docker Desktop.
 pnpm install
 pnpm stack:up           # postgres + redis + minio + api + ai
 pnpm stack:infra        # just postgres + redis + minio (when running api/ai locally)
+pnpm stack:down         # stop all containers
 pnpm dev                # parallel: api + web (NOT ai — runs separately)
 pnpm dev:web            # http://localhost:5173
 pnpm dev:api            # http://localhost:4000 — applies migrations on startup in dev
@@ -192,3 +198,68 @@ correct.
 For visual/product layout reference (until the new design system lands):
 [`reference/DESIGN.md`](reference/DESIGN.md) and the in-progress mockups in
 [`reference/mockups/`](reference/mockups/).
+
+## Simulator scenarios
+
+Four scenario IDs are registered: `kyc`, `open-account`, `deposit`, `transfer`.
+Only `kyc` and `open-account` are fully implemented — the others return `501`.
+The gate is `isImplemented()` in `services/api/src/sim/scenarios/index.ts`.
+Each scenario lives in `services/api/src/sim/scenarios/<id>.ts` and exports a
+`ScenarioDef<TState>` consumed by the generic engine in `sim/engine.ts`.
+
+Step flow: `POST /sim/runs` → `POST /sim/runs/:id/steps` (repeat per step) →
+status transitions to `scored`. A step validator returns `{ ok: true, next }` to
+advance or `{ ok: false, mistake }` to penalise without advancing. Final score
+is clamped 0–100 and triggers both `hr.scored` and `sim.scored` Redis events.
+
+## Gamification
+
+Redis Streams are the event bus. Two event types:
+- `publishGameEvent()` (`src/gamification/events.ts`) — downstream worker awards XP + badges.
+- `publishHrEvent()` (`src/hr/events.ts`) — HR dashboard real-time update.
+
+The game worker is embedded in the API process by default (`GAME_WORKER_EMBEDDED`
+env, default on). XP rules live in `src/gamification/rules.ts` (pure, no I/O —
+unit-testable in isolation). `apply.ts` writes to Postgres. Daily XP cap per
+skill: `XP_DAILY_CAP_PER_SKILL = 60`.
+
+Badge IDs: `first_kyc`, `kyc_perfectionist`, `night_owl`, `streak_7`,
+`polyglot`. Criteria are defined in `rules.ts::badgeCriteria`.
+
+## i18n
+
+Translation files: `apps/web/src/i18n/locales/{en,ru,uz}.json`.  
+i18next is wired at `apps/web/src/i18n/index.ts` — use `useTranslation()` in
+components and add keys to all three files. The CI audit (`pnpm i18n:audit` via
+`scripts/i18n-audit.ts`) fails on missing or untranslated keys.
+
+Default locale: `ru` (both the web fallback in `locale.ts` and the chat route in
+`services/api/src/routes/chat.ts`).
+
+## Frontend API client
+
+`apps/web/src/lib/api.ts` is the single entry point for backend calls:
+
+- `authedFetch(path, init)` — wraps `fetch`, attaches Supabase `Bearer` token
+  when a session exists; cookie session used as fallback in dev.
+- `simApi` — typed object with `.startRun`, `.getRun`, `.submitStep`,
+  `.getHint`. All simulator UI goes through this.
+- `useChatStream` hook in `features/chat/` streams SSE from `/chat`.
+
+Always use `authedFetch` (not raw `fetch`) for requests that touch user data.
+
+## Environment variables (key ones)
+
+See `.env.example` at root and `services/ai/.env.example`.  
+Key variables Claude Code will commonly encounter:
+
+| Var | Service | Purpose |
+|-----|---------|---------|
+| `ANTHROPIC_API_KEY` | api | Enables Clicky LLM brain; without it, keyword fallback runs |
+| `CLICKY_MODEL` | api | Claude model for `/clicky/intent` (default: `claude-haiku-4-5-20251001`) |
+| `CLICKY_TIMEOUT_MS` | api | Abort timeout for Clicky LLM call |
+| `AI_SERVICE_URL` | api | URL of the FastAPI AI service (default: `http://localhost:8000`) |
+| `SUPABASE_JWT_SECRET` | api | JWT validation; omit in dev to use cookie session |
+| `GAME_WORKER_EMBEDDED` | api | Set to `false` to run gamification worker standalone |
+| `LMS_WORKER_EMBEDDED` | api | Set to `false` to run iSpring export queue standalone |
+| `GEN_PROVIDER` | ai | LLM provider for RAG (`anthropic` or `openai`) |

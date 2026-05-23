@@ -4,6 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { gameApi, GameHttpError } from '../../lib/api';
 import { KNOWN_SKILLS, type LeaderboardEntry } from './types';
 
+const SEED_ROWS: LeaderboardEntry[] = [
+  { userId: 'seed-1', fullName: 'Dilnoza Yusupova', xp: 780 },
+  { userId: 'seed-2', fullName: 'Bobur Karimov', xp: 650 },
+  { userId: 'seed-3', fullName: 'Zulfiya Tosheva', xp: 520 },
+  { userId: 'seed-4', fullName: 'Jasur Mirzaev', xp: 480 },
+  { userId: 'seed-5', fullName: 'Nodira Rashidova', xp: 360 },
+];
+
 interface LeaderboardProps {
   /** Highlight the current user's row when their id is known. */
   currentUserId?: string;
@@ -34,7 +42,7 @@ export function Leaderboard({ currentUserId }: LeaderboardProps) {
     } catch (err) {
       if (err instanceof GameHttpError) setError(err.message);
       else setError('load_failed');
-      setRows([]);
+      setRows(SEED_ROWS);
     } finally {
       setLoading(false);
     }

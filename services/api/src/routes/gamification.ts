@@ -197,6 +197,33 @@ export async function gamificationRoutes(app: FastifyInstance): Promise<void> {
     });
   });
 
+  // GET /gamification/quests -----------------------------------------------
+  app.get('/gamification/quests', async (req: FastifyRequest, reply: FastifyReply) => {
+    const userId = getOrCreateUserId(req, reply);
+    const rows = await sql<QuestRow[]>`
+      SELECT q.id, q.name_key, q.description_key, q.kind, q.goal, q.reward_xp,
+             uq.progress, uq.completed_at
+      FROM quests q
+      LEFT JOIN LATERAL (
+        SELECT progress, completed_at FROM user_quests
+        WHERE user_id = ${userId}::uuid AND quest_id = q.id
+        ORDER BY created_at DESC
+        LIMIT 1
+      ) uq ON true
+      ORDER BY q.kind, q.id
+    `;
+    return reply.send(rows.map((r) => ({
+      id: r.id,
+      nameKey: r.name_key,
+      descriptionKey: r.description_key,
+      kind: r.kind,
+      goal: r.goal,
+      rewardXp: r.reward_xp,
+      progress: r.progress ?? {},
+      completedAt: r.completed_at ? r.completed_at.toISOString() : null,
+    })));
+  });
+
   // POST /gamification/manual ----------------------------------------------
   // Direct ledger insert — no rules, no cap. Useful for HR overrides / demo
   // resets. TODO(auth): gate behind HR role.

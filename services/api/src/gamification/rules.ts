@@ -140,6 +140,16 @@ export function badgeCriteria(state: BadgeStateSnapshot): string[] {
     earned.push('polyglot');
   }
 
+  // first_deposit — any scored deposit run.
+  if (!has('first_deposit') && state.recentSimRuns.some((r) => r.scenarioId === 'deposit')) {
+    earned.push('first_deposit');
+  }
+
+  // first_transfer — any scored transfer run.
+  if (!has('first_transfer') && state.recentSimRuns.some((r) => r.scenarioId === 'transfer')) {
+    earned.push('first_transfer');
+  }
+
   return earned;
 }
 
@@ -188,6 +198,20 @@ export const BADGES_SEED: BadgeSeed[] = [
     descriptionKey: 'badges.polyglot.desc',
     icon: 'languages',
     criteria: { kind: 'highScoreInLocales', minScore: 70, distinctLocales: 2 },
+  },
+  {
+    id: 'first_deposit',
+    nameKey: 'badges.first_deposit.name',
+    descriptionKey: 'badges.first_deposit.desc',
+    icon: 'banknotes',
+    criteria: { kind: 'simScenarioCompleted', scenarioId: 'deposit' },
+  },
+  {
+    id: 'first_transfer',
+    nameKey: 'badges.first_transfer.name',
+    descriptionKey: 'badges.first_transfer.desc',
+    icon: 'arrow-right-circle',
+    criteria: { kind: 'simScenarioCompleted', scenarioId: 'transfer' },
   },
 ];
 

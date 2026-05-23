@@ -22,6 +22,8 @@ export interface ScenarioRun {
   finishedAt?: string;
   score?: number;
   mistakes?: ScenarioMistake[];
+  /** Scenario-specific jsonb state (synthetic fixtures, step progress). */
+  state?: Record<string, unknown>;
 }
 
 export interface ScenarioMistake {

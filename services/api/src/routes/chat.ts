@@ -7,6 +7,7 @@ import { config } from '../config';
 import { asJson, sql } from '../plugins/db';
 import { getOrCreateUserId } from '../lib/session';
 import { checkChatRateLimit } from '../lib/rate-limit';
+import { publishGameEvent } from '../gamification/events';
 
 // Mirror of ChatRequest from @vitality/shared/types/chat.ts. Keep in sync.
 const chatRequestSchema = z.object({
@@ -197,7 +198,7 @@ export async function chatRoutes(app: FastifyInstance): Promise<void> {
     } catch (err) {
       const status = (err as { statusCode?: number }).statusCode ?? 500;
       req.log.error({ err }, 'failed to ensure chat session');
-      return reply.status(status).send({ error: 'session_error', message: (err as Error).message });
+      return reply.status(status).send({ error: 'session_error' });
     }
 
     // Persist the user's turn before we hit the AI service so we don't lose it
@@ -305,6 +306,18 @@ export async function chatRoutes(app: FastifyInstance): Promise<void> {
       } catch (err) {
         req.log.error({ err }, 'failed to persist assistant message');
       }
+    }
+
+    // Gamification — a "solved" chat is one that produced a grounded answer
+    // (≥1 citation) without erroring. The idempotency key on the worker side
+    // makes this safe to fire even if the same session emits multiple
+    // solved messages — only the first per (session, skill) earns XP.
+    if (!acc.errored && acc.citations.length > 0) {
+      void publishGameEvent({
+        type: 'chat.solved',
+        userId,
+        sessionId: session.id,
+      });
     }
   });
 

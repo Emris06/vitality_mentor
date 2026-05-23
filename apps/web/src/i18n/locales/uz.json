@@ -147,17 +147,17 @@
       "open_account": {
         "name": "Joriy hisob ochish",
         "tagline": "Jismoniy yoki yuridik shaxs uchun to‘liq hisob ochish jarayoni.",
-        "disabled": "Tez orada"
+        "duration": "~6 daqiqa"
       },
       "deposit": {
-        "name": "Muddatli depozit",
-        "tagline": "Depozit ochish, shartlar, mijoz roziligi.",
-        "disabled": "Tez orada"
+        "name": "Naqd depozit",
+        "tagline": "Naqd depozitni qabul qilish: hisobni tanlash, banknotalarni hisoblash, kvitansiyani tekshirish.",
+        "duration": "~5 daqiqa"
       },
       "transfer": {
-        "name": "Ichki / xalqaro pul o‘tkazma",
-        "tagline": "Oluvchini tekshirish, AML, o‘tkazmani tasdiqlash.",
-        "disabled": "Tez orada"
+        "name": "Ichki o‘tkazma",
+        "tagline": "Manbani tanlang, oluvchini kiriting, riskni baholang va tasdiqlang.",
+        "duration": "~7 daqiqa"
       }
     },
     "run": {
@@ -175,8 +175,16 @@
       "no_mistakes": "Xatolarsiz. Toza yakun.",
       "open_chat": "AI-mentor bilan muhokama qilish",
       "loading_run": "Sessiya yuklanmoqda…",
-      "load_error": "Sessiyani yuklab bo‘lmadi.",
-      "submit_error": "Bosqichni yuborib bo‘lmadi. Qayta urinib ko‘ring."
+      "load_error": "Sessiyani yuklab bo’lmadi.",
+      "submit_error": "Bosqichni yuborib bo’lmadi. Qayta urinib ko’ring.",
+      "critical_mistakes_one": "{{count}} ta jiddiy xato",
+      "critical_mistakes_other": "{{count}} ta jiddiy xato",
+      "minor_mistakes_one": "{{count}} ta kichik xato",
+      "minor_mistakes_other": "{{count}} ta kichik xato",
+      "review_with_mentor": "AI-mentor bilan bu xatolarni muhokama qilish uchun chatni oching.",
+      "score_of_100": "100 dan",
+      "mistakes": "Xatolar",
+      "try_again": "Qayta urinib ko‘rish"
     },
     "kyc": {
       "banner_synthetic": "Bu ekrandagi barcha ma’lumotlar 100% sintetik. Haqiqiy mijoz ma’lumotlari hech qachon ishlatilmaydi.",
@@ -239,6 +247,176 @@
           "reject_desc": "Rasmiy bildirishnoma bilan rad etish. Hisob ochilmaydi.",
           "manual_review": "Qo‘lda ko‘rib chiqishga",
           "manual_review_desc": "Yuqori darajadagi komplayens xodimga uzatish."
+        }
+      },
+      "intake": {
+        "invalid_payload": "Mijoz identifikatorining formati noto'g'ri. To'g'ri identifikator kiriting."
+      },
+      "verify_documents": {
+        "invalid_payload": "Hujjat tekshiruvi so'rovi noto'g'ri. Shaklni qayta yuboring.",
+        "missing_documents": "Bu mijoz uchun hujjatlar topilmadi. Tekshiruvni davom ettirish mumkin emas.",
+        "passport_wrong": "Pasport haqiqiyligini baholash noto'g'ri. Muddati va fotosuratni ko'rib chiqing.",
+        "income_wrong": "Daromad ma'lumotnomasi baholanishi noto'g'ri. Bergan tashkilot va imzoni tekshiring.",
+        "both_wrong": "Pasport va daromad ma'lumotnomasi ikkalasini baholash noto'g'ri. Ikkala hujjatni qayta ko'rib chiqing."
+      },
+      "sanctions_check": {
+        "invalid_payload": "Sanksiya tekshiruvi so'rovi noto'g'ri. Qarorni qayta yuboring.",
+        "not_screened": "Mijoz sanksiyalar ro'yxati bo'yicha tekshirilmagan. Avval tekshiruvni bajaring.",
+        "passed_sanctioned": "Mijoz sanksiyalar ro'yxatida bor, lekin o'tkazib yuborildi. Bu jiddiy komplayens xatosi.",
+        "blocked_clean": "Mijoz sanksiyalar ro'yxatida yo'q, lekin to'sib qo'yildi. To'siqni olib tashlang va davom eting."
+      },
+      "risk_score": {
+        "invalid_payload": "Risk darajasi so'rovi noto'g'ri. To'g'ri risk turini tanlang.",
+        "mismatch": "Noto'g'ri risk darajasi tanlandi. Mijoz profili, sanksiyalar va PEP holatini qayta ko'rib chiqing."
+      },
+      "decision": {
+        "invalid_payload": "Qaror noto'g'ri. To'g'ri variantni tanlang.",
+        "approved_high_risk": "Yuqori xavfli mijoz tasdiqlandi. Qo'lda ko'rib chiqishga yuborilishi yoki rad etilishi kerak."
+      }
+    },
+    "open_account": {
+      "choose_product": {
+        "title": "1. Mahsulot tanlash",
+        "invalid_payload": "Hisob turi yoki valyuta noto'g'ri tanlangan."
+      },
+      "fund_account": {
+        "title": "2. Hisobni to'ldirish",
+        "invalid_payload": "Depozit miqdori formati noto'g'ri.",
+        "missing_product": "Hisob turi tanlanmagan. Oldingi bosqichga qayting.",
+        "below_minimum": "Boshlang'ich to'lov ushbu hisob turi uchun belgilangan minimal miqdordan past.",
+        "above_maximum": "Boshlang'ich to'lov ushbu hisob turi uchun ruxsat etilgan maksimal miqdordan oshib ketdi."
+      },
+      "confirm": {
+        "title": "3. Tasdiqlash",
+        "invalid_payload": "Tasdiqlash ma'lumotlari noto'g'ri. Qayta yuboring.",
+        "terms_not_accepted": "Hisobni ochish uchun shartnoma shartlarini qabul qilish shart."
+      },
+      "steps": {
+        "choose_product": {
+          "title": "1. Mahsulot tanlash",
+          "heading": "Mahsulotni tanlang",
+          "description": "Mijoz ochmoqchi bo'lgan hisob turi va valyutani tanlang. Ikkala variant ham to'g'ri — tizim faqat aniq xato birikmalarni belgilab beradi.",
+          "account_type": "Hisob turi",
+          "currency": "Valyuta",
+          "current": "Joriy hisob",
+          "current_hint": "Kundalik foydalanish, past minimum",
+          "savings": "Jamg'arma hisobi",
+          "savings_hint": "Yuqoriroq minimum, foiz oladi",
+          "uzs_hint": "Milliy valyuta",
+          "usd_hint": "Xorijiy valyuta",
+          "next": "Keyingi"
+        },
+        "fund_account": {
+          "title": "2. Hisobni to'ldirish",
+          "heading": "Hisobni to'ldiring",
+          "description": "Boshlang'ich to'lov miqdorini kiriting. Minimumdan past yoki tartibga solish chegarasidan yuqori — bu xato hisoblanadi.",
+          "amount_label": "Boshlang'ich to'lov ({{currency}})",
+          "submit": "Depozitni yuborish"
+        },
+        "confirm": {
+          "title": "3. Tasdiqlash",
+          "heading": "Operatsiyani tasdiqlang",
+          "description": "Yakuniy bosqich: ushbu ochishni tugatilgan KYC bilan bog'lang va shartlarni tasdiqlang. Shartlarni belgilamasdan hisob ochish — qattiq xato.",
+          "kyc_ref_label": "KYC havolasi",
+          "terms_label": "Mijoz hisob ochish shartlarini imzoladi.",
+          "submit": "Hisobni ochish"
+        }
+      }
+    },
+    "deposit": {
+      "select_account": {
+        "title": "1. Hisobni tanlash",
+        "invalid_payload": "Hisob tanlovi noto'g'ri.",
+        "unknown_account": "Tanlangan hisob mavjud emas."
+      },
+      "count_cash": {
+        "title": "2. Naqd pulni hisoblash",
+        "invalid_payload": "Naqd pul hisoblash so'rovi noto'g'ri.",
+        "no_account": "Hisob tanlanmagan. Oldingi bosqichga qayting.",
+        "invalid_denomination": "Hisoblashda noma'lum nominal mavjud. Faqat to'g'ri banknotalari ishlating.",
+        "amount_mismatch": "Nominallar bo'yicha jami miqdor e'lon qilingan depozit summasiga mos kelmaydi. Qayta hisoblang."
+      },
+      "verify_receipt": {
+        "title": "3. Kvitansiyani tekshirish",
+        "invalid_payload": "Kvitansiya raqami so'rovi noto'g'ri.",
+        "bad_format": "Kvitansiya raqami talab qilinadigan formatga (DEP-XXXXXXXX) mos kelmaydi."
+      },
+      "steps": {
+        "select_account": {
+          "title": "1. Hisobni tanlash",
+          "heading": "Mijoz hisobini tanlang",
+          "description": "Depozit qabul qilinadigan hisobni tanlang. Barcha hisoblar sintetik — haqiqiy mablag'lar ishtirok etmaydi.",
+          "submit": "Davom etish"
+        },
+        "count_cash": {
+          "title": "2. Naqd pulni hisoblash",
+          "heading": "Naqd pulni qayta sanang",
+          "description": "Har bir nominal uchun banknota sonini kiriting. Hisoblangan jami davom etish uchun e'lon qilingan summaga mos kelishi kerak.",
+          "declared_label": "E'lon qilingan summa",
+          "counted_label": "Hisoblandi",
+          "denomination_label": "{{value}} so'm",
+          "submit": "Hisobni tasdiqlash"
+        },
+        "verify_receipt": {
+          "title": "3. Kvitansiyani tekshirish",
+          "heading": "Kvitansiya raqamini kiriting",
+          "description": "Kassa chiqargan kvitansiya raqamini kiriting. Format: DEP- va sakkiz raqam.",
+          "input_label": "Kvitansiya raqami",
+          "placeholder": "DEP-XXXXXXXX",
+          "format_hint": "Format: DEP- va keyin 8 raqam (masalan, DEP-12345678).",
+          "submit": "Operatsiyani yakunlash"
+        }
+      }
+    },
+    "transfer": {
+      "select_source": {
+        "title": "1. Manbani tanlash",
+        "invalid_payload": "Manba hisob tanlovi noto'g'ri.",
+        "unknown_account": "Tanlangan manba hisob mavjud emas."
+      },
+      "enter_recipient": {
+        "title": "2. Oluvchi ma'lumotlari",
+        "invalid_payload": "Oluvchi ma'lumotlari noto'g'ri. Ism, IBAN va miqdor maydonlarini tekshiring.",
+        "bad_iban": "Oluvchi IBAN formati noto'g'ri (UZ + 2 nazorat raqami + 16 ta raqam).",
+        "no_source": "Manba hisob topilmadi. Oldingi bosqichga qayting.",
+        "insufficient_funds": "O'tkazma miqdori hisob balansidan oshib ketdi."
+      },
+      "screen_and_confirm": {
+        "title": "3. Tekshirish va tasdiqlash",
+        "invalid_payload": "O'tkazma tasdiqlash qarori noto'g'ri.",
+        "approved_risky": "Yuqori xavfli yoki sanksiya ostidagi oluvchiga o'tkazma tasdiqlandi. Bu jiddiy AML xatosi.",
+        "blocked_clean": "O'tkazma to'sib qo'yildi, lekin oluvchi yuqori xavfli yoki sanksiya ostida emas. To'siqni olib tashlang."
+      },
+      "steps": {
+        "select_source": {
+          "title": "1. Manbani tanlash",
+          "heading": "Manba hisobini tanlang",
+          "description": "Mablag' chiqariladigan hisobni tanlang. Barcha qoldiqlar sintetik.",
+          "balance_label": "Qoldiq",
+          "submit": "Davom etish"
+        },
+        "enter_recipient": {
+          "title": "2. Oluvchi ma'lumotlari",
+          "heading": "Oluvchi ma'lumotlarini kiriting",
+          "description": "Oluvchining ismi, IBAN va miqdorini so'mda kiriting. Tizim risk va sanksiya tekshiruvini orqa fonda ishga tushiradi.",
+          "name_label": "Oluvchining to'liq ismi",
+          "iban_label": "Oluvchi IBAN",
+          "iban_hint": "Format: UZ XX XXXX XXXX XXXX XXXX XXXX",
+          "amount_label": "Miqdori (so'm)",
+          "submit": "Tekshiruvni ishga tushirish"
+        },
+        "screen_and_confirm": {
+          "title": "3. Tekshirish va tasdiqlash",
+          "heading": "Natijani ko'rib chiqib qaror qabul qiling",
+          "description": "Risklarni baholash va sanksiya ro'yxati bo'yicha tekshiruv allaqachon o'tkazildi. O'tkazmani tasdiqlash yoki to'sish kerakligini hal qiling.",
+          "risk_label": "Risk darajasi",
+          "sanctions_label": "Sanksiya mos kelishi",
+          "sanctions_yes": "Ha",
+          "sanctions_no": "Yo'q",
+          "decision_label": "Qaroringiz",
+          "approve": "O'tkazmani tasdiqlash",
+          "block": "O'tkazmani to'sish",
+          "submit": "Qarorni yuborish"
         }
       }
     }
@@ -405,6 +583,14 @@
       "polyglot": {
         "name": "Poliglot",
         "description": "Yordamchidan uchchala tilda foydalaning."
+      },
+      "first_deposit": {
+        "name": "Birinchi depozit",
+        "description": "Simulyatorda birinchi naqd depozit ssenariyasini yakunlang."
+      },
+      "first_transfer": {
+        "name": "Birinchi o'tkazma",
+        "description": "Simulyatorda birinchi ichki o'tkazma ssenariyasini yakunlang."
       }
     },
     "quests": {
@@ -451,9 +637,13 @@
         "xp": "XP"
       }
     },
+    "recent_runs": {
+      "title": "So’nggi urinishlar",
+      "empty": "Simulyatorda hali urinishlar yo’q. Stsenariy boshlang — tarix shu yerda ko’rinadi."
+    },
     "errors": {
-      "load_profile": "Profilni yuklab bo‘lmadi.",
-      "load_leaderboard": "Lider jadvalini yuklab bo‘lmadi."
+      "load_profile": "Profilni yuklab bo’lmadi.",
+      "load_leaderboard": "Lider jadvalini yuklab bo’lmadi."
     }
   },
   "auth": {
@@ -651,8 +841,66 @@
         "view_all": "Hammasi"
       },
       "errors": {
-        "game_load_failed": "Jarayoningizni yuklab bo‘lmadi — standart qiymatlar ko‘rsatilmoqda"
+        "game_load_failed": "Jarayoningizni yuklab bo’lmadi — standart qiymatlar ko’rsatilmoqda"
       }
+    }
+  },
+  "page": {
+    "quests": {
+      "title": "Topshiriqlar",
+      "active": "Faol",
+      "completed": "Bajarilgan",
+      "empty": "Hozircha topshiriqlar yo’q."
+    },
+    "messages": {
+      "title": "Xabarlar",
+      "today": "Bugun",
+      "yesterday": "Kecha",
+      "earlier": "Oldinroq",
+      "empty": "Xabarlar yo’q."
+    },
+    "resources": {
+      "title": "Resurslar",
+      "all": "Hammasi",
+      "open": "Ochish",
+      "empty": "Resurslar topilmadi."
+    }
+  },
+  "activity": {
+    "sim_scored": "Stsenariy baholandi",
+    "mentor_assigned": "Mentor tayinlandi",
+    "quest_completed": "Topshiriq bajarildi"
+  },
+  "resources": {
+    "category": {
+      "aml_kyc": "PFT/KYC",
+      "customer": "Mijozlarga xizmat",
+      "products": "Mahsulotlar",
+      "operations": "Operatsiyalar"
+    },
+    "type": {
+      "guide": "Qo’llanma",
+      "checklist": "Cheklistl",
+      "sop": "SOP",
+      "regulation": "Qoidalar"
+    },
+    "aml_intro": { "title": "PFT asoslari", "desc": "Bank xodimlariga pullarni yuvishga qarshi kurash tamoyillari va majburiyatlariga kirish." },
+    "kyc_checklist": { "title": "KYC tekshiruv ro’yxati", "desc": "Jismoniy va yuridik shaxslar uchun hisob ochishda hujjatlar bo’yicha bosqichma-bosqich talablar." },
+    "pep_screening": { "title": "PEP tekshiruv tartibi", "desc": "Hisob ochishda siyosiy jihatdan ta’sir o’tkazuvchi shaxslarni aniqlash va ular bilan ishlash." },
+    "complaint_sop": { "title": "Mijoz shikoyatlarini ko’rib chiqish", "desc": "SLA doirasida shikoyatlarni qabul qilish, ro’yxatga olish va hal qilishning standart tartibi." },
+    "account_types": { "title": "Hisob turlari bo’yicha qo’llanma", "desc": "Jismoniy shaxslar uchun mavjud joriy, jamg’arma va depozit hisob mahsulotlariga umumiy ko’rinish." },
+    "deposit_ops": { "title": "Naqd pul depoziti operatsiyalari", "desc": "UZS naqd pul qo’yishda qabul qilinadigan kupiuralar, kunlik limitlar va kvitansiya berish." },
+    "transfer_reg": { "title": "O’tkazma qoidalari", "desc": "Ichki va xalqaro o’tkazmalar, IBAN format talablari va sanktsiyalar bo’yicha majburiyatlar." },
+    "onboarding_guide": { "title": "Yangi xodimlar uchun qo’llanma", "desc": "Dastlabki 30 kun: tizimga kirish, muvofiqlik treningi jadvali va asosiy kontaktlar." }
+  },
+  "errors": {
+    "network": "Tarmoq xatosi yuz berdi. Qayta urinib ko’ring.",
+    "api": {
+      "conflict": "Bu harakat sessiyaning joriy holati uchun to’g’ri emas.",
+      "unknown_step": "Noma’lum bosqich yuborildi. Sahifani yangilang va qayta urinib ko’ring.",
+      "not_found": "So’ralgan sessiya topilmadi.",
+      "forbidden": "Sizda ushbu sessiyaga kirish huquqi yo’q.",
+      "internal_error": "Serverda kutilmagan xato yuz berdi."
     }
   }
 }

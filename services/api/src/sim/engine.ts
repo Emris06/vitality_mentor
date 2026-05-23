@@ -76,6 +76,7 @@ function rowToRun(row: ScenarioRunRow): ScenarioRun {
     ...(row.finished_at ? { finishedAt: row.finished_at.toISOString() } : {}),
     ...(row.score !== null ? { score: row.score } : {}),
     mistakes: Array.isArray(row.mistakes) ? row.mistakes : [],
+    state: row.state,
   };
 }
 

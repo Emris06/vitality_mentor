@@ -107,7 +107,9 @@ export function KycRunPage() {
       .catch((err: unknown) => {
         if (cancelled) return;
         const message =
-          err instanceof SimHttpError ? err.message : t('sim.run.load_error');
+          err instanceof SimHttpError
+            ? (i18n.exists(err.message) ? t(err.message) : t('sim.run.load_error'))
+            : t('sim.run.load_error');
         setLoadError(message);
       });
     return () => {
@@ -160,7 +162,9 @@ export function KycRunPage() {
         }
       } catch (err) {
         const message =
-          err instanceof SimHttpError ? err.message : t('sim.run.submit_error');
+          err instanceof SimHttpError
+            ? (i18n.exists(err.message) ? t(err.message) : t('sim.run.submit_error'))
+            : t('sim.run.submit_error');
         pushToast(message);
       } finally {
         setSubmitting(false);
@@ -278,13 +282,25 @@ interface ResultsViewProps {
 }
 
 function ResultsView({ run, onRetry }: ResultsViewProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const score = run.score ?? 0;
   const mistakes: ScenarioMistake[] = run.mistakes ?? [];
+
+  const critical = mistakes.filter((m) => m.penalty >= 20);
+  const minor = mistakes.filter((m) => m.penalty < 20);
 
   let scoreClass = 'text-emerald-600';
   if (score < 60) scoreClass = 'text-rose-600';
   else if (score < 85) scoreClass = 'text-amber-600';
+
+  function stepTitle(stepId: string): string {
+    const def = KYC_STEPS.find((s) => s.id === stepId);
+    return def ? t(def.titleKey) : stepId;
+  }
+
+  function translateMistake(m: ScenarioMistake): string {
+    return i18n.exists(m.messageKey) ? t(m.messageKey) : (m.messageKey || m.code);
+  }
 
   return (
     <div className="p-6">
@@ -300,27 +316,70 @@ function ResultsView({ run, onRetry }: ResultsViewProps) {
         </p>
       </div>
 
+      {critical.length > 0 && (
+        <section className="mt-5">
+          <h3 className="mb-2 font-mono-tech text-[11px] font-semibold uppercase tracking-wider text-rose-600">
+            {t('sim.run.critical_mistakes', { count: critical.length })}
+          </h3>
+          <ul className="space-y-2">
+            {critical.map((m, idx) => (
+              <li
+                key={`${m.stepId}-${m.code}-${idx}`}
+                className="rounded-md bg-rose-50 px-3 py-3 ring-1 ring-rose-200"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-rose-600 font-mono-tech text-[10px] font-bold text-white">
+                    !
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-rose-900">{translateMistake(m)}</p>
+                    <p className="mt-0.5 text-xs text-rose-600">
+                      <span className="font-medium">{stepTitle(m.stepId)}</span>
+                      <span className="mx-1.5 text-rose-400">·</span>
+                      <span className="font-mono-tech">-{m.penalty} pts</span>
+                    </p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {minor.length > 0 && (
+        <section className="mt-4">
+          <h3 className="mb-2 font-mono-tech text-[11px] font-semibold uppercase tracking-wider text-amber-600">
+            {t('sim.run.minor_mistakes', { count: minor.length })}
+          </h3>
+          <ul className="space-y-2">
+            {minor.map((m, idx) => (
+              <li
+                key={`${m.stepId}-${m.code}-${idx}`}
+                className="rounded-md bg-amber-50 px-3 py-3 ring-1 ring-amber-200"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-500 font-mono-tech text-[10px] font-bold text-white">
+                    ·
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-amber-900">{translateMistake(m)}</p>
+                    <p className="mt-0.5 text-xs text-amber-600">
+                      <span className="font-medium">{stepTitle(m.stepId)}</span>
+                      <span className="mx-1.5 text-amber-400">·</span>
+                      <span className="font-mono-tech">-{m.penalty} pts</span>
+                    </p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {mistakes.length > 0 && (
-        <ul className="mt-5 space-y-2">
-          {mistakes.map((mistake, idx) => (
-            <li
-              key={`${mistake.stepId}-${mistake.code}-${idx}`}
-              className="flex items-start gap-3 rounded-md bg-rose-50 px-3 py-2 text-sm ring-1 ring-rose-200"
-            >
-              <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-rose-600 font-mono-tech text-[10px] font-bold text-white">
-                {idx + 1}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-rose-900">{mistake.messageKey || mistake.code}</p>
-                <p className="text-xs text-rose-700">
-                  <span className="font-mono-tech">{mistake.stepId}</span>
-                  <span className="mx-1">·</span>
-                  <span className="font-mono-tech">-{mistake.penalty}</span>
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <p className="mt-4 text-center text-xs text-zinc-500">
+          {t('sim.run.review_with_mentor')}
+        </p>
       )}
 
       <div className="mt-6 flex flex-wrap justify-center gap-2">

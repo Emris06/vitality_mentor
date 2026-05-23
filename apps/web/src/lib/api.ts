@@ -54,13 +54,14 @@ export interface SubmitStepResult {
 
 async function jsonOrThrow<T>(res: Response): Promise<T> {
   if (!res.ok) {
-    let detail = '';
+    let errorCode = 'errors.network';
     try {
-      detail = await res.text();
+      const body = (await res.json()) as { error?: string };
+      if (body?.error) errorCode = `errors.api.${body.error}`;
     } catch {
-      // ignore body read failure
+      // ignore body read failure — fall back to the generic network key
     }
-    throw new SimHttpError(res.status, detail || `sim ${res.status}`);
+    throw new SimHttpError(res.status, errorCode);
   }
   return (await res.json()) as T;
 }
@@ -478,6 +479,107 @@ export const gameApi = {
     const qs = params.toString();
     const res = await fetch(`${BASE}/gamification/leaderboard${qs ? `?${qs}` : ''}`);
     return gameJsonOrThrow<T>(res);
+  },
+
+  async quests(): Promise<import('../features/game/types').Quest[]> {
+    const res = await authedFetch(`${BASE}/gamification/quests`);
+    return gameJsonOrThrow<import('../features/game/types').Quest[]>(res);
+  },
+};
+
+// ----- Intern --------------------------------------------------------------
+//
+// Per-intern view of profile + onboarding + cohort + activity. The backend
+// route is `services/api/src/routes/intern.ts` registered at `/interns`.
+// We reuse `authedFetch` so the Supabase Bearer token rides along when the
+// caller is signed in; the dev cookie session still resolves the user
+// server-side when it isn't.
+
+export class InternHttpError extends Error {
+  constructor(public readonly status: number, message: string) {
+    super(message);
+    this.name = 'InternHttpError';
+  }
+}
+
+async function internJsonOrThrow<T>(res: Response): Promise<T> {
+  if (!res.ok) {
+    let detail = '';
+    try {
+      detail = await res.text();
+    } catch {
+      // ignore body read failure
+    }
+    throw new InternHttpError(res.status, detail || `intern ${res.status}`);
+  }
+  return (await res.json()) as T;
+}
+
+export interface InternCohortMember {
+  id: string;
+  initials: string;
+  fullName: string;
+  totalXp: number;
+  level: number;
+}
+
+export interface InternOnboarding {
+  modulesCompleted: number;
+  modulesTotal: number;
+  deadline: string | null;
+  assignedMentorName: string | null;
+}
+
+export interface InternRecentRun {
+  id: string;
+  scenarioId: string;
+  score: number | null;
+  status: string;
+  createdAt: string;
+}
+
+export interface InternMe {
+  profile: { id: string; fullName: string; role: string; avatarUrl: string | null };
+  onboarding: InternOnboarding;
+  recentRuns: InternRecentRun[];
+  cohort: InternCohortMember[];
+}
+
+export interface InternActivityEntry {
+  id: string;
+  variant: 'sim_scored' | 'mentor_assigned' | 'quest_completed';
+  actorName: string;
+  createdAt: string;
+}
+
+export const internApi = {
+  async me(): Promise<InternMe> {
+    return internJsonOrThrow<InternMe>(await authedFetch(`${BASE}/interns/me`));
+  },
+  async activity(opts?: { limit?: number }): Promise<InternActivityEntry[]> {
+    const params = new URLSearchParams();
+    if (opts?.limit !== undefined) params.set('limit', String(opts.limit));
+    const qs = params.toString();
+    return internJsonOrThrow<InternActivityEntry[]>(
+      await authedFetch(`${BASE}/interns/me/activity${qs ? `?${qs}` : ''}`),
+    );
+  },
+};
+
+// ----- Resources ------------------------------------------------------------
+
+export type Resource = {
+  id: string;
+  titleKey: string;
+  descKey: string;
+  category: 'aml_kyc' | 'customer' | 'products' | 'operations';
+  docType: 'guide' | 'checklist' | 'sop' | 'regulation';
+};
+
+export const resourcesApi = {
+  async list(category?: string): Promise<Resource[]> {
+    const qs = category ? `?category=${encodeURIComponent(category)}` : '';
+    return jsonOrThrow<Resource[]>(await authedFetch(`${BASE}/resources${qs}`));
   },
 };
 

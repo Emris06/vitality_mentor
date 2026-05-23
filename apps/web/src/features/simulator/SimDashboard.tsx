@@ -16,7 +16,12 @@ import { WarmCard } from '../../components/warm/WarmCard';
 // run pages — the mode-shift happens on click, not on this page.
 // ──────────────────────────────────────────────────────────────────────────
 
-const LAST_RUN_KEY = 'vitality.lastKycRunId';
+const LAST_RUN_KEYS: Record<ScenarioId, string> = {
+  kyc: 'vitality.lastKycRunId',
+  'open-account': 'vitality.lastOpenAccountRunId',
+  deposit: 'vitality.lastDepositRunId',
+  transfer: 'vitality.lastTransferRunId',
+};
 
 interface ScenarioCard {
   id: ScenarioId;
@@ -41,28 +46,28 @@ const SCENARIOS: ScenarioCard[] = [
   },
   {
     id: 'open-account',
-    enabled: false,
+    enabled: true,
     nameKey: 'sim.scenarios.open_account.name',
     taglineKey: 'sim.scenarios.open_account.tagline',
-    disabledKey: 'sim.scenarios.open_account.disabled',
+    durationKey: 'sim.scenarios.open_account.duration',
     iconTone: 'emerald',
     emoji: '💳',
   },
   {
     id: 'deposit',
-    enabled: false,
+    enabled: true,
     nameKey: 'sim.scenarios.deposit.name',
     taglineKey: 'sim.scenarios.deposit.tagline',
-    disabledKey: 'sim.scenarios.deposit.disabled',
+    durationKey: 'sim.scenarios.deposit.duration',
     iconTone: 'violet',
     emoji: '💰',
   },
   {
     id: 'transfer',
-    enabled: false,
+    enabled: true,
     nameKey: 'sim.scenarios.transfer.name',
     taglineKey: 'sim.scenarios.transfer.tagline',
-    disabledKey: 'sim.scenarios.transfer.disabled',
+    durationKey: 'sim.scenarios.transfer.duration',
     iconTone: 'rose',
     emoji: '↔',
   },
@@ -89,17 +94,16 @@ export function SimDashboard() {
 
   const handleStart = useCallback(
     async (id: ScenarioId) => {
-      if (id !== 'kyc') return;
       setStarting(id);
       setStartError(null);
       try {
         const run = await simApi.startRun(id, locale);
         try {
-          window.localStorage.setItem(LAST_RUN_KEY, run.id);
+          window.localStorage.setItem(LAST_RUN_KEYS[id], run.id);
         } catch {
           // ignore storage failure (e.g. private mode)
         }
-        navigate(`/simulator/kyc/${run.id}`);
+        navigate(`/simulator/${id}/${run.id}`);
       } catch (err) {
         const message =
           err instanceof SimHttpError ? err.message : t('sim.run.load_error');

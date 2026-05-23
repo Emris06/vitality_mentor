@@ -8,7 +8,14 @@ import {
   type Locale,
   type ScenarioId,
 } from '@vitality/shared';
-import { gameApi, simApi, SimHttpError } from '../../lib/api';
+import {
+  gameApi,
+  internApi,
+  simApi,
+  SimHttpError,
+  type InternActivityEntry,
+  type InternMe,
+} from '../../lib/api';
 import type { GameProfile } from '../game/types';
 import { InternShell } from './InternShell';
 import { MentoraMark } from '../../components/warm/MentoraMark';
@@ -106,6 +113,8 @@ export function InternDashboard() {
   const [game, setGame] = useState<GameProfile | null>(null);
   const [gameLoading, setGameLoading] = useState(true);
   const [gameLoadFailed, setGameLoadFailed] = useState(false);
+  const [internData, setInternData] = useState<InternMe | null>(null);
+  const [activityData, setActivityData] = useState<InternActivityEntry[] | null>(null);
 
   const locale: Locale = useMemo(() => {
     const resolved = i18n.resolvedLanguage ?? DEFAULT_LOCALE;
@@ -118,24 +127,37 @@ export function InternDashboard() {
   const doneCount = LEARNING_PATH.filter((s) => s.state === 'done').length;
   const totalSteps = LEARNING_PATH.length;
 
-  // Load gamification profile. Single shot on mount — there's no realtime
-  // signal yet that XP changed underneath us; revisiting the route refetches.
+  // Load gamification profile + intern aggregates + activity in parallel.
+  // Single shot on mount — revisiting the route refetches. Each call's
+  // error is contained so a flaky endpoint can't blank the whole dashboard.
   useEffect(() => {
     let cancelled = false;
     setGameLoading(true);
     setGameLoadFailed(false);
     void (async () => {
-      try {
-        const data = await gameApi.me<GameProfile>();
-        if (!cancelled) setGame(data);
-      } catch {
-        if (!cancelled) {
-          setGame(null);
-          setGameLoadFailed(true);
-        }
-      } finally {
-        if (!cancelled) setGameLoading(false);
+      const [gameResult, internResult, activityResult] = await Promise.allSettled([
+        gameApi.me<GameProfile>(),
+        internApi.me(),
+        internApi.activity(),
+      ]);
+      if (cancelled) return;
+      if (gameResult.status === 'fulfilled') {
+        setGame(gameResult.value);
+      } else {
+        setGame(null);
+        setGameLoadFailed(true);
       }
+      if (internResult.status === 'fulfilled') {
+        setInternData(internResult.value);
+      } else {
+        setInternData(null);
+      }
+      if (activityResult.status === 'fulfilled') {
+        setActivityData(activityResult.value);
+      } else {
+        setActivityData(null);
+      }
+      setGameLoading(false);
     })();
     return () => {
       cancelled = true;
@@ -182,7 +204,14 @@ export function InternDashboard() {
             }
           : undefined
       }
-      rightPanel={<RightRail t={t} />}
+      rightPanel={
+        <RightRail
+          t={t}
+          internData={internData}
+          activityData={activityData}
+          loading={gameLoading}
+        />
+      }
     >
       {(startError || gameLoadFailed) && (
         <ErrorBanner
@@ -629,12 +658,22 @@ function progressFor(status: ScenarioStatus): number {
 // Right rail — tasks, activity, cohort
 // ───────────────────────────────────────────────────────────────────────
 
-function RightRail({ t }: { t: (k: string, o?: Record<string, unknown>) => string }) {
+function RightRail({
+  t,
+  internData,
+  activityData,
+  loading,
+}: {
+  t: (k: string, o?: Record<string, unknown>) => string;
+  internData: InternMe | null;
+  activityData: InternActivityEntry[] | null;
+  loading: boolean;
+}) {
   return (
     <>
       <TasksCard t={t} />
-      <ActivityCard t={t} />
-      <CohortCard t={t} />
+      <ActivityCard t={t} activityData={activityData} loading={loading} />
+      <CohortCard t={t} internData={internData} loading={loading} />
     </>
   );
 }
@@ -769,11 +808,54 @@ const SEED_ACTIVITY: readonly ActivityEntry[] = [
   },
 ];
 
+function mapBackendActivity(
+  entries: InternActivityEntry[],
+): readonly ActivityEntry[] {
+  // Cycle through avatar tones so consecutive rows don't blob into one colour.
+  const tones: AvatarTone[] = ['sky', 'em', 'rose', 'orng', 'viol'];
+  return entries.map((entry, idx) => {
+    const variant: ActivityEntry['variant'] =
+      entry.variant === 'mentor_assigned'
+        ? 'hr_assigned'
+        : entry.variant === 'quest_completed'
+          ? 'peer_finished'
+          : 'mentor_comment';
+    const minutesAgo = Math.max(
+      0,
+      Math.round((Date.now() - new Date(entry.createdAt).getTime()) / 60_000),
+    );
+    return {
+      id: entry.id,
+      variant,
+      actorName: entry.actorName || 'Mentora',
+      avatarTone: tones[idx % tones.length]!,
+      initials: initialsFromName(entry.actorName),
+      minutesAgo,
+    };
+  });
+}
+
+function initialsFromName(name: string): string {
+  if (!name) return '··';
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '··';
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  return (parts[0]!.charAt(0) + parts[parts.length - 1]!.charAt(0)).toUpperCase();
+}
+
 function ActivityCard({
   t,
+  activityData,
+  loading,
 }: {
   t: (k: string, o?: Record<string, unknown>) => string;
+  activityData: InternActivityEntry[] | null;
+  loading: boolean;
 }) {
+  const entries: readonly ActivityEntry[] =
+    activityData && activityData.length > 0
+      ? mapBackendActivity(activityData)
+      : SEED_ACTIVITY;
   return (
     <WarmCard small className="p-5">
       <div className="flex items-center justify-between">
@@ -792,27 +874,35 @@ function ActivityCard({
           {t('intern.dashboard.activity.view_all')}
         </button>
       </div>
-      <ul className="mt-4 space-y-3.5">
-        {SEED_ACTIVITY.map((entry) => (
-          <ActivityRow
-            key={entry.id}
-            leading={
-              entry.variant === 'clicky_tip' ? (
-                <ClickyAvatar />
-              ) : (
-                <span
-                  className={`av-${entry.avatarTone} grid h-9 w-9 place-items-center rounded-full text-xs font-bold`}
-                >
-                  {entry.initials}
-                </span>
-              )
-            }
-            timestamp={formatAgo(entry.minutesAgo, t)}
-          >
-            {renderActivitySentence(entry, t)}
-          </ActivityRow>
-        ))}
-      </ul>
+      {loading ? (
+        <ul className="mt-4 space-y-3.5">
+          {[0, 1, 2].map((i) => (
+            <li key={i} className="h-10 w-full animate-pulse rounded-lg bg-zinc-100" />
+          ))}
+        </ul>
+      ) : (
+        <ul className="mt-4 space-y-3.5">
+          {entries.map((entry) => (
+            <ActivityRow
+              key={entry.id}
+              leading={
+                entry.variant === 'clicky_tip' ? (
+                  <ClickyAvatar />
+                ) : (
+                  <span
+                    className={`av-${entry.avatarTone} grid h-9 w-9 place-items-center rounded-full text-xs font-bold`}
+                  >
+                    {entry.initials}
+                  </span>
+                )
+              }
+              timestamp={formatAgo(entry.minutesAgo, t)}
+            >
+              {renderActivitySentence(entry, t)}
+            </ActivityRow>
+          ))}
+        </ul>
+      )}
     </WarmCard>
   );
 }
@@ -924,11 +1014,32 @@ const SEED_COHORT: readonly CohortEntry[] = [
   { initials: 'LK', name: 'Laylo', level: 2, tone: 'rose' },
 ];
 
+function mapBackendCohort(members: InternMe['cohort']): readonly CohortEntry[] {
+  const tones: AvatarTone[] = ['em', 'orng', 'sky', 'viol', 'rose'];
+  return members.slice(0, 5).map((m, idx) => {
+    const firstName = (m.fullName ?? '').split(/\s+/)[0] ?? 'Intern';
+    return {
+      initials: m.initials,
+      name: firstName,
+      level: m.level,
+      tone: tones[idx % tones.length]!,
+    };
+  });
+}
+
 function CohortCard({
   t,
+  internData,
+  loading,
 }: {
   t: (k: string, o?: Record<string, unknown>) => string;
+  internData: InternMe | null;
+  loading: boolean;
 }) {
+  const cohort: readonly CohortEntry[] =
+    internData && internData.cohort.length > 0
+      ? mapBackendCohort(internData.cohort)
+      : SEED_COHORT;
   return (
     <WarmCard small className="p-5">
       <div className="flex items-center justify-between">
@@ -938,7 +1049,7 @@ function CohortCard({
           </div>
           <div className="text-lg font-extrabold text-[var(--ink-warm)]">
             {t('intern.dashboard.cohort.section_count', {
-              count: SEED_COHORT.length,
+              count: cohort.length,
             })}
           </div>
         </div>
@@ -949,30 +1060,41 @@ function CohortCard({
           {t('intern.dashboard.cohort.view_all')}
         </button>
       </div>
-      <div className="mt-4 grid grid-cols-3 gap-3">
-        {SEED_COHORT.map((c) => (
-          <div
-            key={c.initials}
-            data-clicky-target={`${c.name.toLowerCase()}, ${c.initials.toLowerCase()}, cohort, peer, intern`}
-            data-clicky-hint={`${c.name} — fellow intern, level ${c.level}.`}
-          >
-            <CohortTile
-              initials={c.initials}
-              name={c.name}
-              level={c.level}
-              tone={c.tone}
+      {loading ? (
+        <div className="mt-4 grid grid-cols-3 gap-3">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="h-20 w-full animate-pulse rounded-2xl bg-zinc-100"
             />
-          </div>
-        ))}
-        <button
-          type="button"
-          data-clicky-target="invite, add, cohort, new, peer"
-          data-clicky-hint="Invite another intern to your cohort."
-          className="grid place-items-center rounded-2xl border-2 border-dashed border-zinc-200 p-3 text-center text-xs text-[var(--muted-warm)] transition hover:border-coral-600 hover:text-coral-600"
-        >
-          {t('intern.dashboard.cohort.invite')}
-        </button>
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-4 grid grid-cols-3 gap-3">
+          {cohort.map((c, idx) => (
+            <div
+              key={`${c.initials}-${idx}`}
+              data-clicky-target={`${c.name.toLowerCase()}, ${c.initials.toLowerCase()}, cohort, peer, intern`}
+              data-clicky-hint={`${c.name} — fellow intern, level ${c.level}.`}
+            >
+              <CohortTile
+                initials={c.initials}
+                name={c.name}
+                level={c.level}
+                tone={c.tone}
+              />
+            </div>
+          ))}
+          <button
+            type="button"
+            data-clicky-target="invite, add, cohort, new, peer"
+            data-clicky-hint="Invite another intern to your cohort."
+            className="grid place-items-center rounded-2xl border-2 border-dashed border-zinc-200 p-3 text-center text-xs text-[var(--muted-warm)] transition hover:border-coral-600 hover:text-coral-600"
+          >
+            {t('intern.dashboard.cohort.invite')}
+          </button>
+        </div>
+      )}
     </WarmCard>
   );
 }

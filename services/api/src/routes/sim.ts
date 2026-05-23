@@ -43,8 +43,8 @@ const hintSchema = z.object({
 function mapEngineError(err: unknown): { status: number; body: Record<string, unknown> } {
   if (err instanceof NotFoundError) return { status: 404, body: { error: 'not_found' } };
   if (err instanceof ForbiddenError) return { status: 403, body: { error: 'forbidden' } };
-  if (err instanceof ConflictError) return { status: 409, body: { error: 'conflict', detail: err.message } };
-  if (err instanceof UnknownStepError) return { status: 400, body: { error: 'unknown_step', detail: err.message } };
+  if (err instanceof ConflictError) return { status: 409, body: { error: 'conflict' } };
+  if (err instanceof UnknownStepError) return { status: 400, body: { error: 'unknown_step' } };
   if (err instanceof NotImplementedScenarioError) {
     return { status: 501, body: { error: 'not_implemented', scenarioId: err.scenarioId } };
   }

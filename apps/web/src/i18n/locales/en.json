@@ -147,17 +147,17 @@
       "open_account": {
         "name": "Open a current account",
         "tagline": "Full account opening flow for an individual or legal entity.",
-        "disabled": "Coming soon"
+        "duration": "~6 min"
       },
       "deposit": {
-        "name": "Term deposit",
-        "tagline": "Open a deposit, set terms, capture client consent.",
-        "disabled": "Coming soon"
+        "name": "Cash deposit",
+        "tagline": "Take a cash deposit: choose the account, count denominations, verify the receipt.",
+        "duration": "~5 min"
       },
       "transfer": {
-        "name": "Domestic / international transfer",
-        "tagline": "Validate beneficiary, run AML, confirm transfer.",
-        "disabled": "Coming soon"
+        "name": "Domestic transfer",
+        "tagline": "Pick the source, enter the recipient, screen for risk and confirm.",
+        "duration": "~7 min"
       }
     },
     "run": {
@@ -176,7 +176,15 @@
       "open_chat": "Discuss with the AI mentor",
       "loading_run": "Loading run…",
       "load_error": "Could not load this run.",
-      "submit_error": "Could not submit this step. Please try again."
+      "submit_error": "Could not submit this step. Please try again.",
+      "critical_mistakes_one": "{{count}} critical mistake",
+      "critical_mistakes_other": "{{count}} critical mistakes",
+      "minor_mistakes_one": "{{count}} minor mistake",
+      "minor_mistakes_other": "{{count}} minor mistakes",
+      "review_with_mentor": "Open the chat to discuss these mistakes with your AI mentor.",
+      "score_of_100": "out of 100",
+      "mistakes": "Mistakes",
+      "try_again": "Try again"
     },
     "kyc": {
       "banner_synthetic": "All data on this screen is 100% synthetic. No real client data is ever used.",
@@ -239,6 +247,176 @@
           "reject_desc": "Decline the application with a formal notice. No account is opened.",
           "manual_review": "Send to manual review",
           "manual_review_desc": "Escalate to a senior compliance officer for re-screening."
+        }
+      },
+      "intake": {
+        "invalid_payload": "Invalid customer ID format. Enter a valid identifier."
+      },
+      "verify_documents": {
+        "invalid_payload": "Document verification payload is malformed.",
+        "missing_documents": "No documents found for this customer. Cannot complete verification.",
+        "passport_wrong": "Passport validity assessment is incorrect. Review the document expiry and photo.",
+        "income_wrong": "Income statement assessment is incorrect. Check the issuer and signature.",
+        "both_wrong": "Both the passport and income statement assessments are incorrect."
+      },
+      "sanctions_check": {
+        "invalid_payload": "Sanctions check payload is malformed. Resubmit your decision.",
+        "not_screened": "Customer has not been screened against sanctions lists.",
+        "passed_sanctioned": "Customer is on the sanctions list but was passed. Critical compliance error.",
+        "blocked_clean": "Customer is not on any sanctions list but was blocked. Unblock and continue."
+      },
+      "risk_score": {
+        "invalid_payload": "Risk score payload is malformed. Select a valid risk tier.",
+        "mismatch": "Incorrect risk tier. Review the customer profile, sanctions, and PEP status."
+      },
+      "decision": {
+        "invalid_payload": "Decision payload is malformed. Select a valid decision.",
+        "approved_high_risk": "High-risk customer was approved. Must be sent to manual review or rejected."
+      }
+    },
+    "open_account": {
+      "choose_product": {
+        "title": "1. Choose product",
+        "invalid_payload": "Invalid account type or currency selection."
+      },
+      "fund_account": {
+        "title": "2. Fund account",
+        "invalid_payload": "Invalid deposit amount format.",
+        "missing_product": "No account type selected. Return to the previous step.",
+        "below_minimum": "Initial deposit is below the minimum required for this account type.",
+        "above_maximum": "Initial deposit exceeds the maximum permitted for this account type."
+      },
+      "confirm": {
+        "title": "3. Confirm",
+        "invalid_payload": "Confirmation data is malformed. Resubmit.",
+        "terms_not_accepted": "Terms and conditions must be accepted to open the account."
+      },
+      "steps": {
+        "choose_product": {
+          "title": "1. Choose product",
+          "heading": "Choose product",
+          "description": "Pick the account type and currency the customer is opening. Both are valid choices — the system will only flag clearly wrong combinations later.",
+          "account_type": "Account type",
+          "currency": "Currency",
+          "current": "Current account",
+          "current_hint": "Daily use, low minimum",
+          "savings": "Savings account",
+          "savings_hint": "Higher minimum, interest-bearing",
+          "uzs_hint": "Local currency",
+          "usd_hint": "Foreign currency",
+          "next": "Next"
+        },
+        "fund_account": {
+          "title": "2. Fund account",
+          "heading": "Fund account",
+          "description": "Enter the initial deposit. Below the minimum or above the regulatory ceiling counts as a mistake — the system will tell you which way you went wrong.",
+          "amount_label": "Initial deposit ({{currency}})",
+          "submit": "Submit deposit"
+        },
+        "confirm": {
+          "title": "3. Confirm",
+          "heading": "Confirm",
+          "description": "Final step: link this opening to a completed KYC and acknowledge the terms. Opening an account without ticking the T&C box is a hard mistake.",
+          "kyc_ref_label": "KYC reference",
+          "terms_label": "The customer has signed the account opening terms and conditions.",
+          "submit": "Open account"
+        }
+      }
+    },
+    "deposit": {
+      "select_account": {
+        "title": "1. Select account",
+        "invalid_payload": "Invalid account selection.",
+        "unknown_account": "Selected account does not exist."
+      },
+      "count_cash": {
+        "title": "2. Count cash",
+        "invalid_payload": "Cash count payload is malformed.",
+        "no_account": "No account selected. Return to the previous step.",
+        "invalid_denomination": "Cash count includes an unrecognised denomination.",
+        "amount_mismatch": "Denomination total does not match the declared deposit amount. Recount."
+      },
+      "verify_receipt": {
+        "title": "3. Verify receipt",
+        "invalid_payload": "Receipt number payload is malformed.",
+        "bad_format": "Receipt number does not match the required format (DEP-XXXXXXXX)."
+      },
+      "steps": {
+        "select_account": {
+          "title": "1. Select account",
+          "heading": "Select customer account",
+          "description": "Pick the account that will receive the deposit. All accounts shown are synthetic — none route to real funds.",
+          "submit": "Continue"
+        },
+        "count_cash": {
+          "title": "2. Count cash",
+          "heading": "Count the cash on hand",
+          "description": "Enter the count for each denomination. The running total below must match the declared amount before you can continue.",
+          "declared_label": "Declared amount",
+          "counted_label": "Counted so far",
+          "denomination_label": "{{value}} UZS",
+          "submit": "Confirm count"
+        },
+        "verify_receipt": {
+          "title": "3. Verify receipt",
+          "heading": "Verify the receipt number",
+          "description": "Enter the receipt number printed by the cash desk. Format is DEP- followed by eight digits.",
+          "input_label": "Receipt number",
+          "placeholder": "DEP-XXXXXXXX",
+          "format_hint": "Format: DEP- followed by 8 digits (e.g. DEP-12345678).",
+          "submit": "Verify and finish"
+        }
+      }
+    },
+    "transfer": {
+      "select_source": {
+        "title": "1. Select source",
+        "invalid_payload": "Invalid source account selection.",
+        "unknown_account": "Selected source account does not exist."
+      },
+      "enter_recipient": {
+        "title": "2. Enter recipient",
+        "invalid_payload": "Recipient data is malformed. Check name, IBAN, and amount.",
+        "bad_iban": "Recipient IBAN is not in valid Uzbek format (UZ + 2 check digits + 16 digits).",
+        "no_source": "No source account found. Return to the previous step.",
+        "insufficient_funds": "Transfer amount exceeds the account balance."
+      },
+      "screen_and_confirm": {
+        "title": "3. Screen and confirm",
+        "invalid_payload": "Confirmation decision is malformed.",
+        "approved_risky": "Transfer approved despite high-risk or sanctioned recipient. Critical AML error.",
+        "blocked_clean": "Transfer blocked but recipient is not high-risk or sanctioned. Unblock and reprocess."
+      },
+      "steps": {
+        "select_source": {
+          "title": "1. Select source",
+          "heading": "Select source account",
+          "description": "Choose the account the funds will leave from. All balances are synthetic.",
+          "balance_label": "Balance",
+          "submit": "Continue"
+        },
+        "enter_recipient": {
+          "title": "2. Enter recipient",
+          "heading": "Enter recipient details",
+          "description": "Enter the recipient name, IBAN, and the amount in UZS. The system will run a risk and sanctions screen behind the scenes.",
+          "name_label": "Recipient full name",
+          "iban_label": "Recipient IBAN",
+          "iban_hint": "Format: UZ XX XXXX XXXX XXXX XXXX XXXX",
+          "amount_label": "Amount (UZS)",
+          "submit": "Run screen"
+        },
+        "screen_and_confirm": {
+          "title": "3. Screen and confirm",
+          "heading": "Review screen and decide",
+          "description": "The risk engine and sanctions list have already run. Decide whether to approve or block this transfer.",
+          "risk_label": "Risk band",
+          "sanctions_label": "Sanctions hit",
+          "sanctions_yes": "Yes",
+          "sanctions_no": "No",
+          "decision_label": "Your decision",
+          "approve": "Approve transfer",
+          "block": "Block transfer",
+          "submit": "Submit decision"
         }
       }
     }
@@ -405,6 +583,14 @@
       "polyglot": {
         "name": "Polyglot",
         "description": "Use the assistant in all three languages."
+      },
+      "first_deposit": {
+        "name": "First Deposit",
+        "description": "Complete your first cash deposit scenario in the simulator."
+      },
+      "first_transfer": {
+        "name": "First Transfer",
+        "description": "Complete your first domestic transfer scenario in the simulator."
       }
     },
     "quests": {
@@ -450,6 +636,10 @@
         "name": "Name",
         "xp": "XP"
       }
+    },
+    "recent_runs": {
+      "title": "Recent Runs",
+      "empty": "No simulator runs yet. Start a scenario to see your history here."
     },
     "errors": {
       "load_profile": "Could not load profile.",
@@ -653,6 +843,64 @@
       "errors": {
         "game_load_failed": "Could not load your progress — showing defaults"
       }
+    }
+  },
+  "page": {
+    "quests": {
+      "title": "Quests",
+      "active": "Active",
+      "completed": "Completed",
+      "empty": "No quests yet."
+    },
+    "messages": {
+      "title": "Messages",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "earlier": "Earlier",
+      "empty": "No messages yet."
+    },
+    "resources": {
+      "title": "Resources",
+      "all": "All",
+      "open": "Open",
+      "empty": "No resources found."
+    }
+  },
+  "activity": {
+    "sim_scored": "Scenario graded",
+    "mentor_assigned": "Mentor assigned",
+    "quest_completed": "Quest completed"
+  },
+  "resources": {
+    "category": {
+      "aml_kyc": "AML & KYC",
+      "customer": "Customer Service",
+      "products": "Products",
+      "operations": "Operations"
+    },
+    "type": {
+      "guide": "Guide",
+      "checklist": "Checklist",
+      "sop": "SOP",
+      "regulation": "Regulation"
+    },
+    "aml_intro": { "title": "AML Fundamentals", "desc": "Introduction to anti-money laundering principles and obligations for bank staff." },
+    "kyc_checklist": { "title": "KYC Verification Checklist", "desc": "Step-by-step document requirements for individual and corporate client onboarding." },
+    "pep_screening": { "title": "PEP Screening Procedure", "desc": "How to identify and handle politically exposed persons during account opening." },
+    "complaint_sop": { "title": "Customer Complaint Handling", "desc": "Standard procedure for receiving, logging, and resolving client complaints within SLA." },
+    "account_types": { "title": "Account Types Guide", "desc": "Overview of current, savings, and deposit account products available to retail clients." },
+    "deposit_ops": { "title": "Cash Deposit Operations", "desc": "Accepted denominations, daily limits, and receipt issuance for UZS cash deposits." },
+    "transfer_reg": { "title": "Transfer Regulations", "desc": "Domestic and international transfer rules, IBAN format requirements, and sanctions obligations." },
+    "onboarding_guide": { "title": "New Staff Onboarding Guide", "desc": "Your first 30 days: system access, compliance training schedule, and key contacts." }
+  },
+  "errors": {
+    "network": "A network error occurred. Please try again.",
+    "api": {
+      "conflict": "This action is no longer valid for the current run state.",
+      "unknown_step": "Unknown step submitted. Reload the page and try again.",
+      "not_found": "The requested run could not be found.",
+      "forbidden": "You do not have access to this run.",
+      "internal_error": "An unexpected error occurred on the server."
     }
   }
 }

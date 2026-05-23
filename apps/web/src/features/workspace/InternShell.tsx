@@ -82,9 +82,9 @@ const DEFAULT_INTERN_NAV: MentoraNavItem[] = [
     clickyHintKey: 'clicky.hint.nav.scenarios',
   },
   {
+    to: '/quests',
     labelKey: 'nav.quests',
     icon: <IconCheckBoard />,
-    comingSoon: true,
     clickyTarget: 'quests, tasks, todo',
   },
   {
@@ -95,16 +95,16 @@ const DEFAULT_INTERN_NAV: MentoraNavItem[] = [
     clickyHintKey: 'clicky.hint.nav.chat',
   },
   {
+    to: '/messages',
     labelKey: 'nav.messages',
     icon: <IconMessage />,
-    comingSoon: true,
     badge: 'dot',
     clickyTarget: 'messages, inbox, mail',
   },
   {
+    to: '/resources',
     labelKey: 'nav.resources',
     icon: <IconBook />,
-    comingSoon: true,
     clickyTarget: 'resources, docs, library, sop',
   },
 ];

@@ -80,6 +80,8 @@ export const KNOWN_BADGES: ReadonlyArray<{ id: string; icon: string }> = [
   { id: 'night_owl', icon: '🌙' },
   { id: 'streak_7', icon: '🔥' },
   { id: 'polyglot', icon: '🌍' },
+  { id: 'first_deposit', icon: '💳' },
+  { id: 'first_transfer', icon: '🔁' },
 ];
 
 /** Skill keys we surface in the leaderboard filter. Free-form; backend may add more. */
