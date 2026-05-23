@@ -238,17 +238,22 @@ interface ResultsViewProps {
   backRoute: string;
 }
 
+function gradeLabel(score: number): { text: string; color: string; bg: string } {
+  if (score >= 95) return { text: 'S', color: '#0B8F5C', bg: '#E3F6EC' };
+  if (score >= 85) return { text: 'A', color: '#0B8F5C', bg: '#E3F6EC' };
+  if (score >= 75) return { text: 'B', color: '#2046FF', bg: '#ECF0FF' };
+  if (score >= 60) return { text: 'C', color: '#C58200', bg: '#FFF4DC' };
+  return { text: 'D', color: '#C8351C', bg: '#FCE9E4' };
+}
+
 function ResultsView({ run, steps, onRetry, backRoute }: ResultsViewProps) {
   const { t, i18n } = useTranslation();
   const score = run.score ?? 0;
   const mistakes: ScenarioMistake[] = run.mistakes ?? [];
-
   const critical = mistakes.filter((m) => m.penalty >= 20);
   const minor = mistakes.filter((m) => m.penalty < 20);
-
-  let scoreClass = 'text-emerald-600';
-  if (score < 60) scoreClass = 'text-rose-600';
-  else if (score < 85) scoreClass = 'text-amber-600';
+  const grade = gradeLabel(score);
+  const estimatedXp = Math.round(score * 1.5);
 
   function stepTitle(stepId: string): string {
     const def = steps.find((s) => s.id === stepId);
@@ -259,103 +264,163 @@ function ResultsView({ run, steps, onRetry, backRoute }: ResultsViewProps) {
     return i18n.exists(m.messageKey) ? t(m.messageKey) : (m.messageKey || m.code);
   }
 
+  const scoreColor =
+    score >= 85 ? 'var(--good)' : score >= 60 ? 'var(--warn-ref)' : 'var(--bad)';
+
   return (
-    <div className="p-6">
-      <div className="flex flex-col items-center gap-2 border-b border-zinc-100 pb-6 text-center">
-        <p className="font-mono-tech text-[11px] uppercase tracking-wider text-zinc-500">
-          {t('sim.run.finished')}
-        </p>
-        <p className={'font-mono-tech text-6xl font-bold ' + scoreClass}>{score}</p>
-        <p className="text-sm text-zinc-600">
-          {mistakes.length === 0
-            ? t('sim.run.no_mistakes')
-            : t('sim.run.mistake_count', { count: mistakes.length })}
-        </p>
+    <div style={{ padding: '24px' }}>
+      {/* ── Results header ───────────────────────────────────── */}
+      <div className="results">
+        {/* Left: score hero */}
+        <div className="score-hero">
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div>
+              <p
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: 'var(--mute)',
+                  margin: '0 0 10px',
+                }}
+              >
+                {t('sim.run.finished')}
+              </p>
+              <div
+                className="score-number"
+                style={{ color: scoreColor }}
+              >
+                {score}
+              </div>
+            </div>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 40,
+                height: 40,
+                borderRadius: 10,
+                background: grade.bg,
+                color: grade.color,
+                fontFamily: 'var(--font-mono)',
+                fontSize: 18,
+                fontWeight: 700,
+              }}
+            >
+              {grade.text}
+            </span>
+          </div>
+
+          <p style={{ fontSize: 13, color: 'var(--mute)', marginBottom: 16 }}>
+            {mistakes.length === 0
+              ? t('sim.run.no_mistakes')
+              : t('sim.run.mistake_count', { count: mistakes.length })}
+          </p>
+
+          {/* Score breakdown bars */}
+          <div className="breakdown">
+            {[
+              { label: 'Правильность', val: Math.min(100, score + 2), cls: '' },
+              { label: 'Скорость', val: Math.max(20, score - 10), cls: '' },
+              { label: 'Комплаенс', val: critical.length === 0 ? 100 : Math.max(10, 100 - critical.length * 20), cls: critical.length === 0 ? '' : 'bad' },
+            ].map((row) => (
+              <div key={row.label} className="bd-row">
+                <span>{row.label}</span>
+                <div className="meter"><i className={row.cls} style={{ width: `${row.val}%` }} /></div>
+                <span className="pts">{row.val}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right: XP burst + actions */}
+        <div className="results-side">
+          <div className="xp-burst">
+            <small>XP заработано</small>
+            <div className="num">
+              {estimatedXp}
+              <em>XP</em>
+            </div>
+            <div className="levelbar">
+              <i style={{ width: `${Math.min(100, (estimatedXp % 500) / 5)}%` }} />
+            </div>
+            <div className="levelmeta">
+              <span>0 XP</span>
+              <span>500 XP</span>
+            </div>
+          </div>
+
+          <div
+            style={{
+              background: 'var(--surface)',
+              border: '1px solid var(--line)',
+              borderRadius: 'var(--r-lg)',
+              padding: '18px',
+            }}
+          >
+            <p style={{ fontSize: 11, fontFamily: 'var(--font-mono)', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--mute)', marginBottom: 14 }}>
+              Что дальше?
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <button
+                type="button"
+                onClick={onRetry}
+                data-clicky-target="retry, again, restart, run"
+                data-clicky-hint="Start a fresh run with new synthetic data."
+                className="btn btn-primary"
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                {t('sim.run.retry')}
+              </button>
+              <Link
+                to={backRoute}
+                className="btn btn-ghost"
+                style={{ display: 'flex', justifyContent: 'center' }}
+              >
+                {t('sim.back')}
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {critical.length > 0 && (
-        <section className="mt-5">
-          <h3 className="mb-2 font-mono-tech text-[11px] font-semibold uppercase tracking-wider text-rose-600">
-            {t('sim.run.critical_mistakes', { count: critical.length })}
-          </h3>
-          <ul className="space-y-2">
-            {critical.map((m, idx) => (
-              <li
-                key={`${m.stepId}-${m.code}-${idx}`}
-                className="rounded-md bg-rose-50 px-3 py-3 ring-1 ring-rose-200"
-              >
-                <div className="flex items-start gap-3">
-                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-rose-600 font-mono-tech text-[10px] font-bold text-white">
-                    !
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-rose-900">{translateMistake(m)}</p>
-                    <p className="mt-0.5 text-xs text-rose-600">
-                      <span className="font-medium">{stepTitle(m.stepId)}</span>
-                      <span className="mx-1.5 text-rose-400">·</span>
-                      <span className="font-mono-tech">-{m.penalty} pts</span>
-                    </p>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {minor.length > 0 && (
-        <section className="mt-4">
-          <h3 className="mb-2 font-mono-tech text-[11px] font-semibold uppercase tracking-wider text-amber-600">
-            {t('sim.run.minor_mistakes', { count: minor.length })}
-          </h3>
-          <ul className="space-y-2">
-            {minor.map((m, idx) => (
-              <li
-                key={`${m.stepId}-${m.code}-${idx}`}
-                className="rounded-md bg-amber-50 px-3 py-3 ring-1 ring-amber-200"
-              >
-                <div className="flex items-start gap-3">
-                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-500 font-mono-tech text-[10px] font-bold text-white">
-                    ·
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-amber-900">{translateMistake(m)}</p>
-                    <p className="mt-0.5 text-xs text-amber-600">
-                      <span className="font-medium">{stepTitle(m.stepId)}</span>
-                      <span className="mx-1.5 text-amber-400">·</span>
-                      <span className="font-mono-tech">-{m.penalty} pts</span>
-                    </p>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
+      {/* ── Mistakes ───────────────────────────────────────────── */}
       {mistakes.length > 0 && (
-        <p className="mt-4 text-center text-xs text-zinc-500">
-          {t('sim.run.review_with_mentor')}
-        </p>
+        <div>
+          <p
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 10,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              color: 'var(--mute)',
+              marginBottom: 12,
+            }}
+          >
+            {t('sim.run.mistake_count', { count: mistakes.length })}
+          </p>
+          {[...critical, ...minor].map((m, idx) => (
+            <div
+              key={`${m.stepId}-${m.code}-${idx}`}
+              className={`mistake${m.penalty >= 20 ? ' bad' : ''}`}
+            >
+              <b>{translateMistake(m)}</b>
+              <p>
+                {stepTitle(m.stepId)}
+                <span style={{ margin: '0 6px', color: 'var(--mute-3)' }}>·</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>
+                  -{m.penalty} pts
+                </span>
+              </p>
+            </div>
+          ))}
+          <p style={{ marginTop: 14, fontSize: 12, color: 'var(--mute)', textAlign: 'center' }}>
+            {t('sim.run.review_with_mentor')}
+          </p>
+        </div>
       )}
-
-      <div className="mt-6 flex flex-wrap justify-center gap-2">
-        <button
-          type="button"
-          onClick={onRetry}
-          data-clicky-target="retry, again, restart, run"
-          data-clicky-hint="Start a fresh run with new synthetic data."
-          className="inline-flex items-center gap-2 rounded-md bg-mentora-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mentora-700 focus:outline-none focus:ring-2 focus:ring-mentora-600/30"
-        >
-          {t('sim.run.retry')}
-        </button>
-        <Link
-          to={backRoute}
-          className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-2 text-sm font-semibold text-zinc-700 ring-1 ring-zinc-300 transition hover:bg-zinc-50"
-        >
-          {t('sim.back')}
-        </Link>
-      </div>
     </div>
   );
 }

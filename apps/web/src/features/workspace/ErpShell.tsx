@@ -184,53 +184,97 @@ export function ErpShell({
   }
 
   return (
-    <div className="min-h-full p-2 md:p-5">
-      <div className="mx-auto flex min-h-[calc(100vh-1rem)] w-full max-w-[1440px] overflow-hidden rounded-[20px] border border-ink-200 bg-white shadow-pop md:min-h-[calc(100vh-2.5rem)]">
-        <aside className="hidden w-[244px] shrink-0 border-r border-ink-200 bg-[var(--sidebar)] md:flex md:flex-col">
-          <div className="flex items-center gap-3 px-5 pb-4 pt-5">
-            <Link to={homeHref} className="grid h-10 w-10 place-items-center rounded-lg bg-brand-500 text-sm font-bold text-white shadow-card">
+    <div style={{ minHeight: '100%', padding: '8px', fontFamily: 'var(--font-sans)', background: 'var(--paper)' }} className="md:p-5">
+      <div
+        style={{
+          margin: '0 auto',
+          maxWidth: 1440,
+          minHeight: 'calc(100vh - 1rem)',
+          overflow: 'hidden',
+          borderRadius: 20,
+          border: '1px solid var(--line)',
+          background: 'var(--surface)',
+          boxShadow: 'var(--shadow-lg)',
+          display: 'flex',
+        }}
+        className="md:min-h-[calc(100vh-2.5rem)]"
+      >
+        <aside
+          style={{
+            width: 244,
+            flexShrink: 0,
+            borderRight: '1px solid var(--line)',
+            background: 'var(--surface)',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+          className="hidden md:flex"
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '20px 20px 16px' }}>
+            <Link
+              to={homeHref}
+              style={{
+                display: 'grid',
+                placeItems: 'center',
+                width: 36,
+                height: 36,
+                borderRadius: 9,
+                background: 'var(--cobalt)',
+                color: '#fff',
+                fontSize: 13,
+                fontWeight: 700,
+                textDecoration: 'none',
+                boxShadow: '0 2px 8px rgba(32,70,255,0.35)',
+              }}
+            >
               AI
             </Link>
-            <div className="min-w-0">
-              <p className="truncate font-display text-base font-semibold text-ink-900">{title}</p>
-              <p className="truncate text-xs text-ink-500">{subtitle}</p>
+            <div style={{ minWidth: 0 }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</p>
+              <p style={{ fontSize: 11, color: 'var(--mute)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{subtitle}</p>
             </div>
           </div>
 
-          <nav className="flex-1 overflow-y-auto px-3 pb-3">
+          <nav style={{ flex: 1, overflowY: 'auto', padding: '0 12px 12px' }}>
             {sections.map((section, idx) => (
-              <div key={`${section.label ?? 'sec'}-${idx}`} className="mb-4">
+              <div key={`${section.label ?? 'sec'}-${idx}`} style={{ marginBottom: 16 }}>
                 {section.label && (
-                  <p className="px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-500">
+                  <p style={{ padding: '0 12px 6px', fontSize: 10, fontFamily: 'var(--font-mono)', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--mute-2)', fontWeight: 500, margin: 0 }}>
                     {section.label}
                   </p>
                 )}
-                <ul className="space-y-1">
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
                   {section.items.map((item) => (
                     <li key={`${item.to}-${item.label}`}>
                       <NavLink
                         to={item.to}
                         end={item.end}
-                        className={({ isActive }) =>
-                          `group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                            isActive
-                              ? 'bg-brand-100 text-brand-700'
-                              : 'text-ink-700 hover:bg-white/90 hover:text-ink-900'
-                          }`
-                        }
+                        style={({ isActive }) => ({
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 10,
+                          padding: '7px 10px',
+                          borderRadius: 6,
+                          fontSize: 13,
+                          fontWeight: isActive ? 500 : 400,
+                          color: isActive ? 'var(--cobalt-ink)' : 'var(--ink)',
+                          background: isActive ? 'var(--cobalt-tint)' : 'transparent',
+                          textDecoration: 'none',
+                          transition: 'background 0.12s, color 0.12s',
+                          position: 'relative',
+                        })}
                       >
                         {({ isActive }) => (
                           <>
-                            <span className={isActive ? 'text-brand-600' : 'text-ink-500 group-hover:text-ink-700'}>
+                            <span style={{ color: isActive ? 'var(--cobalt)' : 'var(--mute)' }}>
                               {item.icon}
                             </span>
-                            <span className="flex-1 truncate">{item.label}</span>
+                            <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.label}</span>
                             {item.badge && (
-                              <span className="rounded-full border border-ink-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-ink-700">
+                              <span style={{ background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 999, padding: '1px 8px', fontSize: 10.5, fontWeight: 600, color: 'var(--ink)' }}>
                                 {item.badge}
                               </span>
                             )}
-                            {isActive && <span className="absolute -left-3 top-2 h-6 w-[3px] rounded-r-full bg-brand-600" />}
                           </>
                         )}
                       </NavLink>
@@ -240,32 +284,48 @@ export function ErpShell({
               </div>
             ))}
           </nav>
-          <div className="border-t border-ink-200 px-3 py-3">
-            <div className="rounded-lg border border-ink-200 bg-white/80 p-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-500">
+
+          <div style={{ borderTop: '1px solid var(--line)', padding: '12px' }}>
+            <div style={{ background: 'var(--surface-2)', border: '1px solid var(--line)', borderRadius: 8, padding: 12 }}>
+              <p style={{ fontSize: 10, fontFamily: 'var(--font-mono)', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--mute-2)', margin: '0 0 8px', fontWeight: 500 }}>
                 Workspace
               </p>
-              <div className="mt-2 flex items-center justify-between text-xs text-ink-700">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12, color: 'var(--ink)' }}>
                 <span>Open items</span>
-                <span className="rounded-full bg-ink-50 px-2 py-0.5 font-semibold text-ink-700">
+                <span style={{ background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 999, padding: '1px 8px', fontSize: 11, fontWeight: 600 }}>
                   {openItems}
                 </span>
               </div>
-              <div className="mt-2 space-y-1.5">
+              <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {items.slice(0, 3).map((item) => (
                   <button
                     key={item.id}
                     type="button"
                     onClick={() => toggleDone(item.id)}
-                    className="flex w-full items-center gap-2 rounded-md border border-ink-200 bg-white px-2 py-1.5 text-left text-xs text-ink-700 hover:border-brand-200"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      width: '100%',
+                      background: 'var(--surface)',
+                      border: '1px solid var(--line)',
+                      borderRadius: 6,
+                      padding: '6px 8px',
+                      fontSize: 12,
+                      color: 'var(--ink)',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                    }}
                   >
-                    <span className={`h-2.5 w-2.5 rounded-full ${item.done ? 'bg-emerald-500' : 'bg-amber-400'}`} />
-                    <span className={item.done ? 'line-through opacity-60' : ''}>{item.title}</span>
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: item.done ? 'var(--good)' : 'var(--synth)', flexShrink: 0 }} />
+                    <span style={{ opacity: item.done ? 0.5 : 1, textDecoration: item.done ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {item.title}
+                    </span>
                   </button>
                 ))}
                 {items.length === 0 && (
-                  <p className="rounded-md border border-dashed border-ink-300 px-2 py-2 text-xs text-ink-500">
-                    No items yet. Use <span className="font-semibold">+ New</span>.
+                  <p style={{ border: '1px dashed var(--line-2)', borderRadius: 6, padding: '8px', fontSize: 11.5, color: 'var(--mute)' }}>
+                    No items yet. Use <strong>+ New</strong>.
                   </p>
                 )}
               </div>
@@ -273,67 +333,84 @@ export function ErpShell({
           </div>
         </aside>
 
-        <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex h-16 items-center gap-3 border-b border-ink-200 bg-white px-4 py-3 md:px-6">
-            <div className="relative hidden max-w-xl flex-1 md:block">
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+          <header
+            style={{
+              display: 'flex',
+              height: 56,
+              alignItems: 'center',
+              gap: 12,
+              borderBottom: '1px solid var(--line)',
+              background: 'var(--surface)',
+              padding: '0 16px',
+            }}
+            className="md:px-6"
+          >
+            <div style={{ position: 'relative', flex: 1, maxWidth: 480, display: 'none' }} className="md:block">
               <button
                 type="button"
                 onClick={() => setPaletteOpen(true)}
-                className="h-10 w-full rounded-lg border border-ink-200 bg-ink-50 px-10 pr-20 text-left text-sm text-ink-900 transition-colors hover:border-ink-300"
+                style={{
+                  height: 36,
+                  width: '100%',
+                  borderRadius: 8,
+                  border: '1px solid var(--line)',
+                  background: 'var(--surface-2)',
+                  padding: '0 40px 0 36px',
+                  textAlign: 'left',
+                  fontSize: 13,
+                  color: 'var(--mute)',
+                  cursor: 'text',
+                  transition: 'border-color 0.15s',
+                }}
               >
                 {searchPlaceholder}
               </button>
-              <svg
-                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
+              <svg style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', width: 15, height: 15, color: 'var(--mute-2)', pointerEvents: 'none' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="11" cy="11" r="7" />
                 <path d="m20 20-3-3" strokeLinecap="round" />
               </svg>
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-ink-300 bg-white px-1.5 py-0.5 text-[11px] font-semibold text-ink-500">
+              <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 10, fontFamily: 'var(--font-mono)', fontWeight: 600, color: 'var(--mute)', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 4, padding: '2px 5px', pointerEvents: 'none' }}>
                 Ctrl K
               </span>
             </div>
-            <div className="ml-auto flex items-center gap-2">
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
               <button
                 type="button"
                 onClick={() => setCreateOpen(true)}
-                className="rounded-md bg-brand-500 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-600"
+                style={{ borderRadius: 7, background: 'var(--cobalt)', padding: '6px 12px', fontSize: 13, fontWeight: 600, color: '#fff', border: 'none', cursor: 'pointer' }}
               >
                 + New
               </button>
               <button
                 type="button"
                 onClick={() => setInboxOpen((prev) => !prev)}
-                className="relative rounded-md border border-ink-200 bg-white p-2 text-ink-600 hover:bg-ink-50"
+                style={{ position: 'relative', borderRadius: 7, border: '1px solid var(--line)', background: 'var(--surface)', padding: 7, color: 'var(--ink)', cursor: 'pointer' }}
                 aria-label="Notifications"
               >
                 <IconBell />
                 {unreadCount > 0 && (
-                  <span className="absolute -right-1 -top-1 rounded-full bg-rose-500 px-1.5 text-[10px] font-bold text-white">
+                  <span style={{ position: 'absolute', top: -4, right: -4, background: 'var(--bad)', color: '#fff', borderRadius: 999, fontSize: 10, fontWeight: 700, padding: '1px 5px' }}>
                     {unreadCount}
                   </span>
                 )}
               </button>
               {topActions}
               <LocalePicker />
-              <div className="hidden items-center gap-2 rounded-lg border border-ink-200 bg-white px-2 py-1 md:flex">
-                <span className="grid h-8 w-8 place-items-center rounded-md bg-ink-900 text-xs font-semibold text-white">
+              <div style={{ display: 'none', alignItems: 'center', gap: 8, borderRadius: 8, border: '1px solid var(--line)', background: 'var(--surface)', padding: '4px 8px' }} className="md:flex">
+                <span style={{ display: 'grid', placeItems: 'center', width: 30, height: 30, borderRadius: 7, background: 'var(--ink)', fontSize: 11, fontWeight: 700, color: '#fff' }}>
                   {initials(userName)}
                 </span>
-                <div className="pr-1">
-                  <p className="text-sm font-medium leading-tight text-ink-900">{userName}</p>
-                  <p className="text-xs leading-tight text-ink-500">{userRole}</p>
+                <div style={{ paddingRight: 4 }}>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)', margin: 0, lineHeight: 1.3 }}>{userName}</p>
+                  <p style={{ fontSize: 11, color: 'var(--mute)', margin: 0, lineHeight: 1.3 }}>{userRole}</p>
                 </div>
               </div>
             </div>
           </header>
-          <div className="border-b border-ink-200 bg-gradient-to-r from-brand-50 via-white to-sky-50 px-4 py-2.5 text-xs text-ink-700 md:px-6">
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
+
+          <div style={{ borderBottom: '1px solid var(--line)', background: 'var(--surface-2)', padding: '8px 16px', fontSize: 11 }} className="md:px-6">
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 20px' }}>
               <PulseItem label="Product velocity" value="12 launches / month" tone="brand" />
               <PulseItem label="AI uptime" value="99.98%" tone="emerald" />
               <PulseItem label="Active learners" value="1,284" tone="amber" />
@@ -341,10 +418,10 @@ export function ErpShell({
             </div>
           </div>
 
-          <div className="flex min-h-0 flex-1 bg-[var(--bg)]/70">
-            <main className="min-w-0 flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
+          <div style={{ display: 'flex', flex: 1, minHeight: 0, background: 'var(--paper)' }}>
+            <main style={{ flex: 1, minWidth: 0, overflowY: 'auto', padding: 20 }} className="md:p-6">{children}</main>
             {rightPanel && (
-              <aside className="hidden w-[320px] shrink-0 border-l border-ink-200 bg-white p-4 xl:block">
+              <aside style={{ width: 320, flexShrink: 0, borderLeft: '1px solid var(--line)', background: 'var(--surface)', padding: 16, display: 'none' }} className="xl:block">
                 {rightPanel}
               </aside>
             )}
@@ -353,34 +430,33 @@ export function ErpShell({
       </div>
 
       {paletteOpen && (
-        <div className="fixed inset-0 z-50 grid place-items-start bg-ink-900/45 px-4 pt-[12vh]">
-          <div className="w-full max-w-2xl overflow-hidden rounded-xl border border-ink-200 bg-white shadow-pop">
-            <div className="border-b border-ink-200 p-3">
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'grid', placeItems: 'start', background: 'rgba(10,14,31,0.45)', padding: '12vh 16px 16px' }}>
+          <div style={{ width: '100%', maxWidth: 640, overflow: 'hidden', borderRadius: 14, border: '1px solid var(--line)', background: 'var(--surface)', boxShadow: 'var(--shadow-lg)' }}>
+            <div style={{ borderBottom: '1px solid var(--line)', padding: 12 }}>
               <input
                 autoFocus
                 value={paletteQuery}
                 onChange={(e) => setPaletteQuery(e.target.value)}
                 placeholder="Type a command or route..."
-                className="w-full rounded-md border border-ink-200 bg-ink-50 px-3 py-2 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-300 focus:bg-white focus:outline-none"
+                style={{ width: '100%', borderRadius: 7, border: '1px solid var(--line)', background: 'var(--surface-2)', padding: '8px 12px', fontSize: 13, color: 'var(--ink)', outline: 'none', fontFamily: 'var(--font-sans)' }}
               />
             </div>
-            <div className="max-h-[360px] overflow-y-auto p-2">
+            <div style={{ maxHeight: 360, overflowY: 'auto', padding: 8 }}>
               {filteredCommands.map((command) => (
                 <button
                   key={command.id}
                   type="button"
-                  onClick={() => {
-                    command.run();
-                    setPaletteOpen(false);
-                  }}
-                  className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left hover:bg-ink-50"
+                  onClick={() => { command.run(); setPaletteOpen(false); }}
+                  style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between', borderRadius: 7, padding: '8px 12px', cursor: 'pointer', background: 'none', border: 'none', textAlign: 'left', fontFamily: 'var(--font-sans)' }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--surface-2)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
                 >
-                  <span className="text-sm font-medium text-ink-800">{command.label}</span>
-                  <span className="text-xs text-ink-500">{command.hint}</span>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)' }}>{command.label}</span>
+                  <span style={{ fontSize: 11, color: 'var(--mute)' }}>{command.hint}</span>
                 </button>
               ))}
               {filteredCommands.length === 0 && (
-                <p className="px-3 py-4 text-sm text-ink-500">No matching command.</p>
+                <p style={{ padding: '16px 12px', fontSize: 13, color: 'var(--mute)' }}>No matching command.</p>
               )}
             </div>
           </div>
@@ -388,22 +464,29 @@ export function ErpShell({
       )}
 
       {createOpen && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-ink-900/45 px-4">
-          <div className="w-full max-w-md rounded-xl border border-ink-200 bg-white p-4 shadow-pop">
-            <h3 className="font-display text-lg font-semibold text-ink-900">Create workspace item</h3>
-            <p className="mt-1 text-sm text-ink-500">Track personal startup work directly in your panel.</p>
-            <div className="mt-4 space-y-3">
-              <div className="flex gap-2">
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'grid', placeItems: 'center', background: 'rgba(10,14,31,0.45)', padding: 16 }}>
+          <div style={{ width: '100%', maxWidth: 440, borderRadius: 14, border: '1px solid var(--line)', background: 'var(--surface)', padding: 20, boxShadow: 'var(--shadow-lg)' }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--ink)', margin: '0 0 4px' }}>Create workspace item</h3>
+            <p style={{ fontSize: 13, color: 'var(--mute)', margin: '0 0 16px' }}>Track personal startup work directly in your panel.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', gap: 8 }}>
                 {(['task', 'note', 'reminder'] as const).map((kind) => (
                   <button
                     key={kind}
                     type="button"
                     onClick={() => setCreateType(kind)}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${
-                      createType === kind
-                        ? 'bg-brand-600 text-white'
-                        : 'border border-ink-200 bg-white text-ink-600'
-                    }`}
+                    style={{
+                      borderRadius: 7,
+                      padding: '5px 12px',
+                      fontSize: 11,
+                      fontWeight: 600,
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                      border: createType === kind ? 'none' : '1px solid var(--line)',
+                      background: createType === kind ? 'var(--cobalt)' : 'var(--surface)',
+                      color: createType === kind ? '#fff' : 'var(--ink)',
+                    }}
                   >
                     {kind}
                   </button>
@@ -414,22 +497,14 @@ export function ErpShell({
                 value={createTitle}
                 onChange={(e) => setCreateTitle(e.target.value)}
                 placeholder="Write a short title..."
-                className="w-full rounded-md border border-ink-200 bg-ink-50 px-3 py-2 text-sm text-ink-900 focus:border-brand-300 focus:bg-white focus:outline-none"
+                style={{ borderRadius: 7, border: '1px solid var(--line)', background: 'var(--surface-2)', padding: '8px 12px', fontSize: 13, color: 'var(--ink)', outline: 'none', fontFamily: 'var(--font-sans)' }}
               />
             </div>
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setCreateOpen(false)}
-                className="rounded-md border border-ink-200 bg-white px-3 py-2 text-sm font-medium text-ink-700"
-              >
+            <div style={{ marginTop: 16, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              <button type="button" onClick={() => setCreateOpen(false)} style={{ borderRadius: 7, border: '1px solid var(--line)', background: 'var(--surface)', padding: '7px 14px', fontSize: 13, fontWeight: 500, color: 'var(--ink)', cursor: 'pointer' }}>
                 Cancel
               </button>
-              <button
-                type="button"
-                onClick={createItem}
-                className="rounded-md bg-brand-500 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-600"
-              >
+              <button type="button" onClick={createItem} style={{ borderRadius: 7, background: 'var(--cobalt)', padding: '7px 14px', fontSize: 13, fontWeight: 600, color: '#fff', border: 'none', cursor: 'pointer' }}>
                 Save
               </button>
             </div>
@@ -438,26 +513,25 @@ export function ErpShell({
       )}
 
       {inboxOpen && (
-        <div className="fixed right-4 top-20 z-50 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-ink-200 bg-white shadow-pop">
-          <div className="flex items-center justify-between border-b border-ink-200 px-4 py-3">
-            <h3 className="text-sm font-semibold text-ink-900">Notifications</h3>
-            <button
-              type="button"
-              onClick={markAllRead}
-              className="text-xs font-medium text-brand-700 hover:underline"
-            >
+        <div style={{ position: 'fixed', right: 16, top: 72, zIndex: 50, width: 360, maxWidth: 'calc(100vw - 2rem)', overflow: 'hidden', borderRadius: 14, border: '1px solid var(--line)', background: 'var(--surface)', boxShadow: 'var(--shadow-lg)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--line)', padding: '12px 16px' }}>
+            <h3 style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', margin: 0 }}>Notifications</h3>
+            <button type="button" onClick={markAllRead} style={{ fontSize: 12, fontWeight: 500, color: 'var(--cobalt)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
               Mark all read
             </button>
           </div>
-          <div className="max-h-[360px] overflow-y-auto p-2">
+          <div style={{ maxHeight: 360, overflowY: 'auto', padding: 8 }}>
             {events.map((event) => (
-              <article key={event.id} className="rounded-md px-3 py-2 hover:bg-ink-50">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-medium text-ink-800">{event.title}</p>
-                  <span className="text-[11px] text-ink-500">{event.time}</span>
+              <article key={event.id} style={{ borderRadius: 7, padding: '8px 12px', cursor: 'default' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--surface-2)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)', margin: 0 }}>{event.title}</p>
+                  <span style={{ fontSize: 11, color: 'var(--mute)', flexShrink: 0 }}>{event.time}</span>
                 </div>
-                <p className="mt-0.5 text-xs text-ink-600">{event.detail}</p>
-                {event.unread && <span className="mt-1 inline-block h-2 w-2 rounded-full bg-brand-600" />}
+                <p style={{ marginTop: 2, fontSize: 12, color: 'var(--mute)', margin: '2px 0 0' }}>{event.detail}</p>
+                {event.unread && <span style={{ marginTop: 4, display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: 'var(--cobalt)' }} />}
               </article>
             ))}
           </div>
@@ -476,22 +550,22 @@ function PulseItem({
   value: string;
   tone: 'brand' | 'emerald' | 'amber' | 'slate';
 }) {
-  const color =
+  const dotColor =
     tone === 'brand'
-      ? 'bg-brand-500'
+      ? 'var(--cobalt)'
       : tone === 'emerald'
-        ? 'bg-emerald-500'
-      : tone === 'amber'
-        ? 'bg-amber-500'
-          : 'bg-ink-500';
+        ? 'var(--good)'
+        : tone === 'amber'
+          ? 'var(--synth)'
+          : 'var(--mute)';
   return (
-    <div className="inline-flex items-center gap-2">
-      <span className={`relative flex h-2.5 w-2.5`}>
-        <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-50 ${color}`} />
-        <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${color}`} />
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+      <span style={{ position: 'relative', display: 'flex', width: 8, height: 8 }}>
+        <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: dotColor, opacity: 0.4, animation: 'ping 1s cubic-bezier(0,0,0.2,1) infinite' }} />
+        <span style={{ position: 'relative', width: 8, height: 8, borderRadius: '50%', background: dotColor }} />
       </span>
-      <span className="text-ink-500">{label}:</span>
-      <span className="font-semibold text-ink-700">{value}</span>
+      <span style={{ color: 'var(--mute)' }}>{label}:</span>
+      <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{value}</span>
     </div>
   );
 }

@@ -17,24 +17,24 @@ const OPTIONS: RiskOption[] = [
   {
     value: 'low',
     labelKey: 'sim.kyc.steps.risk_score.score_low',
-    activeRing: 'ring-emerald-300',
-    activeTone: 'bg-emerald-50 text-emerald-800',
+    activeRing: 'ring-[var(--good)]',
+    activeTone: 'bg-[var(--good-tint)] text-[var(--good)]',
     icon: '↓',
     clickyTarget: 'low, risk, ↓, score, green',
   },
   {
     value: 'medium',
     labelKey: 'sim.kyc.steps.risk_score.score_medium',
-    activeRing: 'ring-amber-300',
-    activeTone: 'bg-amber-50 text-amber-800',
+    activeRing: 'ring-[var(--warn-ref)]',
+    activeTone: 'bg-[var(--warn-tint)] text-[var(--warn-ref)]',
     icon: '~',
     clickyTarget: 'medium, mid, risk, score, amber',
   },
   {
     value: 'high',
     labelKey: 'sim.kyc.steps.risk_score.score_high',
-    activeRing: 'ring-rose-300',
-    activeTone: 'bg-rose-50 text-rose-800',
+    activeRing: 'ring-[var(--bad)]',
+    activeTone: 'bg-[var(--bad-tint)] text-[var(--bad)]',
     icon: '↑',
     clickyTarget: 'high, risk, ↑, score, red',
   },
@@ -53,10 +53,10 @@ export function RiskScoreStep({ submitting, onSubmit }: StepProps) {
       data-clicky-target="risk, score, band, low, medium, high"
       data-clicky-hint={t('clicky.hint.kyc.risk_score')}
     >
-      <h2 className="text-base font-semibold tracking-tight text-zinc-900">
+      <h2 className="text-base font-semibold tracking-tight text-[var(--ink)]">
         {t('sim.kyc.steps.risk_score.title')}
       </h2>
-      <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-zinc-600">
+      <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-[var(--mute)]">
         {t('sim.kyc.steps.risk_score.description')}
       </p>
 
@@ -69,18 +69,18 @@ export function RiskScoreStep({ submitting, onSubmit }: StepProps) {
               data-clicky-target={opt.clickyTarget}
               data-clicky-hint={`Mark the client as ${t(opt.labelKey)} risk.`}
               className={
-                'flex cursor-pointer flex-col gap-2 rounded-md p-4 transition focus-within:ring-2 ' +
+                'flex cursor-pointer flex-col gap-2 rounded-[var(--r-md)] p-4 transition focus-within:ring-2 ' +
                 opt.activeRing +
                 ' ' +
                 (active
                   ? `${opt.activeTone} ring-1 ring-inset`
-                  : 'bg-white ring-1 ring-zinc-200 hover:bg-zinc-50')
+                  : 'bg-white ring-1 ring-[var(--line)] hover:bg-[var(--surface-2)]')
               }
             >
               <div className="flex items-center justify-between">
                 <span
                   aria-hidden="true"
-                  className="grid h-9 w-9 place-items-center rounded-md bg-white text-lg font-bold text-zinc-700 ring-1 ring-zinc-200"
+                  className="grid h-9 w-9 place-items-center rounded-[var(--r-sm)] bg-white text-lg font-bold text-[var(--ink)] ring-1 ring-[var(--line)]"
                 >
                   {opt.icon}
                 </span>
@@ -105,7 +105,7 @@ export function RiskScoreStep({ submitting, onSubmit }: StepProps) {
         rows={3}
         data-clicky-target="rationale, reason, why, notes, textarea"
         data-clicky-hint="Briefly explain your reasoning — the system reads it for partial credit."
-        className="mt-4 w-full resize-none rounded-md bg-white px-3 py-2 text-sm text-zinc-800 ring-1 ring-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-mentora-600/30"
+        className="mt-4 w-full resize-none rounded-[var(--r-md)] bg-white px-3 py-2 text-sm text-[var(--ink)] ring-1 ring-[var(--line)] placeholder:text-[var(--mute-2)] focus:outline-none focus:ring-2 focus:ring-[var(--cobalt)]/30"
       />
 
       <div className="mt-6 flex justify-end">
@@ -115,7 +115,7 @@ export function RiskScoreStep({ submitting, onSubmit }: StepProps) {
           onClick={() => onSubmit({ risk: level, rationale })}
           data-clicky-target="submit, next, continue, risk, score, send"
           data-clicky-hint="Submits the risk score and your rationale."
-          className="inline-flex items-center gap-2 rounded-md bg-mentora-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mentora-700 focus:outline-none focus:ring-2 focus:ring-mentora-600/30 disabled:cursor-not-allowed disabled:opacity-50"
+          className="btn btn-primary inline-flex items-center gap-2 rounded-[var(--r-md)] px-5 py-2 text-sm font-semibold shadow-sm transition focus:outline-none focus:ring-2 focus:ring-[var(--cobalt)]/30 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {t('sim.run.submit')}
         </button>

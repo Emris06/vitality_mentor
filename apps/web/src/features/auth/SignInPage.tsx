@@ -10,11 +10,11 @@ import { homeRouteFor, roleFromUser } from './types';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const INPUT_CLASS =
-  'w-full rounded-2xl bg-white px-3.5 py-2.5 text-sm text-[var(--ink-warm)] ring-1 ring-zinc-200 placeholder:text-zinc-400 transition-colors focus:outline-none focus:ring-2 focus:ring-mentora-600/30 disabled:bg-zinc-50 disabled:text-zinc-400';
+  'w-full rounded-xl bg-white px-3.5 py-2.5 text-sm text-[var(--ink)] ring-1 ring-[var(--line)] placeholder:text-[var(--mute-2)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--cobalt-50)] disabled:bg-[var(--surface-2)] disabled:text-[var(--mute)]';
 const PRIMARY_BUTTON =
-  'inline-flex w-full items-center justify-center gap-2 rounded-full bg-mentora-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-mentora-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mentora-600/30 disabled:cursor-not-allowed disabled:bg-zinc-300';
+  'inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--cobalt)] px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[var(--cobalt-deep)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--cobalt-50)] disabled:cursor-not-allowed disabled:opacity-50';
 const SECONDARY_BUTTON =
-  'inline-flex items-center justify-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[var(--ink-warm-2)] shadow-sm ring-1 ring-zinc-200 transition-colors hover:bg-zinc-50';
+  'inline-flex items-center justify-center gap-2 rounded-full bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--ink)] shadow-sm ring-1 ring-[var(--line)] transition-colors hover:bg-[var(--surface-2)]';
 
 type Mode = 'password' | 'magic';
 type FieldKey = 'email' | 'password';
@@ -87,7 +87,7 @@ export function SignInPage() {
     return (
       <AuthLayout>
         <Header />
-        <div className="mt-8 rounded-3xl bg-white shadow-card-warm-sm ring-1 ring-zinc-100">
+        <div className="mt-8" style={{ background: 'var(--surface)', borderRadius: 'var(--r-xl)', border: '1px solid var(--line)', boxShadow: 'var(--shadow-md)' }}>
           <EmptyState
             title={t('auth.signin_title')}
             description={t('auth.error_supabase_not_configured')}
@@ -102,7 +102,7 @@ export function SignInPage() {
       <Header />
 
       {magicSent ? (
-        <div className="mt-8 rounded-3xl bg-white shadow-card-warm-sm ring-1 ring-zinc-100">
+        <div className="mt-8" style={{ background: 'var(--surface)', borderRadius: 'var(--r-xl)', border: '1px solid var(--line)', boxShadow: 'var(--shadow-md)' }}>
           <EmptyState
             title={t('auth.signin_title')}
             description={t('auth.signin_magic_link_sent', { email: magicSent })}
@@ -193,7 +193,7 @@ export function SignInPage() {
                 setErrors({});
                 setFormError(null);
               }}
-              className="font-semibold text-mentora-700 transition hover:text-mentora-800"
+              className="font-semibold text-[var(--cobalt)] transition hover:text-[var(--cobalt-deep)]"
             >
               {mode === 'password'
                 ? t('auth.signin_magic_link_toggle')
@@ -203,7 +203,7 @@ export function SignInPage() {
               {t('auth.signin_no_account')}{' '}
               <Link
                 to="/signup"
-                className="font-semibold text-mentora-700 transition hover:text-mentora-800"
+                className="font-semibold text-[var(--cobalt)] transition hover:text-[var(--cobalt-deep)]"
               >
                 {t('auth.signin_signup_link')}
               </Link>
@@ -219,10 +219,10 @@ function Header() {
   const { t } = useTranslation();
   return (
     <div>
-      <h1 className="text-3xl font-extrabold tracking-tight text-[var(--ink-warm)]">
+      <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--ink)', margin: '0 0 8px' }}>
         {t('auth.signin_title')}
       </h1>
-      <p className="mt-2 text-sm text-[var(--ink-warm-2)]">{t('auth.signin_subtitle')}</p>
+      <p style={{ fontSize: 14, color: 'var(--mute)', margin: 0 }}>{t('auth.signin_subtitle')}</p>
     </div>
   );
 }
@@ -239,7 +239,7 @@ function Fieldset({ label, htmlFor, error, children }: FieldsetProps) {
     <div className="space-y-1.5">
       <label
         htmlFor={htmlFor}
-        className="block text-sm font-semibold text-[var(--ink-warm)]"
+        style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink)', marginBottom: 4 }}
       >
         {label}
       </label>

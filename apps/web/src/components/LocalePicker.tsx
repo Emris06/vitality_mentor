@@ -2,8 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { SUPPORTED_LOCALES, type Locale } from '@vitality/shared';
 
 /**
- * Clean SaaS-style locale picker: a small segmented control of three letters.
- * Active locale gets the brand-blue filled chip; others are quiet text.
+ * Reference-tokens segmented locale picker.
+ * Active locale: cobalt-filled chip; inactive: muted text on transparent.
+ * Container: surface-2 pill with --line border.
  */
 export function LocalePicker() {
   const { t, i18n } = useTranslation();
@@ -13,7 +14,15 @@ export function LocalePicker() {
     <div
       role="group"
       aria-label={t('locale.label')}
-      className="inline-flex items-center gap-0.5 rounded-lg border border-slate-200 bg-white p-0.5 shadow-card"
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '2px',
+        padding: '3px',
+        borderRadius: '999px',
+        background: 'var(--surface-2)',
+        border: '1px solid var(--line)',
+      }}
     >
       {SUPPORTED_LOCALES.map((lng) => {
         const isActive = active === lng;
@@ -23,12 +32,21 @@ export function LocalePicker() {
             type="button"
             onClick={() => void i18n.changeLanguage(lng)}
             aria-pressed={isActive}
-            className={[
-              'rounded-md px-2.5 py-1 text-xs font-medium uppercase tracking-wide transition-colors',
-              isActive
-                ? 'bg-brand-600 text-white shadow-sm'
-                : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700',
-            ].join(' ')}
+            style={{
+              borderRadius: '999px',
+              padding: '4px 10px',
+              fontSize: '11px',
+              fontWeight: 500,
+              fontFamily: 'var(--font-mono)',
+              border: 0,
+              cursor: 'pointer',
+              background: isActive ? 'var(--cobalt)' : 'transparent',
+              color: isActive ? '#FFFFFF' : 'var(--mute)',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              transition: 'background 0.12s, color 0.12s',
+              boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
+            }}
           >
             {lng}
           </button>

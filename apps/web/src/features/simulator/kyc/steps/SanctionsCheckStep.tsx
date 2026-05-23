@@ -52,16 +52,16 @@ export function SanctionsCheckStep({ run, submitting, onSubmit }: StepProps) {
 
   return (
     <div className="p-6">
-      <h2 className="text-base font-semibold tracking-tight text-zinc-900">
+      <h2 className="text-base font-semibold tracking-tight text-[var(--ink)]">
         {t('sim.kyc.steps.sanctions_check.title')}
       </h2>
-      <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-zinc-600">
+      <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-[var(--mute)]">
         {t('sim.kyc.steps.sanctions_check.description')}
       </p>
 
       {/* Lists summary — matches mockup 06 lines 331–348. */}
       <div
-        className="mt-5 rounded-md ring-1 ring-zinc-200"
+        className="mt-5 rounded-[var(--r-md)] ring-1 ring-[var(--line)]"
         data-clicky-target="sanctions, lists, screening, un, ofac, cbu"
         data-clicky-hint={t('clicky.hint.kyc.sanctions')}
       >
@@ -78,27 +78,27 @@ export function SanctionsCheckStep({ run, submitting, onSubmit }: StepProps) {
             }
             className={
               'flex items-center justify-between px-3 py-2.5 text-sm ' +
-              (idx > 0 ? 'border-t border-zinc-100 ' : '') +
-              (entry.hit ? 'bg-amber-50 ring-1 ring-inset ring-amber-200' : '')
+              (idx > 0 ? 'border-t border-[var(--line)] ' : '') +
+              (entry.hit ? 'bg-[var(--warn-tint)] ring-1 ring-inset ring-[var(--warn-ref)]' : '')
             }
           >
             <div className="flex items-center gap-3">
               <span
                 className={
-                  'font-mono-tech text-[11px] ' +
-                  (entry.hit ? 'text-amber-600' : 'text-zinc-400')
+                  'font-mono text-[11px] ' +
+                  (entry.hit ? 'text-[var(--warn-ref)]' : 'text-[var(--mute-2)]')
                 }
               >
                 {String(idx + 1).padStart(2, '0')}
               </span>
-              <span className="font-medium text-zinc-900">{entry.label}</span>
+              <span className="font-medium text-[var(--ink)]">{entry.label}</span>
             </div>
             {entry.hit ? (
-              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+              <span className="rounded-full bg-[var(--warn-tint)] px-2 py-0.5 text-[11px] font-semibold text-[var(--warn-ref)]">
                 1 potential
               </span>
             ) : (
-              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+              <span className="rounded-full bg-[var(--good-tint)] px-2 py-0.5 text-[11px] font-medium text-[var(--good)]">
                 No match
               </span>
             )}
@@ -109,10 +109,10 @@ export function SanctionsCheckStep({ run, submitting, onSubmit }: StepProps) {
       {/* Match detail table — only when there ARE hits. Matches the dense
           banking-software table aesthetic. */}
       {hits.length > 0 && (
-        <div className="mt-4 overflow-hidden rounded-md ring-1 ring-zinc-200">
+        <div className="mt-4 overflow-hidden rounded-[var(--r-md)] ring-1 ring-[var(--line)]">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-zinc-50 text-left font-mono-tech text-[11px] uppercase tracking-wider text-zinc-600">
+              <tr className="bg-[var(--surface-2)] text-left font-mono text-[11px] uppercase tracking-wider text-[var(--mute)]">
                 <th className="px-4 py-2 font-semibold">
                   {t('sim.kyc.steps.sanctions_check.list')}
                 </th>
@@ -124,23 +124,23 @@ export function SanctionsCheckStep({ run, submitting, onSubmit }: StepProps) {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100 bg-white">
+            <tbody className="divide-y divide-[var(--line)] bg-white">
               {hits.map((hit, idx) => (
-                <tr key={`${hit.list}-${idx}`} className="hover:bg-zinc-50">
+                <tr key={`${hit.list}-${idx}`} className="hover:bg-[var(--surface-2)]">
                   <td className="px-4 py-2">
                     <span
                       className={
                         'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ' +
                         (hit.kind === 'sanctions'
-                          ? 'bg-rose-50 text-rose-700'
-                          : 'bg-amber-50 text-amber-700')
+                          ? 'bg-[var(--bad-tint)] text-[var(--bad)]'
+                          : 'bg-[var(--warn-tint)] text-[var(--warn-ref)]')
                       }
                     >
                       {hit.list}
                     </span>
                   </td>
-                  <td className="px-4 py-2 text-zinc-900">{hit.match}</td>
-                  <td className="px-4 py-2 text-zinc-700">{hit.reason}</td>
+                  <td className="px-4 py-2 text-[var(--ink)]">{hit.match}</td>
+                  <td className="px-4 py-2 text-[var(--mute)]">{hit.reason}</td>
                 </tr>
               ))}
             </tbody>
@@ -155,7 +155,7 @@ export function SanctionsCheckStep({ run, submitting, onSubmit }: StepProps) {
           onClick={() => onSubmit({ decision: 'pass' })}
           data-clicky-target="pass, continue, ok, clear, next, sanctions"
           data-clicky-hint="Pass sanctions screening. Only when the lists came back clean."
-          className="inline-flex min-w-[120px] items-center justify-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-w-[120px] items-center justify-center rounded-[var(--r-md)] bg-[var(--good)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--good)]/30 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {t('sim.kyc.steps.sanctions_check.decision_pass')}
         </button>
@@ -165,7 +165,7 @@ export function SanctionsCheckStep({ run, submitting, onSubmit }: StepProps) {
           onClick={() => onSubmit({ decision: 'block' })}
           data-clicky-target="block, escalate, reject, sanctions, hit"
           data-clicky-hint="Block the client. Use this only when there's a real sanctions or PEP hit."
-          className="inline-flex min-w-[120px] items-center justify-center rounded-md bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600/30 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-w-[120px] items-center justify-center rounded-[var(--r-md)] bg-[var(--bad)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--bad)]/30 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {t('sim.kyc.steps.sanctions_check.decision_block')}
         </button>

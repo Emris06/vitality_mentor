@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react'; // useState used for pos
 import type { ClickyTarget } from './ClickyProvider';
+
+// ClickyTarget has x/y coords but no element reference — highlight ring
+// is approximated with a fixed-size pulse at the target point.
 
 interface ClickyProps {
   cursor: { x: number; y: number };
@@ -12,12 +14,11 @@ interface ClickyProps {
   };
 }
 
-// Clicky floats above-right of the real cursor. Eased follow gives it
-// personality — a touch lazy, never jumpy. In target mode (agent took
-// over) it moves faster so the response is visible.
+// Clicky follows the cursor with an eased offset (personality: slightly lazy).
+// In target mode the agent took over and it moves to a DOM element.
 const CURSOR_OFFSET = { x: 16, y: -22 };
-const EASE_FOLLOW = 0.18;
-const EASE_TARGET = 0.32;
+const EASE_FOLLOW = 0.12;
+const EASE_TARGET = 0.28;
 
 export function Clicky({ cursor, state }: ClickyProps) {
   const [pos, setPos] = useState(() => ({
@@ -58,90 +59,69 @@ export function Clicky({ cursor, state }: ClickyProps) {
   }, []);
 
   const agentControlled = !!state.target;
-  const tone = state.agentBusy ? 'busy' : agentControlled ? 'answer' : 'idle';
-
-  const haloClass =
-    tone === 'busy'
-      ? 'bg-fuchsia-400/55'
-      : tone === 'answer'
-        ? 'bg-warn-400/55'
-        : 'bg-sky-400/30';
-  const cursorClass =
-    tone === 'busy'
-      ? 'text-fuchsia-500 drop-shadow-[0_2px_8px_rgba(217,70,239,0.85)]'
-      : tone === 'answer'
-        ? 'text-warn-500 drop-shadow-[0_2px_8px_rgba(245,158,11,0.85)]'
-        : 'text-sky-500 drop-shadow-[0_2px_6px_rgba(14,165,233,0.75)]';
+  const listening = state.agentBusy;
 
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-[80] hidden md:block"
+      className="clicky-wrap"
+      style={{ left: pos.x, top: pos.y, display: 'none' }}
+      // Show only on md+ — matches reference prototype behaviour
       aria-hidden="true"
+      ref={(el) => {
+        if (el) el.style.display = window.innerWidth >= 768 ? 'block' : 'none';
+      }}
     >
-      {/* Cursor sprite */}
-      <motion.div
-        className="absolute"
-        style={{ left: 0, top: 0, x: pos.x, y: pos.y }}
-        animate={{
-          scale: agentControlled ? 1.15 : 1,
-        }}
-        transition={{ scale: { duration: 0.25 } }}
-      >
-        {/* Soft halo */}
-        <span
-          className={`absolute -inset-3 rounded-full blur-md transition-colors duration-500 ${haloClass}`}
+      {/* Highlight pulse at target point */}
+      {agentControlled && state.target && (
+        <div
+          className="clicky-highlight"
+          style={{
+            left: state.target.x - 28,
+            top: state.target.y - 28,
+            width: 56,
+            height: 56,
+            position: 'fixed',
+          }}
         />
-        {/* Spinning ring while busy */}
-        {state.agentBusy && (
-          <motion.span
-            className="absolute -inset-3 rounded-full border-2 border-fuchsia-400/70 border-t-transparent"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1.0, repeat: Infinity, ease: 'linear' }}
-          />
-        )}
-        {/* Cursor body */}
-        <svg
-          viewBox="0 0 24 24"
-          className={`relative h-[22px] w-[22px] transition-colors duration-300 ${cursorClass}`}
-          fill="currentColor"
-        >
-          <path
-            d="M4 3.2 17.6 12.2l-6.4 1.5 2.5 6.6-2.4 1-2.5-6.6L4 19.8z"
-            stroke="white"
-            strokeWidth="1.2"
-            strokeLinejoin="round"
-          />
-        </svg>
-        {/* Speaking indicator — bouncing dots, like a tiny mouth. */}
+      )}
+
+      {/* 56px cobalt circle */}
+      <div className={`clicky${listening ? ' listening' : ''}`}>
+        <div className="clicky-burst" aria-hidden="true">
+          <i /><i /><i /><i />
+        </div>
+
+        {/* Speaking indicator — wave bars above the circle */}
         {state.speaking && (
-          <span className="absolute -top-2 left-7 flex items-end gap-0.5">
-            {[0, 1, 2].map((i) => (
-              <motion.span
+          <div
+            style={{
+              position: 'absolute',
+              top: '-18px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              alignItems: 'flex-end',
+              gap: '2px',
+              height: '14px',
+            }}
+          >
+            {[6, 10, 14, 8, 12].map((h, i) => (
+              <span
                 key={i}
-                className="block w-[3px] rounded-full bg-warn-500"
-                animate={{ height: ['4px', '11px', '4px'] }}
-                transition={{
-                  duration: 0.6,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                  delay: i * 0.12,
+                style={{
+                  display: 'block',
+                  width: '2px',
+                  height: `${h}px`,
+                  borderRadius: '1px',
+                  background: 'white',
+                  animation: `wave 0.9s ease-in-out ${i * 0.1}s infinite`,
                 }}
               />
             ))}
-          </span>
+          </div>
         )}
-      </motion.div>
-
-      {/* Pointer pulse at target — visual cue that Clicky is *answering* */}
-      {agentControlled && (
-        <motion.span
-          className="absolute h-3 w-3 rounded-full bg-warn-500/70"
-          style={{ left: 0, top: 0, x: pos.x - 6, y: pos.y + 16 }}
-          initial={{ scale: 0.6, opacity: 0 }}
-          animate={{ scale: [1, 1.6, 1], opacity: [0.8, 0, 0.8] }}
-          transition={{ duration: 1.4, repeat: Infinity }}
-        />
-      )}
+      </div>
     </div>
   );
 }
+

@@ -1,91 +1,111 @@
+import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { UseClickyAgent } from './useClickyAgent';
 
 interface Props {
   agent: UseClickyAgent;
   hotkey?: string;
+  /** Called whenever the push-to-talk recording state changes. */
+  onPttChange?: (ptt: boolean) => void;
 }
 
-// Bottom-center recording / thinking pill. Visible only while the user is
-// holding the hotkey or the agent is mid-response.
-export function ClickyVoiceOverlay({ agent, hotkey = '`' }: Props) {
+// Bottom-center recording / thinking pill.
+// Visible only while the user is holding the hotkey or the agent is mid-response.
+// The PTT state is also forwarded to the shell so the topbar can show the
+// `.ptt-hint.live` indicator.
+export function ClickyVoiceOverlay({ agent, hotkey = '`', onPttChange }: Props) {
   const visible = agent.recording || agent.thinking;
-  return (
-    <>
-      {/* Always-on tiny hint chip in the bottom-left, so the intern knows
-          the hotkey exists at all. Hidden on small screens. */}
-      <div className="pointer-events-none fixed bottom-4 left-4 z-[70] hidden md:block">
-        <div className="rounded-full border border-ink-200 bg-white/90 px-3 py-1.5 text-[11px] text-ink-600 shadow-card backdrop-blur">
-          Hold{' '}
-          <kbd className="rounded border border-ink-200 bg-ink-50 px-1.5 py-0.5 font-mono text-[10px] text-ink-700">
-            {hotkey}
-          </kbd>{' '}
-          and ask Clicky out loud
-          {!agent.supported && (
-            <span className="ml-2 rounded bg-warn-50 px-1.5 py-0.5 text-[10px] font-semibold text-warn-700">
-              voice unsupported here
-            </span>
-          )}
-        </div>
-      </div>
 
-      <AnimatePresence>
-        {visible && (
-          <motion.div
-            className="pointer-events-none fixed bottom-6 left-1/2 z-[75] -translate-x-1/2"
-            initial={{ opacity: 0, y: 12, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.97 }}
-            transition={{ duration: 0.2 }}
+  useEffect(() => {
+    onPttChange?.(agent.recording);
+  }, [agent.recording, onPttChange]);
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          className="pointer-events-none fixed bottom-6 left-1/2 z-[75] -translate-x-1/2"
+          initial={{ opacity: 0, y: 12, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 8, scale: 0.97 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              minWidth: '280px',
+              maxWidth: '420px',
+              alignItems: 'center',
+              gap: '12px',
+              borderRadius: '999px',
+              padding: '10px 18px',
+              background: agent.thinking ? 'rgba(240,240,255,0.96)' : 'rgba(236,240,255,0.96)',
+              border: `1px solid ${agent.thinking ? 'rgba(32,70,255,0.30)' : 'rgba(32,70,255,0.22)'}`,
+              boxShadow: '0 8px 24px -8px rgba(32,70,255,0.25)',
+              backdropFilter: 'blur(8px)',
+              fontFamily: 'var(--font-sans)',
+            }}
           >
-            <div
-              className={`flex min-w-[280px] max-w-md items-center gap-3 rounded-full border px-4 py-2.5 shadow-pop backdrop-blur ${
-                agent.thinking
-                  ? 'border-fuchsia-200 bg-fuchsia-50/90'
-                  : 'border-sky-200 bg-sky-50/90'
-              }`}
-            >
-              {agent.thinking ? (
-                <SpinnerDot tone="fuchsia" />
-              ) : (
-                <MicLevel />
-              )}
-              <div className="min-w-0 flex-1">
-                <p
-                  className={`text-[11px] uppercase tracking-[0.12em] ${
-                    agent.thinking ? 'text-fuchsia-700' : 'text-sky-700'
-                  }`}
-                >
-                  {agent.thinking ? 'Thinking…' : `Listening — release ${hotkey} to send`}
-                </p>
-                <p className="truncate text-sm font-medium text-ink-800">
-                  {agent.transcript || (agent.thinking ? 'Asking the agent…' : 'Speak now')}
-                </p>
-              </div>
+            {agent.thinking ? <SpinnerDot /> : <MicLevel />}
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <p style={{
+                margin: 0,
+                fontSize: '10px',
+                fontFamily: 'var(--font-mono)',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: 'var(--cobalt)',
+              }}>
+                {agent.thinking
+                  ? 'Думаю…'
+                  : `Слушаю — отпусти ${hotkey} чтобы отправить`}
+              </p>
+              <p style={{
+                margin: '2px 0 0',
+                fontSize: '13px',
+                fontWeight: 500,
+                color: 'var(--ink)',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}>
+                {agent.transcript || (agent.thinking ? 'Отправляю запрос…' : 'Говорите сейчас')}
+              </p>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
 function MicLevel() {
   return (
-    <span className="flex h-7 w-7 items-center justify-center">
-      <span className="relative flex h-3 w-3">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-500/60" />
-        <span className="relative inline-flex h-3 w-3 rounded-full bg-sky-500" />
+    <span style={{ display: 'flex', width: '28px', height: '28px', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <span style={{ position: 'relative', width: '12px', height: '12px' }}>
+        <span style={{
+          position: 'absolute', inset: 0,
+          borderRadius: '50%', background: 'rgba(32,70,255,0.4)',
+          animation: 'ping 1s cubic-bezier(0,0,0.2,1) infinite',
+        }} />
+        <span style={{
+          position: 'relative', display: 'block',
+          width: '12px', height: '12px', borderRadius: '50%',
+          background: 'var(--cobalt)',
+        }} />
       </span>
     </span>
   );
 }
 
-function SpinnerDot({ tone }: { tone: 'fuchsia' }) {
-  const color = tone === 'fuchsia' ? 'border-fuchsia-500' : 'border-sky-500';
+function SpinnerDot() {
   return (
-    <span
-      className={`h-4 w-4 animate-spin rounded-full border-2 border-t-transparent ${color}`}
-    />
+    <span style={{
+      width: '16px', height: '16px', flexShrink: 0,
+      borderRadius: '50%',
+      border: '2px solid var(--cobalt)',
+      borderTopColor: 'transparent',
+      animation: 'spin 0.8s linear infinite',
+    }} />
   );
 }

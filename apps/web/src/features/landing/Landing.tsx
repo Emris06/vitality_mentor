@@ -36,12 +36,13 @@ export function Landing() {
 
   return (
     <main
-      className="min-h-full font-jakarta text-[var(--ink-warm)]"
+      className="min-h-full text-[var(--ink)]"
       style={{
+        fontFamily: 'var(--font-sans)',
         background:
-          'radial-gradient(900px 500px at 88% -200px, rgba(32, 70, 255, 0.10), transparent 60%), ' +
-          'radial-gradient(700px 400px at -10% 280px, rgba(255, 107, 74, 0.08), transparent 60%), ' +
-          '#fbfaf7',
+          'radial-gradient(900px 500px at 88% -200px, rgba(32, 70, 255, 0.08), transparent 60%), ' +
+          'radial-gradient(700px 400px at -10% 280px, rgba(255, 122, 26, 0.06), transparent 60%), ' +
+          'var(--paper)',
       }}
     >
       <TopBar signedIn={signedIn} homeRoute={homeRoute} />
@@ -53,26 +54,57 @@ export function Landing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: 'easeOut' }}
           >
-            <p className="font-mono-tech text-xs font-bold uppercase tracking-[0.22em] text-mentora-700">
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--cobalt)', margin: '0 0 16px' }}>
               {t('landing.hero_eyebrow')}
             </p>
-            <h1 className="mt-4 text-4xl font-extrabold leading-[1.05] tracking-tight text-[var(--ink-warm)] md:text-5xl lg:text-6xl">
+            <h1
+              className="mt-4 text-4xl font-extrabold leading-[1.05] tracking-tight md:text-5xl lg:text-6xl"
+              style={{ color: 'var(--ink)', fontFamily: 'var(--font-sans)' }}
+            >
               {t('landing.hero_title')}
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-[var(--ink-warm-2)] md:text-lg">
+            <p className="mt-5 max-w-xl text-base leading-relaxed md:text-lg" style={{ color: 'var(--mute)' }}>
               {t('landing.hero_subtitle')}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 to="/signup"
-                className="inline-flex items-center gap-2 rounded-full bg-[var(--ink-warm)] px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:brightness-110"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  borderRadius: 999,
+                  background: 'var(--cobalt)',
+                  padding: '11px 22px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#fff',
+                  textDecoration: 'none',
+                  boxShadow: 'var(--shadow-cobalt)',
+                  transition: 'filter 0.15s',
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.filter = 'brightness(1.1)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.filter = 'none'; }}
               >
                 {t('landing.hero_cta_primary')}
                 <ArrowRightIcon />
               </Link>
               <Link
                 to="/signin"
-                className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[var(--ink-warm-2)] shadow-sm ring-1 ring-zinc-200 transition-colors hover:bg-zinc-50"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  borderRadius: 999,
+                  background: 'var(--surface)',
+                  padding: '11px 22px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--ink)',
+                  textDecoration: 'none',
+                  border: '1px solid var(--line)',
+                  transition: 'background 0.15s',
+                }}
               >
                 {t('landing.hero_cta_secondary')}
               </Link>

@@ -11,6 +11,14 @@ interface HintPanelProps {
   stepId: string | null;
 }
 
+// ──────────────────────────────────────────────────────────────────────────
+// HintPanel — reference theme (Phase 7).
+//
+// Right-side slide-over presenting an AI-generated hint for the current
+// simulator step. API surface and state machine are unchanged — only the
+// visual treatment was rebased onto reference tokens.
+// ──────────────────────────────────────────────────────────────────────────
+
 export function HintPanel({ open, onClose, runId, stepId }: HintPanelProps) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -54,7 +62,8 @@ export function HintPanel({ open, onClose, runId, stepId }: HintPanelProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             onClick={onClose}
-            className="fixed inset-0 z-40 bg-zinc-900/30"
+            className="fixed inset-0 z-40"
+            style={{ background: 'rgba(10, 14, 31, 0.32)' }}
             aria-hidden="true"
           />
           <motion.aside
@@ -63,16 +72,47 @@ export function HintPanel({ open, onClose, runId, stepId }: HintPanelProps) {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
-            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-white font-tech shadow-card-warm ring-1 ring-zinc-200"
+            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col"
+            style={{
+              background: 'var(--surface)',
+              borderLeft: '1px solid var(--line)',
+              color: 'var(--ink)',
+              fontFamily: 'var(--font-sans)',
+              boxShadow: 'var(--shadow-lg)',
+            }}
             role="dialog"
             aria-label={t('sim.run.hint')}
           >
-            <header className="flex items-center justify-between border-b border-zinc-200 px-5 py-4">
-              <div className="flex items-center gap-2">
-                <div className="grid h-8 w-8 place-items-center rounded-md bg-mentora-600 font-mono-tech text-xs font-bold text-white">
+            <header
+              className="flex items-center justify-between px-5 py-4"
+              style={{ borderBottom: '1px solid var(--line)' }}
+            >
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="grid h-8 w-8 place-items-center"
+                  style={{
+                    background: 'var(--cobalt)',
+                    color: '#FFFFFF',
+                    borderRadius: 'var(--r-sm)',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: 11,
+                    fontWeight: 600,
+                    letterSpacing: '0.04em',
+                    boxShadow: 'var(--shadow-cobalt)',
+                  }}
+                >
                   AI
                 </div>
-                <h2 className="text-base font-semibold text-zinc-900">{t('sim.run.hint')}</h2>
+                <h2
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 600,
+                    color: 'var(--ink)',
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  {t('sim.run.hint')}
+                </h2>
               </div>
               <button
                 type="button"
@@ -80,7 +120,24 @@ export function HintPanel({ open, onClose, runId, stepId }: HintPanelProps) {
                 aria-label={t('sim.back')}
                 data-clicky-target="close, dismiss, hide, hint, back, exit"
                 data-clicky-hint="Close the hint panel and return to the scenario."
-                className="rounded-md p-1.5 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-800"
+                className="grid place-items-center transition-colors"
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 'var(--r-sm)',
+                  background: 'transparent',
+                  color: 'var(--mute)',
+                  border: 0,
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--surface-2)';
+                  e.currentTarget.style.color = 'var(--ink)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = 'var(--mute)';
+                }}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -102,15 +159,24 @@ export function HintPanel({ open, onClose, runId, stepId }: HintPanelProps) {
             <div className="flex-1 overflow-y-auto px-5 py-5">
               {loading && (
                 <div
-                  className="inline-flex items-center gap-2 rounded-md bg-white px-4 py-3 text-sm text-zinc-600 ring-1 ring-zinc-200"
+                  className="inline-flex items-center gap-2"
                   role="status"
+                  style={{
+                    padding: '10px 14px',
+                    fontSize: 13,
+                    color: 'var(--mute)',
+                    background: 'var(--surface)',
+                    border: '1px solid var(--line)',
+                    borderRadius: 'var(--r-md)',
+                  }}
                 >
                   <span className="sr-only">{t('sim.run.hint_loading')}</span>
                   <span aria-hidden="true" className="flex items-end gap-1">
                     {[0, 0.15, 0.3].map((delay) => (
                       <motion.span
                         key={delay}
-                        className="block h-1.5 w-1.5 rounded-full bg-mentora-600"
+                        className="block h-1.5 w-1.5 rounded-full"
+                        style={{ background: 'var(--cobalt)' }}
                         animate={{ y: [0, -4, 0], opacity: [0.4, 1, 0.4] }}
                         transition={{
                           duration: 0.9,
@@ -128,7 +194,14 @@ export function HintPanel({ open, onClose, runId, stepId }: HintPanelProps) {
               {error && !loading && (
                 <div
                   role="alert"
-                  className="rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700 ring-1 ring-rose-200"
+                  style={{
+                    background: 'var(--bad-tint)',
+                    border: '1px solid rgba(200, 53, 28, 0.2)',
+                    borderRadius: 'var(--r-md)',
+                    padding: '10px 14px',
+                    fontSize: 13,
+                    color: 'var(--bad)',
+                  }}
                 >
                   {error}
                 </div>
@@ -136,22 +209,61 @@ export function HintPanel({ open, onClose, runId, stepId }: HintPanelProps) {
 
               {hint && !loading && (
                 <div className="space-y-4">
-                  <p className="text-base font-semibold leading-relaxed text-mentora-700">
+                  <p
+                    style={{
+                      fontSize: 15.5,
+                      fontWeight: 500,
+                      lineHeight: 1.55,
+                      color: 'var(--cobalt-deep)',
+                      letterSpacing: '-0.005em',
+                    }}
+                  >
                     {hint.hint}
                   </p>
                   {hint.rationale && (
-                    <p className="text-sm leading-relaxed text-zinc-700">{hint.rationale}</p>
+                    <p
+                      style={{
+                        fontSize: 13.5,
+                        lineHeight: 1.6,
+                        color: 'var(--mute)',
+                      }}
+                    >
+                      {hint.rationale}
+                    </p>
                   )}
                   {hint.citations.length > 0 && (
-                    <div className="border-t border-zinc-200 pt-4">
-                      <p className="mb-2 font-mono-tech text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                    <div
+                      style={{
+                        borderTop: '1px solid var(--line)',
+                        paddingTop: 16,
+                      }}
+                    >
+                      <p
+                        style={{
+                          marginBottom: 8,
+                          fontSize: 10,
+                          fontFamily: 'var(--font-mono)',
+                          fontWeight: 600,
+                          letterSpacing: '0.08em',
+                          textTransform: 'uppercase',
+                          color: 'var(--mute-2)',
+                        }}
+                      >
                         {t('sim.run.hint_citations')}
                       </p>
                       <ul className="flex flex-wrap gap-1.5">
                         {hint.citations.map((cite) => (
                           <li
                             key={cite}
-                            className="rounded-full bg-zinc-50 px-2.5 py-1 font-mono-tech text-xs text-zinc-700 ring-1 ring-zinc-200"
+                            style={{
+                              borderRadius: '999px',
+                              padding: '4px 10px',
+                              fontFamily: 'var(--font-mono)',
+                              fontSize: 11,
+                              color: 'var(--ink-2)',
+                              background: 'var(--cobalt-tint)',
+                              border: '1px solid var(--cobalt-tint-2)',
+                            }}
                           >
                             {cite}
                           </li>

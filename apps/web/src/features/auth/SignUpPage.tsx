@@ -12,9 +12,9 @@ import { RolePicker } from './RolePicker';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const INPUT_CLASS =
-  'w-full rounded-2xl bg-white px-3.5 py-2.5 text-sm text-[var(--ink-warm)] ring-1 ring-zinc-200 placeholder:text-zinc-400 transition-colors focus:outline-none focus:ring-2 focus:ring-mentora-600/30 disabled:bg-zinc-50 disabled:text-zinc-400';
+  'w-full rounded-xl bg-white px-3.5 py-2.5 text-sm text-[var(--ink)] ring-1 ring-[var(--line)] placeholder:text-[var(--mute-2)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--cobalt-50)] disabled:bg-[var(--surface-2)] disabled:text-[var(--mute)]';
 const PRIMARY_BUTTON =
-  'inline-flex w-full items-center justify-center gap-2 rounded-full bg-mentora-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-mentora-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mentora-600/30 disabled:cursor-not-allowed disabled:bg-zinc-300';
+  'inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--cobalt)] px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[var(--cobalt-deep)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--cobalt-50)] disabled:cursor-not-allowed disabled:opacity-50';
 
 type FieldKey = 'fullName' | 'email' | 'password' | 'role';
 type FieldErrors = Partial<Record<FieldKey, string>>;

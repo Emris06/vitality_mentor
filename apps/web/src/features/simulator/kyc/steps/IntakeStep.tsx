@@ -27,7 +27,7 @@ export function IntakeStep({ submitting, onSubmit }: StepProps) {
           onClick={() => onSubmit({ personId: 'next' })}
           data-clicky-target="submit, next, continue, confirm, intake, person, customer"
           data-clicky-hint="Click here to confirm the customer and move to document verification."
-          className="inline-flex items-center gap-2 rounded-md bg-mentora-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mentora-700 focus:outline-none focus:ring-2 focus:ring-mentora-600/30 disabled:cursor-not-allowed disabled:opacity-60"
+          className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting ? '…' : t('sim.kyc.steps.intake.submit')}
         </button>

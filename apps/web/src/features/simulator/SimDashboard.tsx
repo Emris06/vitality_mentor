@@ -6,15 +6,6 @@ import { DEFAULT_LOCALE, isLocale, type Locale, type ScenarioId } from '@vitalit
 import { simApi, SimHttpError } from '../../lib/api';
 import { useAuth } from '../auth/AuthProvider';
 import { InternShell } from '../workspace/InternShell';
-import { WarmCard } from '../../components/warm/WarmCard';
-
-// ──────────────────────────────────────────────────────────────────────────
-// Scenario catalog — the intern's "all scenarios" view.
-//
-// Wraps in InternShell (warm) since `/simulator` is an intern surface in
-// `buildWorkspaceSections`. Picking a scenario routes into the Direction A
-// run pages — the mode-shift happens on click, not on this page.
-// ──────────────────────────────────────────────────────────────────────────
 
 const LAST_RUN_KEYS: Record<ScenarioId, string> = {
   kyc: 'vitality.lastKycRunId',
@@ -30,7 +21,6 @@ interface ScenarioCard {
   taglineKey: string;
   durationKey?: string;
   disabledKey?: string;
-  iconTone: 'mentora' | 'emerald' | 'violet' | 'rose';
   emoji: string;
 }
 
@@ -41,7 +31,6 @@ const SCENARIOS: ScenarioCard[] = [
     nameKey: 'sim.scenarios.kyc.name',
     taglineKey: 'sim.scenarios.kyc.tagline',
     durationKey: 'sim.scenarios.kyc.duration',
-    iconTone: 'mentora',
     emoji: '📋',
   },
   {
@@ -50,7 +39,6 @@ const SCENARIOS: ScenarioCard[] = [
     nameKey: 'sim.scenarios.open_account.name',
     taglineKey: 'sim.scenarios.open_account.tagline',
     durationKey: 'sim.scenarios.open_account.duration',
-    iconTone: 'emerald',
     emoji: '💳',
   },
   {
@@ -59,7 +47,6 @@ const SCENARIOS: ScenarioCard[] = [
     nameKey: 'sim.scenarios.deposit.name',
     taglineKey: 'sim.scenarios.deposit.tagline',
     durationKey: 'sim.scenarios.deposit.duration',
-    iconTone: 'violet',
     emoji: '💰',
   },
   {
@@ -68,17 +55,9 @@ const SCENARIOS: ScenarioCard[] = [
     nameKey: 'sim.scenarios.transfer.name',
     taglineKey: 'sim.scenarios.transfer.tagline',
     durationKey: 'sim.scenarios.transfer.duration',
-    iconTone: 'rose',
     emoji: '↔',
   },
 ];
-
-const ICON_BG: Record<ScenarioCard['iconTone'], string> = {
-  mentora: 'bg-mentora-50 text-mentora-600',
-  emerald: 'bg-emerald-50 text-emerald-600',
-  violet: 'bg-violet-50 text-violet-600',
-  rose: 'bg-rose-50 text-rose-600',
-};
 
 export function SimDashboard() {
   const { t, i18n } = useTranslation();
@@ -101,7 +80,7 @@ export function SimDashboard() {
         try {
           window.localStorage.setItem(LAST_RUN_KEYS[id], run.id);
         } catch {
-          // ignore storage failure (e.g. private mode)
+          // ignore storage failure
         }
         navigate(`/simulator/${id}/${run.id}`);
       } catch (err) {
@@ -124,25 +103,36 @@ export function SimDashboard() {
       greeting={t('intern.shell.greeting', { name: firstName })}
       pageTitle={t('sim.dashboard_title')}
     >
-      <motion.p
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="max-w-2xl text-[15px] leading-relaxed text-[var(--ink-warm-2)]"
+      <p
+        style={{
+          color: 'var(--mute)',
+          fontSize: 14,
+          lineHeight: 1.6,
+          maxWidth: 560,
+          marginBottom: 24,
+        }}
       >
         {t('sim.dashboard_subtitle')}
-      </motion.p>
+      </p>
 
       {startError && (
         <div
           role="alert"
-          className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700 ring-1 ring-rose-200"
+          style={{
+            background: 'var(--bad-tint)',
+            border: '1px solid rgba(200,53,28,0.2)',
+            borderRadius: 'var(--r-md)',
+            padding: '10px 14px',
+            fontSize: 13,
+            color: 'var(--bad)',
+            marginBottom: 16,
+          }}
         >
           {startError}
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="scenarios">
         {SCENARIOS.map((scenario, idx) => {
           const isStarting = starting === scenario.id;
           const disabled = !scenario.enabled || isStarting;
@@ -155,7 +145,6 @@ export function SimDashboard() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, ease: 'easeOut', delay: 0.04 * idx }}
-              whileHover={scenario.enabled ? { y: -2 } : undefined}
               data-clicky-target={`${scenario.id}, scenario, ${t(scenario.nameKey).toLowerCase()}`}
               data-clicky-hint={
                 scenario.enabled
@@ -163,67 +152,69 @@ export function SimDashboard() {
                   : `"${t(scenario.nameKey)}" — coming soon.`
               }
               aria-disabled={disabled}
-              className={
-                'block text-left ' +
-                (scenario.enabled ? 'cursor-pointer' : 'cursor-not-allowed opacity-70')
-              }
+              className={`scenario${!scenario.enabled ? ' locked' : ''}`}
+              style={{ textAlign: 'left', width: '100%' }}
             >
-              <WarmCard className="p-6 transition hover:shadow-card-warm">
-                <div className="flex items-start gap-4">
-                  <div
-                    className={
-                      'grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-xl ' +
-                      ICON_BG[scenario.iconTone]
-                    }
+              <div className="scenario-glyph">{scenario.emoji}</div>
+
+              <div>
+                <div className="scenario-name">{t(scenario.nameKey)}</div>
+                <p className="scenario-desc" style={{ margin: 0 }}>{t(scenario.taglineKey)}</p>
+              </div>
+
+              <div className="scenario-foot">
+                {scenario.durationKey && (
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      background: 'var(--cobalt-tint)',
+                      color: 'var(--cobalt)',
+                      borderRadius: 4,
+                      padding: '2px 7px',
+                      fontSize: 10.5,
+                      fontWeight: 600,
+                      letterSpacing: '0.04em',
+                    }}
                   >
-                    {scenario.emoji}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-lg font-extrabold text-[var(--ink-warm)]">
-                        {t(scenario.nameKey)}
-                      </h2>
-                      {!scenario.enabled && scenario.disabledKey && (
-                        <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-zinc-600">
-                          {t(scenario.disabledKey)}
-                        </span>
-                      )}
-                      {scenario.enabled && scenario.durationKey && (
-                        <span className="rounded-full bg-mentora-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-mentora-600">
-                          {t(scenario.durationKey)}
-                        </span>
-                      )}
-                    </div>
-                    <p className="mt-2 text-sm leading-relaxed text-[var(--ink-warm-2)]">
-                      {t(scenario.taglineKey)}
-                    </p>
-                    {scenario.enabled && (
-                      <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-mentora-600 transition-all group-hover:gap-3">
-                        {isStarting ? t('sim.run.loading_run') : t('sim.start')}
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="h-4 w-4"
-                          aria-hidden="true"
-                        >
-                          <path d="M5 12h14" />
-                          <path d="m12 5 7 7-7 7" />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </WarmCard>
+                    {t(scenario.durationKey)}
+                  </span>
+                )}
+                {!scenario.enabled && scenario.disabledKey && (
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      background: 'var(--surface-2)',
+                      color: 'var(--mute)',
+                      borderRadius: 4,
+                      padding: '2px 7px',
+                      fontSize: 10.5,
+                      fontWeight: 600,
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    {t(scenario.disabledKey)}
+                  </span>
+                )}
+                <span style={{ color: isStarting ? 'var(--mute)' : 'var(--cobalt)', fontWeight: 600 }}>
+                  {isStarting ? '…' : '→'}
+                </span>
+              </div>
             </motion.button>
           );
         })}
       </div>
 
-      <div className="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200">
+      <div
+        style={{
+          marginTop: 20,
+          background: 'var(--synth-tint)',
+          border: '1px solid rgba(255,122,26,0.25)',
+          borderRadius: 'var(--r-md)',
+          padding: '10px 14px',
+          fontSize: 13,
+          color: '#7A4000',
+        }}
+      >
         {t('sim.kyc.banner_synthetic')}
       </div>
     </InternShell>

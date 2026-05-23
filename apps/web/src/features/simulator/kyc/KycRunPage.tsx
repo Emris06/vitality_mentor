@@ -191,13 +191,10 @@ export function KycRunPage() {
 
   if (loadError) {
     return (
-      <main className="grid min-h-screen place-items-center bg-zinc-100 px-6 py-12 font-tech">
-        <div className="w-full max-w-md rounded-md bg-white p-6 text-center ring-1 ring-rose-200">
-          <p className="text-sm text-rose-700">{loadError}</p>
-          <Link
-            to="/simulator"
-            className="mt-4 inline-block rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-700 ring-1 ring-zinc-300 transition hover:bg-zinc-50"
-          >
+      <main style={{ display: 'grid', minHeight: '100vh', placeItems: 'center', background: 'var(--surface-2)', padding: '48px 24px', fontFamily: 'var(--font-sans)' }}>
+        <div style={{ width: '100%', maxWidth: 400, background: 'var(--surface)', borderRadius: 'var(--r-lg)', padding: 24, textAlign: 'center', border: '1px solid rgba(200,53,28,0.2)' }}>
+          <p style={{ fontSize: 13, color: 'var(--bad)', marginBottom: 16 }}>{loadError}</p>
+          <Link to="/simulator" className="ref-btn">
             {t('sim.back')}
           </Link>
         </div>
@@ -207,8 +204,8 @@ export function KycRunPage() {
 
   if (!run || !runId) {
     return (
-      <main className="grid min-h-screen place-items-center bg-zinc-100 px-6 py-12 font-tech">
-        <p className="text-sm text-zinc-600">{t('sim.run.loading_run')}</p>
+      <main style={{ display: 'grid', minHeight: '100vh', placeItems: 'center', background: 'var(--surface-2)', fontFamily: 'var(--font-sans)' }}>
+        <p style={{ fontSize: 13, color: 'var(--mute)' }}>{t('sim.run.loading_run')}</p>
       </main>
     );
   }
@@ -229,9 +226,11 @@ export function KycRunPage() {
         {scored ? (
           <ResultsView run={run} onRetry={() => void handleRetry()} />
         ) : StepComponent ? (
-          <StepComponent run={run} submitting={submitting} onSubmit={(p) => void handleSubmit(p)} />
+          <div className="crm-card">
+            <StepComponent run={run} submitting={submitting} onSubmit={(p) => void handleSubmit(p)} />
+          </div>
         ) : (
-          <div className="p-6 text-sm text-zinc-500">{t('sim.run.loading_run')}</div>
+          <div style={{ padding: 24, fontSize: 13, color: 'var(--mute)' }}>{t('sim.run.loading_run')}</div>
         )}
       </ChromeShell>
 
@@ -244,8 +243,8 @@ export function KycRunPage() {
         />
       )}
 
-      {/* Toast stack — inline implementation, no external lib. */}
-      <div className="pointer-events-none fixed bottom-6 left-1/2 z-40 flex w-full max-w-md -translate-x-1/2 flex-col gap-2 px-4 font-tech">
+      {/* Toast stack */}
+      <div style={{ pointerEvents: 'none', position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 40, display: 'flex', flexDirection: 'column', gap: 8, width: '100%', maxWidth: 440, padding: '0 16px', fontFamily: 'var(--font-sans)' }}>
         <AnimatePresence>
           {toasts.map((toast) => (
             <motion.div
@@ -255,7 +254,7 @@ export function KycRunPage() {
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.2 }}
               role="alert"
-              className="pointer-events-auto rounded-md bg-rose-600 px-4 py-3 text-sm font-medium text-white shadow-card-warm-sm"
+              style={{ pointerEvents: 'auto', borderRadius: 'var(--r-md)', background: 'var(--bad)', padding: '12px 16px', fontSize: 13, fontWeight: 500, color: '#fff', boxShadow: 'var(--shadow-md)' }}
             >
               {toast.message}
             </motion.div>
@@ -276,6 +275,14 @@ function shortenRunId(id: string): string {
   return `SYN-${hex.slice(0, 3)}-${hex.slice(3, 7)}`;
 }
 
+function gradeLabel(score: number): { text: string; color: string; bg: string } {
+  if (score >= 95) return { text: 'S', color: '#0B8F5C', bg: '#E3F6EC' };
+  if (score >= 85) return { text: 'A', color: '#0B8F5C', bg: '#E3F6EC' };
+  if (score >= 75) return { text: 'B', color: '#2046FF', bg: '#ECF0FF' };
+  if (score >= 60) return { text: 'C', color: '#C58200', bg: '#FFF4DC' };
+  return { text: 'D', color: '#C8351C', bg: '#FCE9E4' };
+}
+
 interface ResultsViewProps {
   run: ScenarioRun;
   onRetry: () => void;
@@ -285,13 +292,10 @@ function ResultsView({ run, onRetry }: ResultsViewProps) {
   const { t, i18n } = useTranslation();
   const score = run.score ?? 0;
   const mistakes: ScenarioMistake[] = run.mistakes ?? [];
-
   const critical = mistakes.filter((m) => m.penalty >= 20);
-  const minor = mistakes.filter((m) => m.penalty < 20);
-
-  let scoreClass = 'text-emerald-600';
-  if (score < 60) scoreClass = 'text-rose-600';
-  else if (score < 85) scoreClass = 'text-amber-600';
+  const grade = gradeLabel(score);
+  const estimatedXp = Math.round(score * 1.5);
+  const scoreColor = score >= 85 ? 'var(--good)' : score >= 60 ? 'var(--warn-ref)' : 'var(--bad)';
 
   function stepTitle(stepId: string): string {
     const def = KYC_STEPS.find((s) => s.id === stepId);
@@ -303,104 +307,84 @@ function ResultsView({ run, onRetry }: ResultsViewProps) {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex flex-col items-center gap-2 border-b border-zinc-100 pb-6 text-center">
-        <p className="font-mono-tech text-[11px] uppercase tracking-wider text-zinc-500">
-          {t('sim.run.finished')}
-        </p>
-        <p className={'font-mono-tech text-6xl font-bold ' + scoreClass}>{score}</p>
-        <p className="text-sm text-zinc-600">
-          {mistakes.length === 0
-            ? t('sim.run.no_mistakes')
-            : t('sim.run.mistake_count', { count: mistakes.length })}
-        </p>
+    <div style={{ padding: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 18, marginBottom: 24, alignItems: 'start' }}>
+        {/* Score hero */}
+        <div className="score-hero">
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--mute)', margin: '0 0 10px' }}>
+                {t('sim.run.finished')}
+              </p>
+              <div className="score-number" style={{ color: scoreColor }}>{score}</div>
+            </div>
+            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, borderRadius: 10, background: grade.bg, color: grade.color, fontFamily: 'var(--font-mono)', fontSize: 18, fontWeight: 700 }}>
+              {grade.text}
+            </span>
+          </div>
+          <p style={{ fontSize: 13, color: 'var(--mute)', marginBottom: 16 }}>
+            {mistakes.length === 0 ? t('sim.run.no_mistakes') : t('sim.run.mistake_count', { count: mistakes.length })}
+          </p>
+          {[
+            { label: 'Правильность', val: Math.min(100, score + 2), color: 'var(--good)' },
+            { label: 'Скорость', val: Math.max(20, score - 10), color: 'var(--cobalt)' },
+            { label: 'Комплаенс', val: critical.length === 0 ? 100 : Math.max(10, 100 - critical.length * 20), color: critical.length === 0 ? 'var(--good)' : 'var(--bad)' },
+          ].map((row) => (
+            <div key={row.label} style={{ marginBottom: 10 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--mute)', marginBottom: 4, fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>
+                <span>{row.label}</span>
+                <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{row.val}</span>
+              </div>
+              <div className="bd-meter">
+                <i style={{ width: `${row.val}%`, background: row.color }} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* XP burst + actions */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div className="xp-burst">
+            <small>XP заработано</small>
+            <div className="xp-num">{estimatedXp}<em>XP</em></div>
+            <div className="xp-levelbar">
+              <i style={{ width: `${Math.min(100, (estimatedXp % 500) / 5)}%` }} />
+            </div>
+          </div>
+          <div style={{ background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 'var(--r-lg)', padding: 18 }}>
+            <p style={{ fontSize: 11, fontFamily: 'var(--font-mono)', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--mute)', marginBottom: 14 }}>Что дальше?</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <button type="button" onClick={onRetry} data-clicky-target="retry, again, restart, run, kyc" data-clicky-hint="Start a fresh KYC run with new synthetic data." className="ref-btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                {t('sim.run.retry')}
+              </button>
+              <Link to="/chat" data-clicky-target="chat, ai, mentor, ask, talk" data-clicky-hint="Open the AI mentor chat to ask follow-up questions." className="ref-btn" style={{ display: 'flex', justifyContent: 'center' }}>
+                {t('sim.run.open_chat')}
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
-
-      {critical.length > 0 && (
-        <section className="mt-5">
-          <h3 className="mb-2 font-mono-tech text-[11px] font-semibold uppercase tracking-wider text-rose-600">
-            {t('sim.run.critical_mistakes', { count: critical.length })}
-          </h3>
-          <ul className="space-y-2">
-            {critical.map((m, idx) => (
-              <li
-                key={`${m.stepId}-${m.code}-${idx}`}
-                className="rounded-md bg-rose-50 px-3 py-3 ring-1 ring-rose-200"
-              >
-                <div className="flex items-start gap-3">
-                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-rose-600 font-mono-tech text-[10px] font-bold text-white">
-                    !
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-rose-900">{translateMistake(m)}</p>
-                    <p className="mt-0.5 text-xs text-rose-600">
-                      <span className="font-medium">{stepTitle(m.stepId)}</span>
-                      <span className="mx-1.5 text-rose-400">·</span>
-                      <span className="font-mono-tech">-{m.penalty} pts</span>
-                    </p>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {minor.length > 0 && (
-        <section className="mt-4">
-          <h3 className="mb-2 font-mono-tech text-[11px] font-semibold uppercase tracking-wider text-amber-600">
-            {t('sim.run.minor_mistakes', { count: minor.length })}
-          </h3>
-          <ul className="space-y-2">
-            {minor.map((m, idx) => (
-              <li
-                key={`${m.stepId}-${m.code}-${idx}`}
-                className="rounded-md bg-amber-50 px-3 py-3 ring-1 ring-amber-200"
-              >
-                <div className="flex items-start gap-3">
-                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-500 font-mono-tech text-[10px] font-bold text-white">
-                    ·
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-amber-900">{translateMistake(m)}</p>
-                    <p className="mt-0.5 text-xs text-amber-600">
-                      <span className="font-medium">{stepTitle(m.stepId)}</span>
-                      <span className="mx-1.5 text-amber-400">·</span>
-                      <span className="font-mono-tech">-{m.penalty} pts</span>
-                    </p>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
 
       {mistakes.length > 0 && (
-        <p className="mt-4 text-center text-xs text-zinc-500">
-          {t('sim.run.review_with_mentor')}
-        </p>
+        <div>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--mute)', marginBottom: 12 }}>
+            {t('sim.run.mistake_count', { count: mistakes.length })}
+          </p>
+          {mistakes.map((m, idx) => (
+            <div key={`${m.stepId}-${m.code}-${idx}`} className={`mistake-card${m.penalty >= 20 ? ' bad' : ''}`}>
+              <b>{translateMistake(m)}</b>
+              <p>
+                {stepTitle(m.stepId)}
+                <span style={{ margin: '0 6px', color: 'var(--mute-3)' }}>·</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>-{m.penalty} pts</span>
+              </p>
+            </div>
+          ))}
+          <p style={{ marginTop: 14, fontSize: 12, color: 'var(--mute)', textAlign: 'center' }}>
+            {t('sim.run.review_with_mentor')}
+          </p>
+        </div>
       )}
-
-      <div className="mt-6 flex flex-wrap justify-center gap-2">
-        <button
-          type="button"
-          onClick={onRetry}
-          data-clicky-target="retry, again, restart, run, kyc"
-          data-clicky-hint="Start a fresh KYC run with new synthetic data."
-          className="inline-flex items-center gap-2 rounded-md bg-mentora-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mentora-700 focus:outline-none focus:ring-2 focus:ring-mentora-600/30"
-        >
-          {t('sim.run.retry')}
-        </button>
-        <Link
-          to="/chat"
-          data-clicky-target="chat, ai, mentor, ask, talk"
-          data-clicky-hint="Open the AI mentor chat to ask follow-up questions about the run."
-          className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-2 text-sm font-semibold text-zinc-700 ring-1 ring-zinc-300 transition hover:bg-zinc-50"
-        >
-          {t('sim.run.open_chat')}
-        </Link>
-      </div>
     </div>
   );
 }

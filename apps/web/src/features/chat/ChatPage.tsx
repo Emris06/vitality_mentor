@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@vitality/shared';
@@ -12,7 +12,6 @@ import { isTtsSupported } from './voice/speechCapabilities';
 import { useAuth } from '../auth/AuthProvider';
 import { InternShell } from '../workspace/InternShell';
 import { buildMentoraNav } from '../workspace/mentoraNav';
-import { WarmCard } from '../../components/warm/WarmCard';
 
 const SESSION_KEY = 'vitality.chatSessionId';
 const VOICE_MODE_KEY = 'vitality.voice.autoSpeak';
@@ -43,17 +42,26 @@ function readOrCreateSessionId(): string {
 }
 
 // ──────────────────────────────────────────────────────────────────────────
-// `/chat` page — warm theme (Phase F).
+// `/chat` page — warm theme (Phase F) / floating panel (Phase 7).
 //
 // Behavior preserved bit-identical from the prior ErpShell version:
 //   - useChatStream(sessionId, locale) — every SSE event type intact
 //   - localStorage keys `vitality.chatSessionId` + `vitality.voice.autoSpeak`
 //   - useAutoSpeakAssistant TTS cancellation on send + on unmount
 //   - useSpeechRecognition wiring through ChatInput
-// Only the visual shell + bubble + input styling change.
+//
+// Two rendering modes:
+//   - `page`  (default) → full InternShell layout at `/chat`
+//   - `panel`           → floating right-bottom panel (.chat-panel) launched
+//                         from the in-shell FAB. All hooks identical.
 // ──────────────────────────────────────────────────────────────────────────
 
-export function ChatPage() {
+interface ChatPageProps {
+  mode?: 'page' | 'panel';
+  onClose?: () => void;
+}
+
+export function ChatPage({ mode = 'page', onClose }: ChatPageProps = {}) {
   const { t, i18n } = useTranslation();
   const { profile } = useAuth();
   const locale: Locale = useMemo(() => {
@@ -134,6 +142,70 @@ export function ChatPage() {
   );
 
   const empty = messages.length === 0;
+
+  // ── Panel mode — floating right-bottom widget mounted by InternShell ────
+  if (mode === 'panel') {
+    return (
+      <div className="chat-panel" role="dialog" aria-label={t('chat.title')}>
+        <div className="chat-hd">
+          <span className="pulse" aria-hidden="true" />
+          <div>
+            <b>{t('chat.title')}</b>
+            <small>RAG · {t('chat.helper.tip_synthetic')}</small>
+          </div>
+          <button
+            type="button"
+            className="close"
+            onClick={onClose}
+            aria-label={t('chat.stop')}
+            data-clicky-target="close, dismiss, hide, chat, panel"
+          >
+            <CloseIcon />
+          </button>
+        </div>
+
+        <div className="chat-body">
+          {empty ? (
+            <EmptyState onPick={handleSampleClick} />
+          ) : (
+            <MessageList messages={messages} streaming={streaming} />
+          )}
+
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              role="alert"
+              style={{
+                margin: '0 4px 4px',
+                background: 'var(--bad-tint)',
+                border: '1px solid rgba(200,53,28,0.2)',
+                borderRadius: 'var(--r-md)',
+                padding: '8px 12px',
+                fontSize: 12,
+                color: 'var(--bad)',
+              }}
+            >
+              {error === 'rate_limited' ? t('chat.error_rate_limited') : t('chat.error_generic')}
+            </motion.div>
+          )}
+        </div>
+
+        <ChatInput
+          ref={inputRef}
+          value={draft}
+          onChange={setDraft}
+          onSubmit={handleSubmit}
+          onStop={stop}
+          streaming={streaming}
+          onSendVoiceText={handleVoiceSend}
+          onSttPermissionDenied={handleSttPermissionDenied}
+        />
+      </div>
+    );
+  }
+
+  // ── Page mode — full InternShell layout at /chat ────────────────────────
   const roleLabel =
     profile?.role === 'hr'
       ? t('auth.role_hr_name')
@@ -152,7 +224,17 @@ export function ChatPage() {
       navItems={buildMentoraNav(profile?.role ?? null)}
       rightPanel={<ChatHelperRail t={t} voiceMode={voiceMode} ttsSupported={ttsSupported} onToggleVoice={() => setVoiceMode((v) => !v)} />}
     >
-      <WarmCard className="flex min-h-[720px] flex-col overflow-hidden p-0">
+      <div
+        style={{
+          background: 'var(--surface)',
+          border: '1px solid var(--line)',
+          borderRadius: 'var(--r-lg)',
+          overflow: 'hidden',
+          minHeight: 720,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         {empty ? (
           <EmptyState onPick={handleSampleClick} />
         ) : (
@@ -166,7 +248,17 @@ export function ChatPage() {
             className="mx-auto w-full max-w-3xl px-4 md:px-6"
             role="alert"
           >
-            <div className="mb-2 rounded-2xl bg-rose-50 px-3 py-2 text-xs text-rose-700 ring-1 ring-rose-200">
+            <div
+              style={{
+                marginBottom: 8,
+                background: 'var(--bad-tint)',
+                border: '1px solid rgba(200,53,28,0.2)',
+                borderRadius: 'var(--r-md)',
+                padding: '8px 12px',
+                fontSize: 12,
+                color: 'var(--bad)',
+              }}
+            >
               {error === 'rate_limited' ? t('chat.error_rate_limited') : t('chat.error_generic')}
             </div>
           </motion.div>
@@ -182,13 +274,31 @@ export function ChatPage() {
           onSendVoiceText={handleVoiceSend}
           onSttPermissionDenied={handleSttPermissionDenied}
         />
-      </WarmCard>
+      </div>
     </InternShell>
   );
 }
 
+function CloseIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ width: 16, height: 16 }}
+      aria-hidden="true"
+    >
+      <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
+  );
+}
+
 // ──────────────────────────────────────────────────────────────────────────
-// Right rail
+// Right rail (page mode only)
 // ──────────────────────────────────────────────────────────────────────────
 
 interface HelperProps {
@@ -198,44 +308,47 @@ interface HelperProps {
   onToggleVoice: () => void;
 }
 
+const RAIL_CARD: CSSProperties = {
+  background: 'var(--surface)',
+  border: '1px solid var(--line)',
+  borderRadius: 'var(--r-lg)',
+  padding: 18,
+};
+
 function ChatHelperRail({ t, voiceMode, ttsSupported, onToggleVoice }: HelperProps) {
   return (
-    <div className="space-y-5">
-      <WarmCard className="p-5">
-        <h3 className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted-warm)]">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={RAIL_CARD}>
+        <h3 style={{ fontSize: 10, fontFamily: 'var(--font-mono)', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--mute-2)', margin: '0 0 8px', fontWeight: 500 }}>
           {t('chat.helper.voice_title')}
         </h3>
-        <p className="mt-2 text-xs leading-relaxed text-[var(--ink-warm-2)]">
+        <p style={{ fontSize: 12, lineHeight: 1.5, color: 'var(--mute)', margin: '0 0 12px' }}>
           {t('chat.helper.voice_body')}
         </p>
-        <div className="mt-3">
-          <VoiceModeToggle
-            enabled={voiceMode}
-            supported={ttsSupported}
-            onToggle={onToggleVoice}
-          />
-        </div>
-      </WarmCard>
+        <VoiceModeToggle
+          enabled={voiceMode}
+          supported={ttsSupported}
+          onToggle={onToggleVoice}
+        />
+      </div>
 
-      <WarmCard className="p-5">
-        <h3 className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted-warm)]">
+      <div style={RAIL_CARD}>
+        <h3 style={{ fontSize: 10, fontFamily: 'var(--font-mono)', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--mute-2)', margin: '0 0 12px', fontWeight: 500 }}>
           {t('chat.helper.tips_title')}
         </h3>
-        <ul className="mt-3 space-y-2 text-xs leading-relaxed text-[var(--ink-warm-2)]">
-          <li className="flex gap-2">
-            <span className="mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-mentora-600" />
-            {t('chat.helper.tip_citations')}
-          </li>
-          <li className="flex gap-2">
-            <span className="mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-coral-600" />
-            {t('chat.helper.tip_languages')}
-          </li>
-          <li className="flex gap-2">
-            <span className="mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
-            {t('chat.helper.tip_synthetic')}
-          </li>
+        <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {[
+            { key: 'chat.helper.tip_citations', color: 'var(--cobalt)' },
+            { key: 'chat.helper.tip_languages', color: 'var(--synth)' },
+            { key: 'chat.helper.tip_synthetic', color: 'var(--good)' },
+          ].map(({ key, color }) => (
+            <li key={key} style={{ display: 'flex', gap: 8, fontSize: 12, color: 'var(--mute)', lineHeight: 1.5 }}>
+              <span style={{ marginTop: 5, display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: color, flexShrink: 0 }} />
+              {t(key)}
+            </li>
+          ))}
         </ul>
-      </WarmCard>
+      </div>
     </div>
   );
 }

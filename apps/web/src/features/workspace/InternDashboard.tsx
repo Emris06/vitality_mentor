@@ -18,36 +18,24 @@ import {
 } from '../../lib/api';
 import type { GameProfile } from '../game/types';
 import { InternShell } from './InternShell';
-import { MentoraMark } from '../../components/warm/MentoraMark';
-import { WarmCard } from '../../components/warm/WarmCard';
-import { StatCard, type StatTone } from '../../components/warm/StatCard';
-import {
-  ScenarioRow,
-  type ScenarioIconTone,
-  type ScenarioStatus,
-} from '../../components/warm/ScenarioRow';
-import { ActivityRow } from '../../components/warm/ActivityRow';
-import { CohortTile, type AvatarTone } from '../../components/warm/CohortTile';
-import { TaskRow, type XpTone } from '../../components/warm/TaskRow';
 
 // ──────────────────────────────────────────────────────────────────────────
-// Intern dashboard — v3 (warm-theme).
+// Intern dashboard — v4 (reference design).
 //
-// One screen, four jobs:
-//   1. Daily stat band (gameApi.me) — pulls intern back tomorrow.
-//   2. Active scenario hero — one tap, runs simApi.startRun → KYC runner.
-//   3. Scenarios list — what's mastered, what's next, what's locked.
-//   4. Right rail — today's tasks, mentor + cohort activity, cohort tiles.
-//
-// Everything pulls real data where the backend exposes it (game profile,
-// learning path). Cohort + activity + tasks are still hardcoded; see TODOs.
+// Layout matches reference/Mentora/screens/Dashboard.jsx exactly:
+//   A. Hero grid (1.7fr | 1fr): quest card + 3 stat cards
+//   B. Scenario grid: 4-column cards from LEARNING_PATH
+//   C. Lower 2-col: activity feed | badges shelf
+//   D. Cohort strip
 // ──────────────────────────────────────────────────────────────────────────
 
 interface PathStep {
   id: string;
   scenarioId: ScenarioId | null;
   titleKey: string;
+  descKey: string;
   moduleKey: string;
+  glyph: string;
   state: 'done' | 'current' | 'locked';
   estMins: number;
 }
@@ -57,7 +45,9 @@ const LEARNING_PATH: readonly PathStep[] = [
     id: 'orientation',
     scenarioId: null,
     titleKey: 'intern.dashboard.scenarios.item.orientation',
+    descKey: 'intern.dashboard.scenarios.desc.orientation',
     moduleKey: 'intern.dashboard.scenarios.module.orientation',
+    glyph: '🧭',
     state: 'done',
     estMins: 10,
   },
@@ -65,7 +55,9 @@ const LEARNING_PATH: readonly PathStep[] = [
     id: 'kyc',
     scenarioId: 'kyc',
     titleKey: 'intern.dashboard.scenarios.item.kyc',
+    descKey: 'intern.dashboard.scenarios.desc.kyc',
     moduleKey: 'intern.dashboard.scenarios.module.retail_ops',
+    glyph: '📋',
     state: 'current',
     estMins: 25,
   },
@@ -73,7 +65,9 @@ const LEARNING_PATH: readonly PathStep[] = [
     id: 'open-account',
     scenarioId: 'open-account',
     titleKey: 'intern.dashboard.scenarios.item.open_account',
+    descKey: 'intern.dashboard.scenarios.desc.open_account',
     moduleKey: 'intern.dashboard.scenarios.module.retail_ops',
+    glyph: '💳',
     state: 'locked',
     estMins: 20,
   },
@@ -81,28 +75,40 @@ const LEARNING_PATH: readonly PathStep[] = [
     id: 'transfer',
     scenarioId: 'transfer',
     titleKey: 'intern.dashboard.scenarios.item.transfer',
+    descKey: 'intern.dashboard.scenarios.desc.transfer',
     moduleKey: 'intern.dashboard.scenarios.module.payments',
+    glyph: '↔',
     state: 'locked',
     estMins: 30,
   },
 ];
 
-// Visual mapping per scenario id → icon + tone for the scenarios list.
-const SCENARIO_VISUAL: Record<string, { icon: string; tone: ScenarioIconTone }> = {
-  orientation: { icon: '🧭', tone: 'emerald' },
-  kyc: { icon: '📋', tone: 'mentora' },
-  'open-account': { icon: '💳', tone: 'violet' },
-  transfer: { icon: '↔', tone: 'rose' },
-};
-
-// Level threshold — same constant as the mockup's "Level 4 · 420 / 600 XP".
-// TODO: replace with a backend-owned curve once gameApi exposes one.
 const XP_PER_LEVEL = 600;
 const STREAK_CONSISTENT = 5;
+const STUB_DEADLINE = '2026-08-31';
 
-// Fallback onboarding deadline when gameApi.me doesn't return one. Matches
-// the existing DeadlineRing fallback in features/game/DeadlineRing.tsx.
-const STUB_ONBOARDING_DEADLINE = '2026-08-31';
+const BADGE_DEFS = [
+  { id: 'first_kyc', emoji: '🏅', label: 'Первый KYC', glyphClass: 'gold', earned: false },
+  { id: 'kyc_perfectionist', emoji: '🎯', label: 'Перфекционист', glyphClass: 'cobalt', earned: false },
+  { id: 'streak_7', emoji: '🔥', label: '7-дневная серия', glyphClass: 'rose', earned: false },
+  { id: 'night_owl', emoji: '🦉', label: 'Ночная сова', glyphClass: 'lilac', earned: false },
+  { id: 'polyglot', emoji: '🌐', label: 'Полиглот', glyphClass: 'teal', earned: false },
+  { id: 'fast_learner', emoji: '⚡', label: 'Быстрый ученик', glyphClass: 'gold', earned: false },
+];
+
+const SEED_ACTIVITY = [
+  { id: 'a1', dot: 'cobalt', text: <><b>Оскар Холлоуэй</b> оставил комментарий к вашему <b>KYC</b></>, when: '10 мин' },
+  { id: 'a2', dot: 'green', text: <><b>Клики</b> указал на подсказку по проверке санкций</>, when: '25 мин' },
+  { id: 'a3', dot: 'warm', text: <><b>Дилшода К.</b> завершила модуль открытия счёта</>, when: '1 ч' },
+  { id: 'a4', dot: 'mute', text: <><b>HR (Нилуфар)</b> назначила вас в когорту Туронбанк</>, when: '2 ч' },
+];
+
+const SEED_COHORT = [
+  { initials: 'ДК', name: 'Дилшода', level: 5, cls: 'teal' },
+  { initials: 'АТ', name: 'Азиз', level: 3, cls: '' },
+  { initials: 'ЖК', name: 'Жасур', level: 4, cls: 'teal' },
+  { initials: 'ЗН', name: 'Зарина', level: 4, cls: 'lilac' },
+];
 
 export function InternDashboard() {
   const { t, i18n } = useTranslation();
@@ -112,56 +118,35 @@ export function InternDashboard() {
   const [startError, setStartError] = useState<string | null>(null);
   const [game, setGame] = useState<GameProfile | null>(null);
   const [gameLoading, setGameLoading] = useState(true);
-  const [gameLoadFailed, setGameLoadFailed] = useState(false);
   const [internData, setInternData] = useState<InternMe | null>(null);
   const [activityData, setActivityData] = useState<InternActivityEntry[] | null>(null);
 
   const locale: Locale = useMemo(() => {
-    const resolved = i18n.resolvedLanguage ?? DEFAULT_LOCALE;
-    return isLocale(resolved) ? resolved : DEFAULT_LOCALE;
+    const r = i18n.resolvedLanguage ?? DEFAULT_LOCALE;
+    return isLocale(r) ? r : DEFAULT_LOCALE;
   }, [i18n.resolvedLanguage]);
 
-  const internName = profile?.fullName ?? 'Intern';
+  const internName = profile?.fullName ?? 'Стажёр';
   const firstName = internName.split(/\s+/)[0] ?? internName;
   const current = LEARNING_PATH.find((s) => s.state === 'current') ?? null;
   const doneCount = LEARNING_PATH.filter((s) => s.state === 'done').length;
-  const totalSteps = LEARNING_PATH.length;
 
-  // Load gamification profile + intern aggregates + activity in parallel.
-  // Single shot on mount — revisiting the route refetches. Each call's
-  // error is contained so a flaky endpoint can't blank the whole dashboard.
   useEffect(() => {
     let cancelled = false;
     setGameLoading(true);
-    setGameLoadFailed(false);
     void (async () => {
-      const [gameResult, internResult, activityResult] = await Promise.allSettled([
+      const [gr, ir, ar] = await Promise.allSettled([
         gameApi.me<GameProfile>(),
         internApi.me(),
         internApi.activity(),
       ]);
       if (cancelled) return;
-      if (gameResult.status === 'fulfilled') {
-        setGame(gameResult.value);
-      } else {
-        setGame(null);
-        setGameLoadFailed(true);
-      }
-      if (internResult.status === 'fulfilled') {
-        setInternData(internResult.value);
-      } else {
-        setInternData(null);
-      }
-      if (activityResult.status === 'fulfilled') {
-        setActivityData(activityResult.value);
-      } else {
-        setActivityData(null);
-      }
+      if (gr.status === 'fulfilled') setGame(gr.value);
+      if (ir.status === 'fulfilled') setInternData(ir.value);
+      if (ar.status === 'fulfilled') setActivityData(ar.value);
       setGameLoading(false);
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   async function startScenario(scenarioId: ScenarioId | null) {
@@ -172,16 +157,32 @@ export function InternDashboard() {
       const run = await simApi.startRun(scenarioId, locale);
       navigate(scenarioId === 'kyc' ? `/simulator/kyc/${run.id}` : '/simulator');
     } catch (err) {
-      setStartError(
-        err instanceof SimHttpError ? err.message : t('sim.run.load_error'),
-      );
+      setStartError(err instanceof SimHttpError ? err.message : t('sim.run.load_error'));
       setStarting(false);
     }
   }
 
-  const stats = useMemo(() => deriveStats(game, locale, t), [game, locale, t]);
-  const currentTitle = current ? t(current.titleKey) : '';
+  // Derive stats from game profile
+  const totalXp = game
+    ? Object.values(game.xpBySkill).reduce((a, b) => a + (Number.isFinite(b) ? b : 0), 0)
+    : 0;
+  const level = Math.floor(totalXp / XP_PER_LEVEL) + 1;
+  const xpInLevel = totalXp % XP_PER_LEVEL;
+  const levelPct = (xpInLevel / XP_PER_LEVEL) * 100;
+  const streakDays = game?.streak.current ?? 0;
+  const badgesEarned = game?.badges ?? [];
+
+  const deadlineDate = new Date(game?.onboardingDeadline ?? STUB_DEADLINE);
+  const daysLeft = Math.max(0, Math.ceil((deadlineDate.getTime() - Date.now()) / 86_400_000));
+
   const dateRange = useMemo(() => formatDateRange(locale), [locale]);
+  const currentTitle = current ? t(current.titleKey) : '';
+
+  // Map earned badges onto BADGE_DEFS
+  const badgeDefs = BADGE_DEFS.map((b) => ({
+    ...b,
+    earned: badgesEarned.some((eb) => eb.id === b.id),
+  }));
 
   return (
     <InternShell
@@ -193,961 +194,285 @@ export function InternDashboard() {
       currentScenarioCta={
         current?.scenarioId
           ? {
-              label: starting
-                ? t('intern.dashboard.starting')
-                : t('intern.dashboard.continue_cta', { title: currentTitle }),
+              label: starting ? t('intern.dashboard.starting') : t('intern.dashboard.continue_cta', { title: currentTitle }),
               onClick: () => void startScenario(current.scenarioId),
               disabled: starting,
-              clickyTarget:
-                'start, continue, begin, kyc, scenario, current, simulator',
-              clickyHint: `This launches "${currentTitle}" with synthetic data. Safe to experiment — you can't break anything real.`,
+              clickyTarget: 'start, continue, begin, kyc, scenario, current, simulator',
+              clickyHint: `Launches "${currentTitle}" simulator.`,
             }
           : undefined
       }
-      rightPanel={
-        <RightRail
-          t={t}
-          internData={internData}
-          activityData={activityData}
-          loading={gameLoading}
-        />
-      }
     >
-      {(startError || gameLoadFailed) && (
-        <ErrorBanner
-          message={
-            startError ?? t('intern.dashboard.errors.game_load_failed')
-          }
-        />
+      {startError && (
+        <div role="alert" style={{ padding: '12px 16px', marginBottom: '18px', background: 'var(--bad-tint)', border: '1px solid var(--bad)', borderRadius: 'var(--r-md)', fontSize: '13px', color: 'var(--bad)' }}>
+          {startError}
+        </div>
       )}
 
-      <StatCardsRow stats={stats} loading={gameLoading} />
+      {/* ── A. Hero grid ── */}
+      <div className="dash-hero">
 
-      <ActiveScenarioHero
-        current={current}
-        currentTitle={currentTitle}
-        starting={starting}
-        doneCount={doneCount}
-        totalSteps={totalSteps}
-        onContinue={() => void startScenario(current?.scenarioId ?? null)}
-        t={t}
-      />
+        {/* Quest card */}
+        <div
+          className="quest"
+          data-clicky-target="quest, today, mission, start, continue, kyc"
+          data-clicky-hint="Your quest for today. Press Start when ready."
+          id="todays-quest"
+        >
+          <span className="quest-mark">КВЕСТ · ДЕНЬ-{String(doneCount + 1).padStart(2, '0')}</span>
+          <h2>
+            {currentTitle
+              ? <><em>{currentTitle}</em> — применяй на практике</>
+              : <>Все квесты <em>завершены!</em></>}
+          </h2>
+          <div className="quest-meta">
+            <span>+50 <b>XP</b></span>
+            <span>{current?.estMins ?? 0} мин</span>
+            <span>{doneCount}/{LEARNING_PATH.length} шагов</span>
+          </div>
+          {current?.scenarioId && (
+            <div className="quest-actions">
+              <button
+                className="btn btn-light-on-cobalt"
+                onClick={() => void startScenario(current.scenarioId)}
+                disabled={starting}
+                data-clicky-target="start, begin, launch, scenario"
+                data-clicky-hint="Start the scenario."
+              >
+                {starting ? 'Запуск…' : 'Начать →'}
+              </button>
+              <Link to="/simulator" className="btn btn-ghost-on-cobalt" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                Открыть каталог
+              </Link>
+            </div>
+          )}
+        </div>
 
-      <ScenariosCard path={LEARNING_PATH} t={t} />
+        {/* 3 stat cards stacked */}
+        <div className="stats">
+          {/* Level + XP */}
+          <div
+            className="stat"
+            data-clicky-target="level, xp, points, rank"
+            data-clicky-hint={t('clicky.hint.stats.level')}
+          >
+            <div className="stat-icon">
+              <span style={{ fontSize: '14px' }}>✦</span>
+            </div>
+            <div>
+              <div className="stat-value">
+                {gameLoading ? '—' : level}
+                <small>ур.</small>
+              </div>
+              <div className="stat-label">
+                {gameLoading ? '…' : `${xpInLevel} / ${XP_PER_LEVEL} XP`}
+              </div>
+              {!gameLoading && (
+                <div style={{ marginTop: '6px', height: '3px', background: 'var(--cobalt-tint)', borderRadius: '2px', overflow: 'hidden' }}>
+                  <div style={{ width: `${levelPct}%`, height: '100%', background: 'var(--cobalt)', borderRadius: '2px', transition: 'width 0.6s ease' }} />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Streak */}
+          <div
+            className="stat"
+            data-clicky-target="streak, days, consistency, fire"
+            data-clicky-hint={t('clicky.hint.stats.streak')}
+          >
+            <div className="stat-icon warm">🔥</div>
+            <div>
+              <div className="stat-value">
+                {gameLoading ? '—' : streakDays}
+                <small>дн.</small>
+              </div>
+              <div className="stat-label">Серия</div>
+              {!gameLoading && (
+                <div className="streak-dots" style={{ marginTop: '4px' }}>
+                  {Array.from({ length: 7 }).map((_, i) => (
+                    <i key={i} className={i < streakDays ? '' : 'miss'} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Deadline */}
+          <div
+            className="stat"
+            data-clicky-target="onboarding, deadline, days left, timer, countdown"
+            data-clicky-hint={t('clicky.hint.stats.onboarding')}
+          >
+            <div className="stat-icon green">⌛</div>
+            <div>
+              <div className="stat-value">
+                {gameLoading ? '—' : daysLeft}
+                <small>дн.</small>
+              </div>
+              <div className="stat-label">До дедлайна</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── B. Scenario grid ── */}
+      <div>
+        <div className="section-head">
+          <div>
+            <p className="h-eyebrow" style={{ marginBottom: '4px' }}>
+              {t('intern.dashboard.scenarios.section_label')}
+            </p>
+            <p className="h2">{t('intern.dashboard.scenarios.section_title')}</p>
+          </div>
+          <Link
+            to="/simulator"
+            style={{ fontSize: '12.5px', color: 'var(--mute)', transition: 'color 0.15s' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--cobalt)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--mute)')}
+            data-clicky-target="all, scenarios, browse, catalog, simulator"
+            data-clicky-hint="Browse every scenario in the catalog."
+          >
+            Все сценарии →
+          </Link>
+        </div>
+
+        <div className="scenarios">
+          {LEARNING_PATH.map((step) => {
+            const locked = step.state === 'locked';
+            const done = step.state === 'done';
+            const active = step.state === 'current';
+            const title = t(step.titleKey);
+            const desc = (() => {
+              try { return t(step.descKey); } catch { return ''; }
+            })();
+            return (
+              <button
+                key={step.id}
+                type="button"
+                className={`scenario${locked ? ' locked' : ''}`}
+                onClick={() => !locked && step.scenarioId && void startScenario(step.scenarioId)}
+                disabled={locked || !step.scenarioId}
+                data-clicky-target={`${step.id}, ${title.toLowerCase()}, scenario, ${step.state}`}
+                data-clicky-hint={locked ? `"${title}" заблокирован.` : `Начать "${title}".`}
+                style={{
+                  textAlign: 'left',
+                  borderColor: active ? 'var(--cobalt-glow)' : undefined,
+                  background: active ? 'var(--cobalt-50)' : undefined,
+                }}
+              >
+                <div className="scenario-glyph" style={{ fontSize: '16px' }}>{step.glyph}</div>
+                <div>
+                  <div className="scenario-name">{title}</div>
+                  {desc && <div className="scenario-desc">{desc}</div>}
+                </div>
+                <div className="scenario-foot">
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--mute)' }}>
+                    {step.estMins} мин
+                  </span>
+                  {done && <span className="score-pill">✓</span>}
+                  {active && <span className="new-pill">NOW</span>}
+                  {locked && <span style={{ padding: '3px 6px', background: 'var(--surface-2)', color: 'var(--mute-2)', borderRadius: '4px', fontSize: '11px' }}>🔒</span>}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── C. Lower 2-column ── */}
+      <div className="dash-low">
+
+        {/* Activity feed */}
+        <div className="card">
+          <div className="card-pad" style={{ borderBottom: '1px solid var(--line)', paddingBottom: '14px' }}>
+            <p className="h2">Активность</p>
+          </div>
+          <div style={{ padding: '0 20px' }}>
+            {SEED_ACTIVITY.map((entry) => (
+              <div key={entry.id} className="activity-row">
+                <span className={`dot ${entry.dot}`} />
+                <span style={{ fontSize: '13px' }}>{entry.text}</span>
+                <span className="when">{entry.when}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Badges shelf */}
+        <div className="card">
+          <div className="card-pad" style={{ borderBottom: '1px solid var(--line)', paddingBottom: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <p className="h2">Значки</p>
+            <Link to="/me" style={{ fontSize: '12px', color: 'var(--mute)' }}>Все →</Link>
+          </div>
+          <div className="badges-shelf"
+            data-clicky-target="badges, achievements, trophy, awards"
+            data-clicky-hint={t('clicky.hint.stats.badges')}
+          >
+            {badgeDefs.map((b) => (
+              <div key={b.id} className={`badge${!b.earned ? ' locked' : ''}`}>
+                <div className={`badge-glyph ${b.glyphClass}`}>{b.emoji}</div>
+                <b style={{ fontSize: '11px' }}>{b.label}</b>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── D. Cohort strip ── */}
+      <div className="cohort" style={{ marginTop: '18px' }}
+        data-clicky-target="cohort, peers, interns, team, colleagues"
+        data-clicky-hint="Your cohort — fellow interns going through onboarding with you."
+      >
+        <div className="stack">
+          {(internData?.cohort.length
+            ? internData.cohort.slice(0, 5).map((m, i) => ({
+                initials: m.initials,
+                cls: (['teal', '', 'teal', 'lilac', 'rose'] as const)[i % 5],
+              }))
+            : SEED_COHORT
+          ).map((c, i) => (
+            <div
+              key={i}
+              className={`avatar${c.cls ? ` ${c.cls}` : ''}`}
+              style={{ width: '28px', height: '28px', fontSize: '10px', fontWeight: 600 }}
+            >
+              {c.initials}
+            </div>
+          ))}
+        </div>
+        <small style={{ color: 'var(--mute)', fontSize: '12.5px' }}>
+          {internData ? `${internData.cohort.length} стажёров в когорте` : `${SEED_COHORT.length} стажёров`}
+        </small>
+        <button
+          type="button"
+          className="btn btn-ghost"
+          style={{ marginLeft: 'auto', height: '30px', fontSize: '12px' }}
+          data-clicky-target="mentor, ask, help, question, chat"
+          data-clicky-hint="Send a message to your assigned mentor."
+        >
+          Спросить наставника
+        </button>
+      </div>
     </InternShell>
   );
 }
 
-// ───────────────────────────────────────────────────────────────────────
-// Stat cards row
-// ───────────────────────────────────────────────────────────────────────
-
-interface DerivedStats {
-  level: number;
-  xpInLevel: number;
-  xpForNext: number;
-  levelPct: number;
-  streakDays: number;
-  streakSubline: string;
-  badgesCount: number;
-  badgesSubline: string;
-  daysUntilDeadline: number;
-  deadlineSubline: string;
-}
-
-function deriveStats(
-  game: GameProfile | null,
-  locale: Locale,
-  t: (key: string, opts?: Record<string, unknown>) => string,
-): DerivedStats {
-  const totalXp = game
-    ? Object.values(game.xpBySkill).reduce(
-        (a, b) => a + (Number.isFinite(b) ? b : 0),
-        0,
-      )
-    : 0;
-  const level = Math.floor(totalXp / XP_PER_LEVEL) + 1;
-  const xpInLevel = totalXp % XP_PER_LEVEL;
-  const xpForNext = XP_PER_LEVEL;
-  const levelPct = (xpInLevel / xpForNext) * 100;
-
-  const streakDays = game?.streak.current ?? 0;
-  const streakSubline =
-    streakDays === 0
-      ? t('intern.dashboard.stats.streak_subline_none')
-      : streakDays >= STREAK_CONSISTENT
-        ? t('intern.dashboard.stats.streak_subline_great')
-        : t('intern.dashboard.stats.streak_subline_next', {
-            count: STREAK_CONSISTENT - streakDays,
-          });
-
-  const badgesCount = game?.badges.length ?? 0;
-  const recentBadge = game?.badges[0];
-  const badgesSubline =
-    badgesCount === 0
-      ? t('intern.dashboard.stats.badges_none')
-      : recentBadge
-        ? t('intern.dashboard.stats.badges_recent', {
-            name: t(recentBadge.nameKey, { defaultValue: recentBadge.id }),
-          })
-        : '';
-
-  const deadlineIso = game?.onboardingDeadline ?? STUB_ONBOARDING_DEADLINE;
-  const deadlineDate = new Date(deadlineIso);
-  const today = new Date();
-  const dayMs = 1000 * 60 * 60 * 24;
-  const daysUntilDeadline = Math.max(
-    0,
-    Math.ceil((deadlineDate.getTime() - today.getTime()) / dayMs),
-  );
-  const deadlineSubline = Number.isNaN(deadlineDate.getTime())
-    ? t('intern.dashboard.stats.onboarding_overdue')
-    : daysUntilDeadline === 0
-      ? t('intern.dashboard.stats.onboarding_overdue')
-      : t('intern.dashboard.stats.onboarding_deadline', {
-          date: formatShortDate(deadlineDate, locale),
-        });
-
-  return {
-    level,
-    xpInLevel,
-    xpForNext,
-    levelPct,
-    streakDays,
-    streakSubline,
-    badgesCount,
-    badgesSubline,
-    daysUntilDeadline,
-    deadlineSubline,
-  };
-}
-
-function StatCardsRow({
-  stats,
-  loading,
-}: {
-  stats: DerivedStats;
-  loading: boolean;
-}) {
-  const { t } = useTranslation();
-  return (
-    <div
-      className="grid grid-cols-2 gap-4 sm:grid-cols-4"
-      aria-busy={loading}
-      data-clicky-target="stats, status, summary, progress, dashboard"
-      data-clicky-hint="Your level, current streak, badges, and onboarding countdown."
-    >
-      <div data-clicky-target="level, xp, points, rank" data-clicky-hint={t('clicky.hint.stats.level')}>
-        <StatCard
-          label={t('intern.dashboard.stats.level_label')}
-          tone={'mentora' as StatTone}
-          icon={<span className="text-sm">✦</span>}
-          value={stats.level}
-          valueSuffix={t('intern.dashboard.stats.level_progress', {
-            xp: stats.xpInLevel,
-            next: stats.xpForNext,
-          })}
-          progress={stats.levelPct}
-        />
-      </div>
-      <div data-clicky-target="streak, days, consistency, fire" data-clicky-hint={t('clicky.hint.stats.streak')}>
-        <StatCard
-          label={t('intern.dashboard.stats.streak_label')}
-          tone="coral"
-          icon={<span className="text-sm">🔥</span>}
-          value={
-            <>
-              {stats.streakDays}{' '}
-              <span className="text-sm font-medium text-[var(--muted-warm)]">
-                {t('intern.dashboard.stats.streak_days', {
-                  count: stats.streakDays,
-                }).replace(/^\d+\s*/, '')}
-              </span>
-            </>
-          }
-          subline={stats.streakSubline}
-        />
-      </div>
-      <div data-clicky-target="badges, achievements, trophy, awards" data-clicky-hint={t('clicky.hint.stats.badges')}>
-        <StatCard
-          label={t('intern.dashboard.stats.badges_label')}
-          tone="amber"
-          icon={<span className="text-sm">🏆</span>}
-          value={
-            <>
-              {stats.badgesCount}{' '}
-              <span className="text-sm font-medium text-[var(--muted-warm)]">
-                {t('intern.dashboard.stats.badges_earned', {
-                  count: stats.badgesCount,
-                }).replace(/^\d+\s*/, '')}
-              </span>
-            </>
-          }
-          subline={stats.badgesSubline}
-        />
-      </div>
-      <div data-clicky-target="onboarding, deadline, days left, timer, countdown" data-clicky-hint={t('clicky.hint.stats.onboarding')}>
-        <StatCard
-          label={t('intern.dashboard.stats.onboarding_label')}
-          tone="emerald"
-          icon={<span className="text-sm">⌛</span>}
-          value={stats.daysUntilDeadline}
-          valueSuffix={t('intern.dashboard.stats.onboarding_days_left', {
-            count: stats.daysUntilDeadline,
-          }).replace(/^\d+\s*/, '')}
-          subline={stats.deadlineSubline}
-        />
-      </div>
-    </div>
-  );
-}
-
-// ───────────────────────────────────────────────────────────────────────
-// Active scenario hero — warm wrapper + simplified Direction A preview
-// ───────────────────────────────────────────────────────────────────────
-
-interface HeroProps {
-  current: PathStep | null;
-  currentTitle: string;
-  starting: boolean;
-  doneCount: number;
-  totalSteps: number;
-  onContinue: () => void;
-  t: (key: string, opts?: Record<string, unknown>) => string;
-}
-
-function ActiveScenarioHero({
-  current,
-  currentTitle,
-  starting,
-  doneCount,
-  totalSteps,
-  onContinue,
-  t,
-}: HeroProps) {
-  const currentIndex = current
-    ? LEARNING_PATH.findIndex((s) => s.id === current.id) + 1
-    : doneCount;
-  const rewardXp = 50; // TODO: derive from quest config when backend exposes it
-  return (
-    <WarmCard className="overflow-hidden p-0">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-5">
-        <div className="min-w-0">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-coral-600">
-            {t('intern.dashboard.hero.today_quest_label')}
-          </div>
-          <div className="mt-0.5 truncate text-lg font-extrabold text-[var(--ink-warm)]">
-            {current
-              ? t('intern.dashboard.hero.step_of', {
-                  title: currentTitle,
-                  current: currentIndex,
-                  total: totalSteps,
-                })
-              : t('intern.dashboard.hero.all_done')}
-          </div>
-        </div>
-        {current?.scenarioId && (
-          <div className="flex items-center gap-3">
-            <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-bold text-amber-700">
-              {t('intern.dashboard.hero.xp_pill', { xp: rewardXp })}
-            </span>
-            <button
-              type="button"
-              onClick={onContinue}
-              disabled={starting}
-              data-clicky-target="continue, start, kyc, next, simulator, run"
-              data-clicky-hint={`This opens "${currentTitle}" in the simulator.`}
-              className="rounded-full bg-[var(--ink-warm)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {starting
-                ? t('intern.dashboard.starting')
-                : t('intern.dashboard.hero.continue_short')}
-            </button>
-          </div>
-        )}
-      </div>
-
-      <SimPreviewInner
-        currentTitle={currentTitle}
-        currentIndex={currentIndex}
-        totalSteps={totalSteps}
-        t={t}
-      />
-    </WarmCard>
-  );
-}
-
-// Direction A "preview" — visually matches mockup 06 lines 309–374 but
-// renders no live form. Tells the intern "here's where you are in the sim."
-// The real KYC runner is at /simulator/kyc/:runId.
-function SimPreviewInner({
-  currentTitle,
-  currentIndex,
-  totalSteps,
-  t,
-}: {
-  currentTitle: string;
-  currentIndex: number;
-  totalSteps: number;
-  t: (key: string, opts?: Record<string, unknown>) => string;
-}) {
-  return (
-    <div className="bg-[#FAFAFA] px-6 py-6 font-tech">
-      <div className="overflow-hidden rounded-lg bg-white ring-1 ring-zinc-200">
-        {/* Chrome bar */}
-        <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-2.5 text-[12px] text-zinc-500">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-zinc-300" />
-              <span className="h-2 w-2 rounded-full bg-zinc-300" />
-              <span className="h-2 w-2 rounded-full bg-zinc-300" />
-            </div>
-            <span className="text-zinc-300">|</span>
-            <span className="font-mono-tech">ABC ▸ KYC ▸ Sanctions</span>
-          </div>
-          <span className="font-mono-tech">
-            SYN-849-2207 · step {currentIndex}/{totalSteps}
-          </span>
-        </div>
-        {/* Body: simplified preview, not a live form */}
-        <div className="px-5 py-4">
-          <h3 className="text-base font-semibold tracking-tight text-zinc-900">
-            {currentTitle}
-          </h3>
-          <p className="mt-1 text-[13px] text-zinc-600">
-            {t('intern.dashboard.hero.synthetic_badge')}
-          </p>
-          <ol className="mt-4 grid grid-cols-4 gap-2">
-            {Array.from({ length: totalSteps }).map((_, i) => {
-              const n = i + 1;
-              const isDone = n < currentIndex;
-              const isCurrent = n === currentIndex;
-              return (
-                <li
-                  key={n}
-                  className={`rounded-md border px-3 py-2 text-center text-xs font-mono-tech ${
-                    isCurrent
-                      ? 'border-mentora-600 bg-mentora-50 text-mentora-600'
-                      : isDone
-                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                        : 'border-zinc-200 bg-white text-zinc-400'
-                  }`}
-                >
-                  {isDone ? '✓' : n}
-                </li>
-              );
-            })}
-          </ol>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ───────────────────────────────────────────────────────────────────────
-// Scenarios list
-// ───────────────────────────────────────────────────────────────────────
-
-function ScenariosCard({
-  path,
-  t,
-}: {
-  path: readonly PathStep[];
-  t: (key: string, opts?: Record<string, unknown>) => string;
-}) {
-  return (
-    <WarmCard className="p-0">
-      <div className="flex items-center justify-between px-6 py-5">
-        <div>
-          <div className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted-warm)]">
-            {t('intern.dashboard.scenarios.section_label')}
-          </div>
-          <div className="text-lg font-extrabold text-[var(--ink-warm)]">
-            {t('intern.dashboard.scenarios.section_title')}
-          </div>
-        </div>
-        <Link
-          to="/simulator"
-          className="text-sm font-semibold text-mentora-600 hover:underline"
-          data-clicky-target="all, scenarios, browse, catalog, simulator"
-          data-clicky-hint="Browse every scenario, including ones outside your assigned path."
-        >
-          {t('intern.dashboard.scenarios.view_all')}
-        </Link>
-      </div>
-      <div className="border-t border-zinc-100">
-        <div className="grid grid-cols-[1.4fr_0.9fr_1fr_0.7fr_0.4fr] gap-3 px-6 py-2.5 text-[11px] font-bold uppercase tracking-wider text-[var(--muted-warm)]">
-          <span>{t('intern.dashboard.scenarios.col_scenario')}</span>
-          <span>{t('intern.dashboard.scenarios.col_module')}</span>
-          <span>{t('intern.dashboard.scenarios.col_progress')}</span>
-          <span>{t('intern.dashboard.scenarios.col_status')}</span>
-          <span />
-        </div>
-        {path.map((step, idx) => {
-          const status = mapState(step.state, idx, path);
-          const visual = SCENARIO_VISUAL[step.id] ?? {
-            icon: '📘',
-            tone: 'mentora' as ScenarioIconTone,
-          };
-          const progressPct = progressFor(status);
-          const stepsLabel =
-            status === 'locked'
-              ? t('intern.dashboard.scenarios.locked_reason')
-              : t('intern.dashboard.scenarios.steps_progress', {
-                  done: status === 'mastered' ? 4 : status === 'in_progress' ? 2 : 0,
-                  total: 4,
-                });
-          const title = t(step.titleKey);
-          return (
-            <div
-              key={step.id}
-              data-clicky-target={`${step.id}, ${title.toLowerCase()}, scenario, ${status}`}
-              data-clicky-hint={
-                status === 'locked'
-                  ? `"${title}" — ${t('intern.dashboard.scenarios.locked_reason')}.`
-                  : status === 'mastered'
-                    ? `"${title}" — already mastered. Open it again to review.`
-                    : status === 'in_progress'
-                      ? `"${title}" — your active scenario. Continue from here.`
-                      : `"${title}" — ${t('clicky.hint.scenario_row')}`
-              }
-            >
-              <ScenarioRow
-                icon={<span aria-hidden="true">{visual.icon}</span>}
-                iconTone={visual.tone}
-                title={title}
-                steps={stepsLabel}
-                module={t(step.moduleKey)}
-                progressPct={progressPct}
-                status={status}
-              />
-            </div>
-          );
-        })}
-      </div>
-    </WarmCard>
-  );
-}
-
-function mapState(
-  state: PathStep['state'],
-  idx: number,
-  all: readonly PathStep[],
-): ScenarioStatus {
-  if (state === 'done') return 'mastered';
-  if (state === 'current') return 'in_progress';
-  // First locked step after current → "not_started" (you can try it);
-  // anything later than that → "locked" (hard gate).
-  const firstLockedIdx = all.findIndex((s) => s.state === 'locked');
-  return idx === firstLockedIdx ? 'not_started' : 'locked';
-}
-
-function progressFor(status: ScenarioStatus): number {
-  switch (status) {
-    case 'mastered':
-      return 100;
-    case 'in_progress':
-      // TODO: derive from current run state (simApi.getRun) when wired.
-      return 50;
-    default:
-      return 0;
-  }
-}
-
-// ───────────────────────────────────────────────────────────────────────
-// Right rail — tasks, activity, cohort
-// ───────────────────────────────────────────────────────────────────────
-
-function RightRail({
-  t,
-  internData,
-  activityData,
-  loading,
-}: {
-  t: (k: string, o?: Record<string, unknown>) => string;
-  internData: InternMe | null;
-  activityData: InternActivityEntry[] | null;
-  loading: boolean;
-}) {
-  return (
-    <>
-      <TasksCard t={t} />
-      <ActivityCard t={t} activityData={activityData} loading={loading} />
-      <CohortCard t={t} internData={internData} loading={loading} />
-    </>
-  );
-}
-
-interface SeedTask {
-  key: string;
-  titleKey: string;
-  sublineKey: string;
-  xp: number;
-  xpTone: XpTone;
-}
-
-// TODO: tasksApi — backend doesn't expose a per-intern task list yet.
-// These mirror the mockup; the real ones will be derived from the active
-// scenario state + assigned mentor messages + outstanding SOP reads.
-const SEED_TASKS: readonly SeedTask[] = [
-  {
-    key: 'kyc-step-2',
-    titleKey: 'intern.dashboard.tasks.kyc_step_2',
-    sublineKey: 'intern.dashboard.tasks.kyc_step_2_sub',
-    xp: 15,
-    xpTone: 'mentora',
-  },
-  {
-    key: 'aml-intro',
-    titleKey: 'intern.dashboard.tasks.aml_intro',
-    sublineKey: 'intern.dashboard.tasks.aml_intro_sub',
-    xp: 5,
-    xpTone: 'amber',
-  },
-  {
-    key: 'reply-mentor',
-    titleKey: 'intern.dashboard.tasks.reply_mentor',
-    sublineKey: 'intern.dashboard.tasks.reply_mentor_sub',
-    xp: 10,
-    xpTone: 'emerald',
-  },
-];
-
-function TasksCard({ t }: { t: (k: string, o?: Record<string, unknown>) => string }) {
-  const [done, setDone] = useState<Record<string, boolean>>({});
-  const remaining = SEED_TASKS.filter((task) => !done[task.key]).length;
-  const dueCount = 2;
-  return (
-    <WarmCard small className="p-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-[11px] font-bold uppercase tracking-wider text-coral-600">
-            {t('intern.dashboard.tasks.section_label')}
-          </div>
-          <div className="text-lg font-extrabold text-[var(--ink-warm)]">
-            {t('intern.dashboard.tasks.section_title_count', { count: remaining })}
-          </div>
-        </div>
-        {dueCount > 0 && remaining > 0 && (
-          <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-bold text-amber-700">
-            {t('intern.dashboard.tasks.due_pill', { count: dueCount })}
-          </span>
-        )}
-      </div>
-      <ul className="mt-4 space-y-2">
-        {SEED_TASKS.map((task) => {
-          const title = t(task.titleKey);
-          return (
-            <div
-              key={task.key}
-              data-clicky-target={`${task.key}, task, todo, ${title.toLowerCase()}`}
-              data-clicky-hint={`Today's task: "${title}". ${t('clicky.hint.task')}`}
-            >
-              <TaskRow
-                title={title}
-                subline={t(task.sublineKey)}
-                xpAmount={task.xp}
-                xpTone={task.xpTone}
-                done={!!done[task.key]}
-                onToggle={() =>
-                  setDone((prev) => ({ ...prev, [task.key]: !prev[task.key] }))
-                }
-              />
-            </div>
-          );
-        })}
-      </ul>
-    </WarmCard>
-  );
-}
-
-interface ActivityEntry {
-  id: string;
-  variant: 'mentor_comment' | 'clicky_tip' | 'peer_finished' | 'hr_assigned';
-  actorName: string;
-  avatarTone: AvatarTone;
-  initials: string;
-  /** Minutes ago. */
-  minutesAgo: number;
-}
-
-// TODO: hrApi.streamEvents() filtered to "events for me" once the backend
-// adds per-user filtering. These mirror the mockup.
-const SEED_ACTIVITY: readonly ActivityEntry[] = [
-  {
-    id: 'oh-comment',
-    variant: 'mentor_comment',
-    actorName: 'Oscar Holloway',
-    avatarTone: 'sky',
-    initials: 'OH',
-    minutesAgo: 10,
-  },
-  {
-    id: 'clicky-tip',
-    variant: 'clicky_tip',
-    actorName: 'Clicky',
-    avatarTone: 'rose',
-    initials: '✦',
-    minutesAgo: 25,
-  },
-  {
-    id: 'dk-finished',
-    variant: 'peer_finished',
-    actorName: 'Dilshoda K.',
-    avatarTone: 'em',
-    initials: 'DK',
-    minutesAgo: 60,
-  },
-  {
-    id: 'hr-assigned',
-    variant: 'hr_assigned',
-    actorName: 'Nilufar (HR)',
-    avatarTone: 'rose',
-    initials: 'HR',
-    minutesAgo: 120,
-  },
-];
-
-function mapBackendActivity(
-  entries: InternActivityEntry[],
-): readonly ActivityEntry[] {
-  // Cycle through avatar tones so consecutive rows don't blob into one colour.
-  const tones: AvatarTone[] = ['sky', 'em', 'rose', 'orng', 'viol'];
-  return entries.map((entry, idx) => {
-    const variant: ActivityEntry['variant'] =
-      entry.variant === 'mentor_assigned'
-        ? 'hr_assigned'
-        : entry.variant === 'quest_completed'
-          ? 'peer_finished'
-          : 'mentor_comment';
-    const minutesAgo = Math.max(
-      0,
-      Math.round((Date.now() - new Date(entry.createdAt).getTime()) / 60_000),
-    );
-    return {
-      id: entry.id,
-      variant,
-      actorName: entry.actorName || 'Mentora',
-      avatarTone: tones[idx % tones.length]!,
-      initials: initialsFromName(entry.actorName),
-      minutesAgo,
-    };
-  });
-}
-
-function initialsFromName(name: string): string {
-  if (!name) return '··';
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '··';
-  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
-  return (parts[0]!.charAt(0) + parts[parts.length - 1]!.charAt(0)).toUpperCase();
-}
-
-function ActivityCard({
-  t,
-  activityData,
-  loading,
-}: {
-  t: (k: string, o?: Record<string, unknown>) => string;
-  activityData: InternActivityEntry[] | null;
-  loading: boolean;
-}) {
-  const entries: readonly ActivityEntry[] =
-    activityData && activityData.length > 0
-      ? mapBackendActivity(activityData)
-      : SEED_ACTIVITY;
-  return (
-    <WarmCard small className="p-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted-warm)]">
-            {t('intern.dashboard.activity.section_label')}
-          </div>
-          <div className="text-lg font-extrabold text-[var(--ink-warm)]">
-            {t('intern.dashboard.activity.section_title')}
-          </div>
-        </div>
-        <button
-          type="button"
-          className="text-sm font-semibold text-mentora-600 hover:underline"
-        >
-          {t('intern.dashboard.activity.view_all')}
-        </button>
-      </div>
-      {loading ? (
-        <ul className="mt-4 space-y-3.5">
-          {[0, 1, 2].map((i) => (
-            <li key={i} className="h-10 w-full animate-pulse rounded-lg bg-zinc-100" />
-          ))}
-        </ul>
-      ) : (
-        <ul className="mt-4 space-y-3.5">
-          {entries.map((entry) => (
-            <ActivityRow
-              key={entry.id}
-              leading={
-                entry.variant === 'clicky_tip' ? (
-                  <ClickyAvatar />
-                ) : (
-                  <span
-                    className={`av-${entry.avatarTone} grid h-9 w-9 place-items-center rounded-full text-xs font-bold`}
-                  >
-                    {entry.initials}
-                  </span>
-                )
-              }
-              timestamp={formatAgo(entry.minutesAgo, t)}
-            >
-              {renderActivitySentence(entry, t)}
-            </ActivityRow>
-          ))}
-        </ul>
-      )}
-    </WarmCard>
-  );
-}
-
-function ClickyAvatar() {
-  return (
-    <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-coral-600 to-[#ff9670]">
-      <MentoraMark className="h-4 w-4 text-white" />
-    </span>
-  );
-}
-
-function renderActivitySentence(
-  entry: ActivityEntry,
-  t: (k: string, o?: Record<string, unknown>) => string,
-) {
-  const ink2 = 'text-[var(--ink-warm-2)]';
-  if (entry.variant === 'mentor_comment') {
-    return (
-      <>
-        <p>
-          <span className="font-bold text-[var(--ink-warm)]">{entry.actorName}</span>{' '}
-          <span className={ink2}>
-            {t('intern.dashboard.activity.mentor_comment_lead', {
-              name: entry.actorName,
-            }).replace(entry.actorName, '')}
-          </span>{' '}
-          <span className="font-bold text-mentora-600">
-            {t('intern.dashboard.activity.mentor_comment_object')}
-          </span>
-        </p>
-        <p className="mt-0.5 text-xs text-[var(--muted-warm)]">
-          {t('intern.dashboard.activity.mentor_comment_excerpt')}
-        </p>
-      </>
-    );
-  }
-  if (entry.variant === 'clicky_tip') {
-    return (
-      <p>
-        <span className="font-bold text-[var(--ink-warm)]">Clicky</span>{' '}
-        <span className={ink2}>
-          {t('intern.dashboard.activity.clicky_tip_lead').replace('Clicky', '')}
-        </span>{' '}
-        <span className="font-bold text-[var(--ink-warm)]">
-          {t('intern.dashboard.activity.clicky_tip_name')}
-        </span>
-      </p>
-    );
-  }
-  if (entry.variant === 'peer_finished') {
-    return (
-      <p>
-        <span className="font-bold text-[var(--ink-warm)]">{entry.actorName}</span>{' '}
-        <span className={ink2}>
-          {t('intern.dashboard.activity.peer_finished_lead', {
-            name: entry.actorName,
-          }).replace(entry.actorName, '')}
-        </span>{' '}
-        <span className="font-bold text-emerald-600">
-          {t('intern.dashboard.activity.peer_finished_object')}
-        </span>
-      </p>
-    );
-  }
-  // hr_assigned
-  return (
-    <p>
-      <span className="font-bold text-[var(--ink-warm)]">{entry.actorName}</span>{' '}
-      <span className={ink2}>
-        {t('intern.dashboard.activity.hr_assigned_lead', {
-          name: entry.actorName,
-        }).replace(entry.actorName, '')}
-      </span>{' '}
-      <span className="font-bold text-[var(--ink-warm)]">
-        {t('intern.dashboard.activity.hr_assigned_object')}
-      </span>{' '}
-      <span className={ink2}>
-        {t('intern.dashboard.activity.hr_assigned_tail')}
-      </span>
-    </p>
-  );
-}
-
-function formatAgo(
-  minutes: number,
-  t: (k: string, o?: Record<string, unknown>) => string,
-): string {
-  if (minutes < 60) return t('intern.dashboard.activity.minutes_ago', { count: minutes });
-  const hours = Math.round(minutes / 60);
-  if (hours === 1) return t('intern.dashboard.activity.hour_ago');
-  return t('intern.dashboard.activity.hours_ago', { count: hours });
-}
-
-interface CohortEntry {
-  initials: string;
-  name: string;
-  level: number;
-  tone: AvatarTone;
-}
-
-// TODO: cohortApi — no clean intern-side "my cohort" endpoint today.
-// Hardcoded to give the dashboard a realistic feel.
-const SEED_COHORT: readonly CohortEntry[] = [
-  { initials: 'DK', name: 'Dilshoda', level: 5, tone: 'em' },
-  { initials: 'AT', name: 'Aziz', level: 3, tone: 'orng' },
-  { initials: 'JK', name: 'Jasur', level: 4, tone: 'sky' },
-  { initials: 'ZN', name: 'Zarina', level: 4, tone: 'viol' },
-  { initials: 'LK', name: 'Laylo', level: 2, tone: 'rose' },
-];
-
-function mapBackendCohort(members: InternMe['cohort']): readonly CohortEntry[] {
-  const tones: AvatarTone[] = ['em', 'orng', 'sky', 'viol', 'rose'];
-  return members.slice(0, 5).map((m, idx) => {
-    const firstName = (m.fullName ?? '').split(/\s+/)[0] ?? 'Intern';
-    return {
-      initials: m.initials,
-      name: firstName,
-      level: m.level,
-      tone: tones[idx % tones.length]!,
-    };
-  });
-}
-
-function CohortCard({
-  t,
-  internData,
-  loading,
-}: {
-  t: (k: string, o?: Record<string, unknown>) => string;
-  internData: InternMe | null;
-  loading: boolean;
-}) {
-  const cohort: readonly CohortEntry[] =
-    internData && internData.cohort.length > 0
-      ? mapBackendCohort(internData.cohort)
-      : SEED_COHORT;
-  return (
-    <WarmCard small className="p-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted-warm)]">
-            {t('intern.dashboard.cohort.section_label')}
-          </div>
-          <div className="text-lg font-extrabold text-[var(--ink-warm)]">
-            {t('intern.dashboard.cohort.section_count', {
-              count: cohort.length,
-            })}
-          </div>
-        </div>
-        <button
-          type="button"
-          className="text-sm font-semibold text-mentora-600 hover:underline"
-        >
-          {t('intern.dashboard.cohort.view_all')}
-        </button>
-      </div>
-      {loading ? (
-        <div className="mt-4 grid grid-cols-3 gap-3">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="h-20 w-full animate-pulse rounded-2xl bg-zinc-100"
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="mt-4 grid grid-cols-3 gap-3">
-          {cohort.map((c, idx) => (
-            <div
-              key={`${c.initials}-${idx}`}
-              data-clicky-target={`${c.name.toLowerCase()}, ${c.initials.toLowerCase()}, cohort, peer, intern`}
-              data-clicky-hint={`${c.name} — fellow intern, level ${c.level}.`}
-            >
-              <CohortTile
-                initials={c.initials}
-                name={c.name}
-                level={c.level}
-                tone={c.tone}
-              />
-            </div>
-          ))}
-          <button
-            type="button"
-            data-clicky-target="invite, add, cohort, new, peer"
-            data-clicky-hint="Invite another intern to your cohort."
-            className="grid place-items-center rounded-2xl border-2 border-dashed border-zinc-200 p-3 text-center text-xs text-[var(--muted-warm)] transition hover:border-coral-600 hover:text-coral-600"
-          >
-            {t('intern.dashboard.cohort.invite')}
-          </button>
-        </div>
-      )}
-    </WarmCard>
-  );
-}
-
-// ───────────────────────────────────────────────────────────────────────
-// Error banner — used for sim-start failures and game-profile load failures.
-// ───────────────────────────────────────────────────────────────────────
-
-function ErrorBanner({ message }: { message: string }) {
-  return (
-    <div
-      role="alert"
-      className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
-    >
-      {message}
-    </div>
-  );
-}
-
-// ───────────────────────────────────────────────────────────────────────
-// Date helpers
-// ───────────────────────────────────────────────────────────────────────
+// ── Date helpers ──────────────────────────────────────────────────────────
 
 function localeToBcp47(l: Locale): string {
-  switch (l) {
-    case 'uz':
-      return 'uz-UZ';
-    case 'ru':
-      return 'ru-RU';
-    default:
-      return 'en-US';
-  }
-}
-
-function formatShortDate(date: Date, locale: Locale): string {
-  return new Intl.DateTimeFormat(localeToBcp47(locale), {
-    month: 'short',
-    day: 'numeric',
-  }).format(date);
+  return l === 'uz' ? 'uz-UZ' : l === 'ru' ? 'ru-RU' : 'en-US';
 }
 
 function formatDateRange(locale: Locale): string {
   const today = new Date();
   const start = new Date(today);
   start.setDate(today.getDate() - 4);
-  const short = new Intl.DateTimeFormat(localeToBcp47(locale), {
-    month: 'short',
-    day: 'numeric',
-  });
-  const full = new Intl.DateTimeFormat(localeToBcp47(locale), {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-  return `${short.format(start)} — ${full.format(today)}`;
+  const fmt = (d: Date, full?: boolean) =>
+    new Intl.DateTimeFormat(localeToBcp47(locale), {
+      month: 'short',
+      day: 'numeric',
+      ...(full ? { year: 'numeric' } : {}),
+    }).format(d);
+  return `${fmt(start)} — ${fmt(today, true)}`;
 }

@@ -9,6 +9,36 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        /* Reference design tokens */
+        cobalt: {
+          DEFAULT: '#2046FF',
+          deep: '#0F2BD9',
+          ink: '#0a1857',
+          tint: '#ECF0FF',
+          'tint-2': '#DCE3FF',
+        },
+        paper: '#FAFAF7',
+        surface: {
+          DEFAULT: '#FFFFFF',
+          2: '#F4F4F0',
+        },
+        'ref-line': {
+          DEFAULT: '#ECECE5',
+          2: '#DFDFD7',
+        },
+        'ref-mute': {
+          DEFAULT: '#5E6478',
+          2: '#8B92A8',
+          3: '#B8BDCC',
+        },
+        synth: {
+          DEFAULT: '#FF7A1A',
+          tint: '#FFF1E5',
+        },
+        good: {
+          DEFAULT: '#0B8F5C',
+          tint: '#E3F6EC',
+        },
         brand: {
           50: '#EBF3FF',
           100: '#DBEAFE',
@@ -92,24 +122,17 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['"DM Sans"', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['"Sora"', '"DM Sans"', 'system-ui', 'sans-serif'],
-        mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
-        // Mentora warm theme (v3) — additive.
-        // `jakarta` (not `display`) so the existing Sora binding stays intact.
-        jakarta: [
-          '"Plus Jakarta Sans"',
-          'system-ui',
-          '-apple-system',
-          'sans-serif',
-        ],
-        tech: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        'mono-tech': [
-          '"JetBrains Mono"',
-          'ui-monospace',
-          'SFMono-Regular',
-          'monospace',
-        ],
+        /* Reference design system fonts (v4) */
+        sans: ['"Geist"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['"Geist Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+        serif: ['"Instrument Serif"', '"Times New Roman"', 'serif'],
+        /* Legacy aliases kept for backward compat */
+        display: ['"Geist"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        jakarta: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        tech: ['"Geist"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        'mono-tech': ['"Geist Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+        'geist-mono': ['"Geist Mono"', 'ui-monospace', 'monospace'],
+        'serif-inst': ['"Instrument Serif"', '"Times New Roman"', 'serif'],
       },
       borderRadius: {
         md: '8px',

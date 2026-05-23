@@ -1,70 +1,50 @@
-import { type ReactNode } from 'react';
+import { lazy, Suspense, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@vitality/shared';
 import { useClickyEnabled } from '../clicky/ClickyProvider';
 import { useClickyAgent } from '../clicky/useClickyAgent';
 import { ClickyVoiceOverlay } from '../clicky/ClickyVoiceOverlay';
-import { MentoraMark } from '../../components/warm/MentoraMark';
+
+// ChatPage is lazy so its tree (SSE + STT/TTS) is only loaded when the user
+// actually opens the floating panel via the FAB.
+const ChatPage = lazy(() =>
+  import('../chat/ChatPage').then((m) => ({ default: m.ChatPage })),
+);
 
 // ──────────────────────────────────────────────────────────────────────────
-// InternShell — warm-theme application shell for the intern surface.
+// InternShell — reference-design shell (v4).
 //
-// Mirrors reference/mockups/06-intern-dashboard-merged.html. New shell;
-// `ErpShell` is untouched and still used by HR + Mentor screens.
-//
-// Layout:
+// Layout matches reference/Mentora prototype exactly:
 //   ┌──────────────────────────────────────────────────────────────────┐
-//   │ navy sidebar │ cream main: topbar / title row / 8+4 grid         │
+//   │ 220px white sidebar │ topbar (52px) / page / children           │
 //   └──────────────────────────────────────────────────────────────────┘
 //
-// Mounts Clicky push-to-talk + cursor follow for the duration of the route.
+// Sidebar: brand mark + wordmark, nav sections, synth-tag, user chip.
+// Topbar: breadcrumbs | search | PTT hint | locale chip.
+// Main: paper background, 1240px max-width, page title with serif em.
+// Shell mounts Clicky PTT + voice overlay (intern surface only).
 // ──────────────────────────────────────────────────────────────────────────
 
 interface CurrentScenarioCta {
   label: string;
   onClick: () => void;
   disabled?: boolean;
-  /** Comma-separated keywords for the in-page Clicky agent to find this button. */
   clickyTarget?: string;
   clickyHint?: string;
 }
 
-/**
- * One slot in the navy icon sidebar.
- *
- * Items carry i18n KEYS, not resolved strings — the shell calls `t(...)` at
- * render time so locale changes don't require the caller to rebuild the
- * array.
- *
- * Build per-role nav arrays in `mentoraNav.tsx` via `buildMentoraNav(role)`.
- */
 export interface MentoraNavItem {
-  /** Route to navigate to. Omit for placeholder ("coming soon") slots. */
   to?: string;
-  /** i18n key for the label, e.g. 'nav.home'. */
   labelKey: string;
   icon: ReactNode;
-  /** Active matching: exact pathname or prefix-match. Default false (prefix). */
   matchExact?: boolean;
-  /** Render as disabled placeholder with the `tooltip` and dimmed style. */
   comingSoon?: boolean;
-  /** Small dot badge in the corner — used for unread-message hints. */
   badge?: 'dot';
-  /** Clicky annotation: comma-separated keywords. */
   clickyTarget?: string;
-  /** Optional i18n key for the Clicky hint (e.g. 'clicky.hint.nav.home'). */
   clickyHintKey?: string;
 }
 
-/**
- * Default sidebar nav — the intern's 6 slots from the prior phase.
- * Used when the shell is mounted WITHOUT a `navItems` prop, so the existing
- * `/intern` and `/simulator` routes don't need to be updated.
- *
- * Phase B onwards: callers pass `navItems={buildMentoraNav(role)}` and this
- * default is bypassed.
- */
 const DEFAULT_INTERN_NAV: MentoraNavItem[] = [
   {
     to: '/intern',
@@ -111,16 +91,15 @@ const DEFAULT_INTERN_NAV: MentoraNavItem[] = [
 
 interface Props {
   userName: string;
-  /** Localized role label (e.g. "Intern", "Стажёр", "Stajyor"). */
   userRole: string;
   greeting: string;
   pageTitle: string;
-  /** e.g. "May 13 — May 17, 2026". The shell stays out of formatting decisions. */
+  pageSubtitle?: string;
   dateRange?: string;
   searchPlaceholder?: string;
   currentScenarioCta?: CurrentScenarioCta;
-  /** Sidebar nav items. Omit to use the default intern nav. */
   navItems?: MentoraNavItem[];
+  /** Kept for compatibility — ignored in new layout (content flows inline). */
   rightPanel?: ReactNode;
   children: ReactNode;
 }
@@ -134,13 +113,13 @@ export function InternShell({
   searchPlaceholder,
   currentScenarioCta,
   navItems,
-  rightPanel,
   children,
 }: Props) {
   const { t } = useTranslation();
+  const [ptt, setPtt] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const placeholder = searchPlaceholder ?? t('intern.shell.search_placeholder');
-  // Clicky is on for the duration of the intern surface. The cleanup on
-  // unmount is wired by `useClickyEnabled`.
+
   useClickyEnabled();
   const agent = useClickyAgent();
 
@@ -148,196 +127,255 @@ export function InternShell({
 
   return (
     <div
-      className="min-h-screen font-jakarta text-[var(--ink-warm)]"
       style={{
-        background:
-          'radial-gradient(900px 500px at 88% -200px, rgba(32, 70, 255, 0.10), transparent 60%), ' +
-          'radial-gradient(700px 400px at -10% 280px, rgba(255, 107, 74, 0.08), transparent 60%), ' +
-          '#fbfaf7',
+        display: 'grid',
+        gridTemplateColumns: '220px 1fr',
+        height: '100vh',
+        background: 'var(--paper)',
+        fontFamily: 'var(--font-sans)',
+        color: 'var(--ink)',
+        overflow: 'hidden',
       }}
     >
-      <div className="mx-auto flex max-w-[1480px]">
-        <Sidebar items={navItems ?? DEFAULT_INTERN_NAV} />
-
-        <main className="min-w-0 flex-1 px-7 py-6">
-          <TopBar
-            searchPlaceholder={placeholder}
-            userName={userName}
-            userRole={userRole}
-            initials={initials}
-          />
-
-          <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <div className="text-sm text-[var(--ink-warm-2)]">{greeting}</div>
-              <h1 className="mt-1 text-[34px] font-extrabold leading-tight tracking-tight">
-                {pageTitle}
-              </h1>
+      {/* ── Sidebar ── */}
+      <aside className="sidebar">
+        {/* Brand */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '9px', padding: '0 6px', height: '28px' }}>
+          <Link to="/intern" aria-label="Mentora" style={{ display: 'flex', alignItems: 'center', gap: '9px', textDecoration: 'none' }}>
+            <div className="brand-mark" aria-hidden="true">
+              <i /><i />
             </div>
-            <div className="flex items-center gap-2">
-              {dateRange && (
-                <div className="flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm shadow-chip">
-                  <CalendarIcon className="h-4 w-4 text-zinc-400" />
-                  <span>{dateRange}</span>
-                </div>
-              )}
-              {currentScenarioCta && (
-                <button
-                  type="button"
-                  onClick={currentScenarioCta.onClick}
-                  disabled={currentScenarioCta.disabled}
-                  data-clicky-target={currentScenarioCta.clickyTarget}
-                  data-clicky-hint={currentScenarioCta.clickyHint}
-                  className="rounded-full bg-[var(--ink-warm)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {currentScenarioCta.label}
-                </button>
-              )}
+            <span style={{ fontSize: '16px', fontWeight: 600, letterSpacing: '-0.015em', color: 'var(--ink)' }}>
+              mento<em style={{ color: 'var(--cobalt)', fontStyle: 'normal' }}>ra</em>
+            </span>
+          </Link>
+        </div>
+
+        {/* Nav — Обучение */}
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+          <div className="nav-title">Обучение</div>
+          {(navItems ?? DEFAULT_INTERN_NAV).slice(0, 4).map((item, idx) => (
+            <NavItem key={`${item.labelKey}-${idx}`} item={item} t={t} />
+          ))}
+        </nav>
+
+        {/* Nav — Личное */}
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+          <div className="nav-title">Личное</div>
+          {(navItems ?? DEFAULT_INTERN_NAV).slice(4).map((item, idx) => (
+            <NavItem key={`${item.labelKey}-${idx}`} item={item} t={t} />
+          ))}
+          <NavItem
+            item={{
+              to: '/me',
+              labelKey: 'nav.profile',
+              icon: <IconProfile />,
+              clickyTarget: 'profile, me, my, account, xp, badges',
+              clickyHintKey: 'clicky.hint.nav.profile',
+            }}
+            t={t}
+          />
+        </nav>
+
+        {/* Footer */}
+        <div className="sidebar-foot">
+          <span className="synth-tag" style={{ display: 'inline-flex' }}>
+            Синтетические данные
+          </span>
+          <div className="user-chip">
+            <div className="avatar" style={{ background: 'linear-gradient(135deg, #F4B860, #D7693B)' }}>
+              {initials}
+            </div>
+            <div className="user-meta">
+              <b>{userName}</b>
+              <span>{userRole}</span>
             </div>
           </div>
+        </div>
+      </aside>
 
-          <div className="mt-6 grid grid-cols-12 gap-5">
-            <section className="col-span-12 space-y-5 lg:col-span-8">
-              {children}
-            </section>
-            {rightPanel && (
-              <section className="col-span-12 space-y-5 lg:col-span-4">
-                {rightPanel}
-              </section>
-            )}
+      {/* ── Workspace ── */}
+      <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
+
+        {/* Topbar */}
+        <header className="topbar">
+          {/* Breadcrumbs */}
+          <nav className="crumbs">
+            <span>{t('auth.role_intern_name')}</span>
+            <span className="sep">/</span>
+            <b>{pageTitle}</b>
+          </nav>
+
+          {/* Search */}
+          <div
+            className="search"
+            data-clicky-target="search, find, look, lookup, query"
+            data-clicky-hint={t('clicky.hint.topbar.search')}
+            role="search"
+            tabIndex={0}
+          >
+            <SearchIcon style={{ width: '14px', height: '14px', flexShrink: 0 }} />
+            <span style={{ flex: 1 }}>{placeholder}</span>
+            <kbd>⌘K</kbd>
+          </div>
+
+          {/* PTT hint */}
+          <PttHint ptt={ptt} />
+
+          {/* Locale chip */}
+          <LocaleChip />
+
+          {/* Account */}
+          <button
+            type="button"
+            aria-label={t('intern.shell.account_label')}
+            data-clicky-target="account, profile, me, sign out, logout"
+            data-clicky-hint={t('clicky.hint.topbar.account')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '5px 10px 5px 7px',
+              borderRadius: '999px',
+              background: 'var(--surface-2)',
+              border: '1px solid var(--line)',
+              cursor: 'pointer',
+              fontSize: '12.5px',
+              fontFamily: 'var(--font-sans)',
+            }}
+          >
+            <span
+              className="avatar"
+              style={{ width: '22px', height: '22px', fontSize: '10px', background: 'linear-gradient(135deg, #F4B860, #D7693B)' }}
+            >
+              {initials}
+            </span>
+            <span style={{ fontWeight: 500 }}>{userName}</span>
+            <ChevronDownIcon style={{ width: '14px', height: '14px', color: 'var(--mute-2)' }} />
+          </button>
+        </header>
+
+        {/* Main content */}
+        <main
+          className="scrollarea screen-in"
+          style={{
+            flex: '1 1 auto',
+            minHeight: 0,
+            overflow: 'auto',
+          }}
+        >
+          <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '28px 32px 48px' }}>
+            {/* Page heading */}
+            <div style={{ marginBottom: '22px', display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: '12px' }}>
+              <div>
+                <p className="h-eyebrow">{greeting}</p>
+                <h1 className="h1">
+                  {pageTitle.includes(' ') ? (
+                    <>
+                      {pageTitle.split(' ').slice(0, -1).join(' ')}{' '}
+                      <em>{pageTitle.split(' ').slice(-1)[0]}</em>
+                    </>
+                  ) : (
+                    <em>{pageTitle}</em>
+                  )}
+                </h1>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {dateRange && (
+                  <span
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '6px',
+                      padding: '5px 10px', borderRadius: '999px',
+                      background: 'var(--surface)', border: '1px solid var(--line)',
+                      fontSize: '12.5px', color: 'var(--mute)',
+                      fontFamily: 'var(--font-mono)',
+                    }}
+                  >
+                    <CalendarIcon style={{ width: '13px', height: '13px' }} />
+                    {dateRange}
+                  </span>
+                )}
+                {currentScenarioCta && (
+                  <button
+                    type="button"
+                    onClick={currentScenarioCta.onClick}
+                    disabled={currentScenarioCta.disabled}
+                    data-clicky-target={currentScenarioCta.clickyTarget}
+                    data-clicky-hint={currentScenarioCta.clickyHint}
+                    className="btn btn-primary"
+                    style={{ borderRadius: '999px', height: '36px', padding: '0 16px', fontSize: '13px' }}
+                  >
+                    {currentScenarioCta.label}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {children}
           </div>
         </main>
       </div>
 
-      <ClickyVoiceOverlay agent={agent} />
+      {/* Chat FAB */}
+      {!chatOpen && (
+        <button className="chat-fab" onClick={() => setChatOpen(true)}>
+          <span className="fab-dot" />
+          <ChatIconInline />
+          Спросить базу знаний
+        </button>
+      )}
+      {chatOpen && (
+        <Suspense fallback={null}>
+          <ChatPage mode="panel" onClose={() => setChatOpen(false)} />
+        </Suspense>
+      )}
+
+      <ClickyVoiceOverlay agent={agent} onPttChange={setPtt} />
     </div>
   );
 }
 
-// ───────────────────────────────────────────────────────────────────────
-// Sidebar
-// ───────────────────────────────────────────────────────────────────────
+// ── NavItem ──────────────────────────────────────────────────────────────
 
-function Sidebar({ items }: { items: MentoraNavItem[] }) {
-  const { t } = useTranslation();
-  const cs = t('nav.coming_soon');
-  return (
-    <aside
-      className="sticky top-0 flex h-screen w-[84px] shrink-0 flex-col items-center justify-between py-5"
-      style={{
-        background: 'var(--sidebar-warm)',
-        borderTopRightRadius: '28px',
-        borderBottomRightRadius: '28px',
-      }}
-    >
-      <div className="flex flex-col items-center gap-7">
-        <Link
-          to="/intern"
-          className="grid h-10 w-10 place-items-center"
-          aria-label="Mentora"
-        >
-          <MentoraMark className="h-7 w-7 text-white" />
-        </Link>
-
-        <nav
-          className="flex flex-col items-center gap-1.5"
-          aria-label={t('nav.home')}
-        >
-          {items.map((item, idx) => {
-            const label = t(item.labelKey);
-            return (
-              <NavSlot
-                key={`${item.labelKey}-${idx}`}
-                to={item.to}
-                label={label}
-                icon={item.icon}
-                matchExact={item.matchExact}
-                comingSoon={item.comingSoon}
-                tooltip={
-                  item.comingSoon ? `${label} — ${cs}` : undefined
-                }
-                badge={item.badge}
-                clickyTarget={item.clickyTarget}
-                clickyHint={item.clickyHintKey ? t(item.clickyHintKey) : undefined}
-              />
-            );
-          })}
-        </nav>
-      </div>
-
-      <div className="flex flex-col items-center gap-4">
-        <ClickySupportCard />
-        <Link
-          to="/me"
-          aria-label={t('nav.profile')}
-          title={t('nav.profile')}
-          data-clicky-target="profile, me, my, account, xp, badges"
-          data-clicky-hint={t('clicky.hint.nav.profile')}
-          className="grid h-10 w-10 place-items-center text-white/50 transition hover:text-white"
-        >
-          <IconProfile />
-        </Link>
-      </div>
-    </aside>
-  );
-}
-
-interface NavSlotProps {
-  to?: string;
-  label: string;
-  icon: ReactNode;
-  matchExact?: boolean;
-  comingSoon?: boolean;
-  tooltip?: string;
-  badge?: 'dot';
-}
-
-interface NavSlotPropsWithClicky extends NavSlotProps {
-  clickyTarget?: string;
-  clickyHint?: string;
-}
-
-function NavSlot({
-  to,
-  label,
-  icon,
-  matchExact = false,
-  comingSoon = false,
-  tooltip,
-  badge,
-  clickyTarget,
-  clickyHint,
-}: NavSlotPropsWithClicky) {
+function NavItem({
+  item,
+  t,
+}: {
+  item: MentoraNavItem;
+  t: (key: string) => string;
+}) {
   const location = useLocation();
-  const active = !!to && (matchExact ? location.pathname === to : location.pathname.startsWith(to));
-  const baseClasses = 'group relative grid h-11 w-11 place-items-center rounded-2xl transition';
-  const stateClasses = active
-    ? 'bg-white/10 text-white'
-    : comingSoon
-      ? 'cursor-not-allowed text-white/25'
-      : 'text-white/50 hover:bg-white/5 hover:text-white';
+  const label = t(item.labelKey);
+  const active = !!item.to && (
+    item.matchExact
+      ? location.pathname === item.to
+      : location.pathname.startsWith(item.to)
+  );
+
+  const className = `nav-item${active ? ' active' : ''}${item.comingSoon ? ' opacity-40 cursor-not-allowed' : ''}`;
 
   const content = (
     <>
-      {active && (
-        <span className="absolute left-[-12px] top-1/2 h-7 w-[3px] -translate-y-1/2 rounded-r-full bg-coral-600" />
-      )}
-      {icon}
-      {badge === 'dot' && (
-        <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-coral-600" />
+      <span className="nav-icon">{item.icon}</span>
+      {label}
+      {item.badge === 'dot' && (
+        <span
+          style={{
+            marginLeft: 'auto', width: '6px', height: '6px', borderRadius: '50%',
+            background: 'var(--cobalt)', flexShrink: 0,
+          }}
+        />
       )}
     </>
   );
 
-  if (to && !comingSoon) {
+  if (item.to && !item.comingSoon) {
     return (
       <Link
-        to={to}
+        to={item.to}
         aria-label={label}
-        title={label}
-        data-clicky-target={clickyTarget}
-        data-clicky-hint={clickyHint}
-        className={`${baseClasses} ${stateClasses}`}
+        data-clicky-target={item.clickyTarget}
+        data-clicky-hint={item.clickyHintKey ? t(item.clickyHintKey) : undefined}
+        className={className}
+        style={{ textDecoration: 'none' }}
       >
         {content}
       </Link>
@@ -346,95 +384,38 @@ function NavSlot({
   return (
     <span
       aria-label={label}
-      aria-disabled={comingSoon}
-      title={tooltip ?? label}
-      data-clicky-target={clickyTarget}
-      data-clicky-hint={clickyHint ?? tooltip}
-      className={`${baseClasses} ${stateClasses}`}
+      title={item.comingSoon ? `${label} — скоро` : label}
+      data-clicky-target={item.clickyTarget}
+      className={className}
     >
       {content}
     </span>
   );
 }
 
-function ClickySupportCard() {
+// ── PTT hint (topbar right) ───────────────────────────────────────────────
+
+function PttHint({ ptt }: { ptt: boolean }) {
   return (
-    <div className="relative w-[60px] text-center">
-      <div className="relative mx-auto grid h-[52px] w-[52px] place-items-center rounded-2xl bg-gradient-to-br from-coral-600 to-[#ff9670] shadow-[0_6px_18px_-6px_rgba(255,107,74,0.6)]">
-        <MentoraMark className="h-7 w-7 text-white" />
-        <span
-          className="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-emerald-400 ring-2"
-          style={{ '--tw-ring-color': 'var(--sidebar-warm)' } as React.CSSProperties}
-        >
-          <span className="h-2 w-2 rounded-full bg-white" />
-        </span>
-      </div>
-      <div className="mt-1.5 text-[10px] font-bold uppercase tracking-wider text-white/80">
-        Clicky
-      </div>
+    <div className={`ptt-hint${ptt ? ' live' : ''}`}>
+      {ptt ? (
+        <>
+          <span style={{ fontWeight: 500 }}>Слушаю</span>
+          <span className="wave">
+            <i /><i /><i /><i /><i /><i />
+          </span>
+        </>
+      ) : (
+        <>
+          <kbd>`</kbd>
+          <span>Говорить с Клики</span>
+        </>
+      )}
     </div>
   );
 }
 
-// ───────────────────────────────────────────────────────────────────────
-// Top bar
-// ───────────────────────────────────────────────────────────────────────
-
-function TopBar({
-  searchPlaceholder,
-  userName,
-  userRole,
-  initials,
-}: {
-  searchPlaceholder: string;
-  userName: string;
-  userRole: string;
-  initials: string;
-}) {
-  const { t } = useTranslation();
-  return (
-    <div className="flex items-center gap-4">
-      <div className="relative max-w-[520px] flex-1">
-        <SearchIcon className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-        <input
-          type="text"
-          placeholder={searchPlaceholder}
-          data-clicky-target="search, find, look, lookup, query"
-          data-clicky-hint={t('clicky.hint.topbar.search')}
-          className="w-full rounded-full bg-white px-10 py-2.5 text-sm shadow-chip placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-mentora-600/30"
-        />
-      </div>
-      <div className="flex-1" />
-      <LocaleChip />
-      <button
-        type="button"
-        aria-label={t('intern.shell.account_label')}
-        data-clicky-target="notifications, bell, alerts, inbox"
-        data-clicky-hint={t('clicky.hint.topbar.notifications')}
-        className="relative grid h-10 w-10 place-items-center rounded-full bg-white shadow-chip"
-      >
-        <BellIcon className="h-5 w-5 text-[var(--ink-warm-2)]" />
-        <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-coral-600" />
-      </button>
-      <button
-        type="button"
-        aria-label={t('intern.shell.account_label')}
-        data-clicky-target="account, profile, me, sign out, logout"
-        data-clicky-hint={t('clicky.hint.topbar.account')}
-        className="flex items-center gap-2 rounded-full bg-white py-1.5 pl-1.5 pr-3 shadow-chip"
-      >
-        <span className="av-amber grid h-7 w-7 place-items-center rounded-full text-xs font-bold">
-          {initials}
-        </span>
-        <span className="hidden text-sm font-semibold sm:inline">{userName}</span>
-        <span className="hidden text-[11px] font-medium text-zinc-400 sm:inline">
-          · {userRole}
-        </span>
-        <ChevronDownIcon className="h-4 w-4 text-zinc-400" />
-      </button>
-    </div>
-  );
-}
+// ── Locale chip ───────────────────────────────────────────────────────────
 
 function LocaleChip() {
   const { i18n, t } = useTranslation();
@@ -443,7 +424,11 @@ function LocaleChip() {
   const locales: readonly Locale[] = ['uz', 'ru', 'en'];
   return (
     <div
-      className="flex items-center gap-1 rounded-full bg-white px-1.5 py-1 text-xs font-semibold shadow-chip"
+      style={{
+        display: 'flex', alignItems: 'center', gap: '2px',
+        padding: '3px', borderRadius: '999px',
+        background: 'var(--surface-2)', border: '1px solid var(--line)',
+      }}
       data-clicky-target="language, locale, uz, ru, en, switch, translate"
       data-clicky-hint={t('clicky.hint.topbar.locale')}
     >
@@ -453,17 +438,22 @@ function LocaleChip() {
           <button
             key={l}
             type="button"
-            onClick={() => {
-              void i18n.changeLanguage(l);
-            }}
-            data-clicky-target={`${l}, ${l.toLowerCase()}, language, locale, switch`}
-            data-clicky-hint={`Switch the interface to ${l.toUpperCase()}.`}
-            className={`rounded-full px-2.5 py-1 transition ${
-              active
-                ? 'bg-[var(--ink-warm)] text-white'
-                : 'text-zinc-500 hover:text-[var(--ink-warm)]'
-            }`}
+            onClick={() => void i18n.changeLanguage(l)}
             aria-pressed={active}
+            style={{
+              borderRadius: '999px',
+              padding: '3px 8px',
+              fontSize: '11px',
+              fontWeight: 500,
+              fontFamily: 'var(--font-mono)',
+              border: 0,
+              cursor: 'pointer',
+              background: active ? 'var(--ink)' : 'transparent',
+              color: active ? 'white' : 'var(--mute)',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              transition: 'background 0.12s, color 0.12s',
+            }}
           >
             {l.toUpperCase()}
           </button>
@@ -473,9 +463,7 @@ function LocaleChip() {
   );
 }
 
-// ───────────────────────────────────────────────────────────────────────
-// Helpers
-// ───────────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────
 
 function computeInitials(fullName: string): string {
   const parts = fullName.trim().split(/\s+/).filter(Boolean);
@@ -484,217 +472,97 @@ function computeInitials(fullName: string): string {
   return ((parts[0]![0] ?? '') + (parts[parts.length - 1]![0] ?? '')).toUpperCase();
 }
 
-// ───────────────────────────────────────────────────────────────────────
-// Icons (kept inline — small, monochrome, no external deps)
-// ───────────────────────────────────────────────────────────────────────
+// ── Icon exports (kept for existing callers) ──────────────────────────────
 
 export function IconHome() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M3 12 12 4l9 8" />
-      <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" />
+    <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 12 12 4l9 8" /><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" />
     </svg>
   );
 }
 export function IconBoard() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="3" y="4" width="18" height="16" rx="2" />
-      <path d="M3 9h18M9 4v16" />
+    <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 9h18M9 4v16" />
     </svg>
   );
 }
 export function IconCheckBoard() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M9 11l3 3 8-8" />
-      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+    <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 11l3 3 8-8" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
     </svg>
   );
 }
 export function IconChat() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12z" />
     </svg>
   );
 }
 export function IconMessage() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 5h16v12H7l-3 3z" />
     </svg>
   );
 }
 export function IconBook() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z" />
-      <path d="M8 8h8M8 12h8M8 16h5" />
+    <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z" /><path d="M8 8h8M8 12h8M8 16h5" />
     </svg>
   );
 }
 export function IconProfile() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 21a8 8 0 0 1 16 0" />
+    <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" />
     </svg>
   );
 }
 export function IconPeople() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="9" cy="8" r="3.2" />
-      <path d="M3 20a6 6 0 0 1 12 0" />
-      <circle cx="17" cy="9" r="2.6" />
-      <path d="M15 20a4 4 0 0 1 7-2.6" />
+    <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="8" r="3.2" /><path d="M3 20a6 6 0 0 1 12 0" /><circle cx="17" cy="9" r="2.6" /><path d="M15 20a4 4 0 0 1 7-2.6" />
     </svg>
   );
 }
 export function IconChart() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M4 20V10" />
-      <path d="M10 20V4" />
-      <path d="M16 20v-8" />
-      <path d="M22 20v-5" />
-      <path d="M3 20h19" />
+    <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 20V10M10 20V4M16 20v-8M22 20v-5M3 20h19" />
     </svg>
   );
 }
-function CalendarIcon({ className }: { className?: string }) {
+
+function CalendarIcon({ style }: { style?: React.CSSProperties }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="3" y="5" width="18" height="16" rx="2" />
-      <path d="M16 3v4M8 3v4M3 11h18" />
+    <svg viewBox="0 0 24 24" style={style} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 11h18" />
     </svg>
   );
 }
-function SearchIcon({ className }: { className?: string }) {
+function SearchIcon({ style }: { style?: React.CSSProperties }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="11" cy="11" r="7" />
-      <path d="m21 21-4.3-4.3" />
+    <svg viewBox="0 0 24 24" style={style} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" />
     </svg>
   );
 }
-function BellIcon({ className }: { className?: string }) {
+function ChevronDownIcon({ style }: { style?: React.CSSProperties }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M6 8a6 6 0 0 1 12 0v5l1.5 3h-15L6 13z" />
-      <path d="M10 19a2 2 0 0 0 4 0" />
-    </svg>
-  );
-}
-function ChevronDownIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <svg viewBox="0 0 24 24" style={style} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}
+function ChatIconInline() {
+  return (
+    <svg viewBox="0 0 24 24" style={{ width: '14px', height: '14px' }} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12z" />
     </svg>
   );
 }
